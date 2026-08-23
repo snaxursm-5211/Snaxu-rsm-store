@@ -1,26 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '979599958414541');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Brand Bazaar | Premium Quality</title>
+    <title>SNAXU RSM | Premium Quality</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -85,7 +68,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             100% { transform: scale(1) translateY(0); opacity: 1; }
         }
 
-        /* Subtitle fade slide up */
         .hero-subtitle {
             animation: slideUpFade 0.9s ease 0.4s both;
         }
@@ -94,7 +76,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Stars/sparkles around the title */
         .sparkle-wrap { position: relative; display: inline-block; }
         .sparkle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: sparklePop 2s ease-in-out infinite; }
         .sparkle-1 { background: #ffd700; top: -8px; left: 10%; animation-delay: 0s; }
@@ -106,11 +87,9 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             50% { transform: scale(1.4); opacity: 1; }
         }
 
-        /* ===== FLOATING WA ===== */
         .fixed-wa { position: fixed; bottom: 20px; right: 15px; z-index: 9999; background-color: #25D366; color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(37,211,102,0.4); animation: floating 3s ease-in-out infinite; }
         @keyframes floating { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* ===== DRAWERS ===== */
         #side-cart, #side-menu { position: fixed; top: 0; height: 100%; background: white; z-index: 10000; transition: 0.4s ease-in-out; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #side-cart { right: -100%; width: 85%; max-width: 400px; }
         #side-cart.active { right: 0; }
@@ -119,7 +98,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; }
         .overlay.active { display: block; }
 
-        /* ===== CHAT ===== */
         #chat-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         #chat-modal.active { display: flex; }
         .chat-bubble-admin { background: #eff6ff; color: #1e40af; align-self: flex-start; border-radius: 0 15px 15px 15px; border: 1px solid #bfdbfe; }
@@ -127,12 +105,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         .chat-input-container { padding: 12px; border-top: 1px solid #eee; background: white; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; gap: 8px; align-items: center; width: 100%; overflow: hidden; }
         #userReplyInput { flex: 1 !important; min-width: 0; }
 
-        /* ===== NAV BUTTONS ===== */
         .nav-btn { width: 100%; padding: 15px; text-align: left; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: all 0.3s; color: #1e293b; }
         .nav-btn i { color: var(--primary-color) !important; }
         .nav-btn:active { background: #f8fafc; color: var(--primary-color); }
 
-        /* ===== SLIDER ===== */
         .slider-container { width: 100%; position: relative; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.25); aspect-ratio: 1/1; background: #020617; overflow: hidden; cursor: pointer; animation: sliderEntrance 1s cubic-bezier(0.34,1.56,0.64,1) 0.3s both; }
         @keyframes sliderEntrance {
             from { transform: scale(0.85) translateY(30px); opacity: 0; }
@@ -145,7 +121,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.4s ease; }
         .dot.active { background: #ffffff; width: 24px; border-radius: 10px; }
 
-        /* ===== BADGE BOXES with hover lift ===== */
         .badge-box {
             background: white;
             padding: 12px 2px;
@@ -161,7 +136,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         .badge-box h4 { font-size: 9px; font-weight: 800; color: #0f172a; margin-bottom: 1px; text-transform: uppercase; }
         .badge-box span { font-size: 7px; font-weight: 700; color: #64748b; text-transform: uppercase; }
 
-        /* ===== PRODUCT CARDS ===== */
         .product-card {
             background: white; border-radius: 1.2rem; border: 1px solid #f1f5f9;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -174,10 +148,15 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             border-radius: 0.8rem; font-size: 10px; font-weight: 800; text-transform: uppercase;
             margin-top: 8px; cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(26,86,219,0.3);
+            animation: btnGlow 3s ease-in-out infinite;
         }
         .add-to-cart-btn:active { transform: scale(0.96); }
+        @keyframes btnGlow {
+            0%,100% { box-shadow: 0 4px 15px rgba(26,86,219,0.3); }
+            50% { box-shadow: 0 4px 25px rgba(26,86,219,0.6); }
+        }
 
-        /* ===== SECTION TITLE underline animate ===== */
         .section-title-line {
             height: 3px; width: 0px; background: linear-gradient(90deg, #1a56db, #6ee7f7);
             border-radius: 10px; margin: 8px auto 0;
@@ -185,53 +164,34 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         }
         .section-title-line.visible { width: 48px; }
 
-        /* ===== BRAND LOGO (MADE COMPACT & SHORTER) ===== */
         .brand-logo { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; gap: 0px; }
         .brand-icon { width: 34px; height: auto; display: block; margin-bottom: 1px; }
         .brand-name { font-size: 10px; font-weight: 900; line-height: 1; display: flex; align-items: center; letter-spacing: -0.2px; white-space: nowrap; }
         .brand-name span.text-custom-blue { margin-left: 2px !important; color: var(--primary-color); }
 
-        /* ===== QTY ===== */
         .qty-btn { background: #f1f5f9; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 12px; font-weight: bold; }
         .qty-input { width: 25px; text-align: center; font-size: 12px; font-weight: 700; }
 
-        /* ===== ANNOUNCEMENT BAR ===== */
         #announcement-bar { background: #000; color: white; text-align: center; padding: 10px 0; font-size: 11px; font-weight: 700; position: absolute; width: 100%; z-index: 5500; overflow: hidden; }
         .marquee-container { display: flex; width: 100%; overflow: hidden; white-space: nowrap; }
         .scrolling-content { display: inline-block; white-space: nowrap; padding-right: 50px; animation: infinite-scroll 12s linear infinite; }
         @keyframes infinite-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-        /* ===== PWA BANNER ===== */
         #pwa-custom-banner { display: none; position: absolute; top: 0; width: 100%; background: #0f172a; color: white; z-index: 6000; border-bottom: 2px solid var(--primary-color); transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
 
-        /* ===== CONTACT SECTION ANIMATE ===== */
         .contact-input-anim { transition: border-color 0.3s ease; }
         .contact-input-anim:focus { border-color: #1a56db !important; outline: none; }
 
-        /* ===== SOCIAL ICONS HOVER ===== */
         .social-icon-wrap { transition: transform 0.3s ease; }
         .social-icon-wrap:active { transform: scale(0.9) rotate(-5deg); }
 
-        /* ===== SCROLL REVEAL extra animations ===== */
         [data-aos] { will-change: transform, opacity; }
 
-        /* cart */
         #cart-total { color: var(--primary-color) !important; }
         #cart-count { background: var(--primary-color) !important; color: white !important; }
 
-        /* Page load body fade in */
         body { animation: bodyFadeIn 0.6s ease both; }
         @keyframes bodyFadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* ===== GLOW PULSE on Add to Cart btn ===== */
-        .add-to-cart-btn {
-            box-shadow: 0 4px 15px rgba(26,86,219,0.3);
-            animation: btnGlow 3s ease-in-out infinite;
-        }
-        @keyframes btnGlow {
-            0%,100% { box-shadow: 0 4px 15px rgba(26,86,219,0.3); }
-            50% { box-shadow: 0 4px 25px rgba(26,86,219,0.6); }
-        }
     </style>
 </head>
 <body>
@@ -243,10 +203,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                     <i class="fa-solid fa-xmark"></i>
                 </button>
                 <div class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center border border-white/10 overflow-hidden">
-                    <img src="icon-192.png" alt="App Icon" class="w-full h-full object-cover">
+                    <img src="https://i.ibb.co/G3B4wZk5/1000007418-removebg-preview.png" alt="App Icon" class="w-full h-full object-cover">
                 </div>
                 <div>
-                    <h4 class="text-xs font-bold tracking-wide text-white uppercase">Brand Bazaar</h4>
+                    <h4 class="text-xs font-bold tracking-wide text-white uppercase">SNAXU RSM</h4>
                     <p class="text-[9px] text-slate-400">Fast & Premium Tech Store</p>
                 </div>
             </div>
@@ -306,7 +266,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         </div>
     </div>
 
-    <a href="https://wa.me/923065472228" target="_blank" class="fixed-wa">
+    <a href="https://wa.me/447508097607" target="_blank" class="fixed-wa">
         <i class="fa-brands fa-whatsapp text-2xl"></i>
     </a>
 
@@ -319,10 +279,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             </div>
             <div class="flex justify-center">
                 <a href="#" class="brand-logo">
-                    <img src="https://i.ibb.co/6JVhySRZ/IMG-20260627-113428.png" alt="Logo" class="brand-icon">
+                    <img src="https://i.ibb.co/G3B4wZk5/1000007418-removebg-preview.png" alt="Logo" class="brand-icon">
                     <div class="brand-name">
-                        <span class="text-slate-900 uppercase">Brand</span>
-                        <span class="text-custom-blue ml-1 uppercase">Bazaar</span>
+                        <span class="text-slate-900 uppercase">SNAXU</span>
+                        <span class="text-custom-blue ml-1 uppercase">RSM</span>
                     </div>
                 </a>
             </div>
@@ -363,7 +323,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             <div class="badge-box" data-aos="zoom-in" data-aos-delay="0">
                 <i class="fa-solid fa-truck-fast"></i>
                 <h4>Delivery</h4>
-                <span>All Over Pakistan</span>
+                <span>Fast Shipping</span>
             </div>
             <div class="badge-box" data-aos="zoom-in" data-aos-delay="150">
                 <i class="fa-solid fa-shield"></i>
@@ -399,33 +359,27 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 <div class="flex flex-col items-center">
                     <i class="fa-solid fa-location-dot text-lg mb-1" style="color:#1a56db"></i>
                     <h4 class="text-[10px] font-bold uppercase tracking-widest" style="color:#1a56db">Location</h4>
-                    <p class="text-xs opacity-80">Punjab, Pakistan</p>
+                    <p class="text-xs opacity-80">UK, United Kingdom</p>
                 </div>
                 <div class="flex flex-col items-center">
                     <i class="fa-brands fa-whatsapp text-green-500 text-lg mb-1"></i>
                     <h4 class="text-[10px] font-bold text-green-400 uppercase tracking-widest">WhatsApp</h4>
-                    <p class="text-xs opacity-80">0306 5472228</p>
+                    <p class="text-xs opacity-80">+44 7508 097607</p>
                 </div>
             </div>
 
             <div class="flex justify-center items-center gap-6 max-w-xs mx-auto" data-aos="fade-up" data-aos-delay="200">
-                <a href="https://tiktok.com/@brandbazaar.1" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
+                <a href="https://www.tiktok.com/@snaxursm?_r=1&_t=ZN-997UMwE1xP4" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
                     <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 transition">
                         <i class="fa-brands fa-tiktok text-white text-base"></i>
                     </div>
                     <span class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">TikTok</span>
                 </a>
-                <a href="https://www.instagram.com/brandbazaar.storee?igsh=bzh6YXMwc3diYWUw" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
+                <a href="https://www.instagram.com/snaxursm?igsi=dGo1amQyY2NpZWx5" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
                     <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 transition">
                         <i class="fa-brands fa-instagram text-pink-500 text-base"></i>
                     </div>
                     <span class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">Instagram</span>
-                </a>
-                <a href="https://youtube.com/@brandbazaar.stores?si=JXF-OLVqpdrkXRUG" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
-                    <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 transition">
-                        <i class="fa-brands fa-youtube text-red-500 text-base"></i>
-                    </div>
-                    <span class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">YouTube</span>
                 </a>
             </div>
         </div>
@@ -443,21 +397,21 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
     </div>
 
     <footer class="py-8 text-center text-slate-500 text-[9px] bg-slate-900 tracking-widest uppercase border-t border-white/5">
-        © 2026 BRAND BAZAAR. All rights reserved.
+        © 2026 SNAXU RSM. All rights reserved.
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         // ===== FIREBASE =====
         const firebaseConfig = {
-            apiKey: "AIzaSyAfYl3nFIp59A_qCnWdNaIOxliZ2YlJMLM",
-            authDomain: "smart-gadget-dcce3.firebaseapp.com",
-            databaseURL: "https://smart-gadget-dcce3-default-rtdb.firebaseio.com",
-            projectId: "smart-gadget-dcce3",
-            storageBucket: "smart-gadget-dcce3.firebasestorage.app",
-            messagingSenderId: "710583742192",
-            appId: "1:710583742192:web:281c2b50b5f65cb6ba9c35",
-            measurementId: "G-MGPQ1GJ5CN"
+            apiKey: "AIzaSyBZQ__x-D12c1hnuSRFDIJlFJpCLhtzCN4",
+            authDomain: "snaxu-rsm.firebaseapp.com",
+            databaseURL: "https://snaxu-rsm-default-rtdb.firebaseio.com",
+            projectId: "snaxu-rsm",
+            storageBucket: "snaxu-rsm.firebasestorage.app",
+            messagingSenderId: "126279163854",
+            appId: "1:126279163854:web:7865148bea4a59912f159f",
+            measurementId: "G-2QBHEZ5B4Z"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -476,7 +430,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         window.addEventListener('beforeunload', () => database.ref(`live_status/${userUUID}`).remove());
         database.ref('site_traffic').push({ page: "Home Page", timestamp: Date.now() });
 
-        // ===== NAV POSITION =====
         function adjustNavPosition() {
             const nav = document.getElementById('main-nav');
             const bar = document.getElementById('announcement-bar');
@@ -504,14 +457,12 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         window.onscroll = adjustNavPosition;
         window.addEventListener('resize', adjustNavPosition);
 
-        // ===== SECTION TITLE LINE OBSERVER =====
         const titleLine = document.getElementById('productsTitleLine');
         const lineObserver = new IntersectionObserver((entries) => {
             entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
         }, { threshold: 0.5 });
         if (titleLine) lineObserver.observe(titleLine);
 
-        // ===== ANNOUNCEMENT BAR =====
         database.ref('announcement_bar').on('value', (snapshot) => {
             const bar = document.getElementById('announcement-bar');
             if(snapshot.exists() && snapshot.val().content.trim() !== "") {
@@ -523,7 +474,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             setTimeout(adjustNavPosition, 50);
         });
 
-        // ===== BELL =====
         database.ref(`user_chats/${userUUID}`).on('value', (snapshot) => {
             const data = snapshot.val();
             const bell = document.getElementById('bell-container');
@@ -531,7 +481,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             else bell.classList.add('hidden');
         });
 
-        // ===== CHAT =====
         async function openChat() {
             document.getElementById('chat-modal').classList.add('active');
             database.ref(`user_chats/${userUUID}`).update({ user_seen: true });
@@ -567,14 +516,12 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             input.value = "";
         }
 
-        // ===== DRAWERS =====
         let currentSlide = 0, imagesCount = 0, autoSlideTimer;
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); document.getElementById('main-overlay').classList.toggle('active'); }
         function toggleCart() { document.getElementById('side-cart').classList.toggle('active'); document.getElementById('main-overlay').classList.toggle('active'); renderCart(); }
         function closeAllDrawers() { document.getElementById('side-menu').classList.remove('active'); document.getElementById('side-cart').classList.remove('active'); document.getElementById('main-overlay').classList.remove('active'); }
         function scrollToSection(id) { closeAllDrawers(); document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
 
-        // ===== SLIDER =====
         database.ref('slider').on('value', (snapshot) => {
             const wrapper = document.getElementById('sliderWrapper');
             const dotsWrapper = document.getElementById('dotsWrapper');
@@ -611,32 +558,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             }, {passive:true});
         }
 
-        // ===== MODAL =====
-        function openCustomModal(title, text, type, actionCallback) {
-            const modal=document.getElementById('customAlertModal'), card=document.getElementById('modalCard');
-            const iconBox=document.getElementById('modalIconContainer'), titleEl=document.getElementById('modalTitle');
-            const bodyEl=document.getElementById('modalBody'), btn=document.getElementById('modalActionBtn');
-            titleEl.innerText=title; bodyEl.innerText=text;
-            if(type==='instagram'){
-                iconBox.className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg bg-gradient-to-tr from-purple-600 to-pink-500 text-white";
-                iconBox.innerHTML='<i class="fa-brands fa-instagram"></i>';
-                btn.className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md active:scale-95 transition-all duration-200 mt-1";
-                btn.innerText="Proceed to Instagram";
-            } else {
-                iconBox.className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg bg-red-600 text-white";
-                iconBox.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i>';
-                btn.className="w-full bg-red-600 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md active:scale-95 transition-all duration-200 mt-1";
-                btn.innerText="Try Again";
-            }
-            modal.classList.remove('hidden');
-            setTimeout(() => { card.classList.remove('scale-90','opacity-0'); card.classList.add('scale-100','opacity-100'); }, 50);
-            btn.onclick = function() {
-                card.classList.remove('scale-100','opacity-100'); card.classList.add('scale-90','opacity-0');
-                setTimeout(() => { modal.classList.add('hidden'); if(actionCallback) actionCallback(); }, 200);
-            };
-        }
-
-        // ===== CART =====
         function addToCart(id, name, price, img, originalPrice) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let existingItem = cart.find(item => item.id === id || item.name === name);
@@ -694,7 +615,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             }
         }
         
-        // ===== AUTOMATIC CART SYNC (ON BACK BUTTON / PAGESHOW) =====
         window.addEventListener('pageshow', (event) => {
             updateCartCount();
             if (document.getElementById('side-cart').classList.contains('active')) {
@@ -702,10 +622,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             }
         });
 
-        // Fauri synchronization page load hotay hi run krnay k liye
         updateCartCount();
 
-        // ===== PRODUCTS =====
         database.ref('products').on('value', (snapshot) => {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
@@ -735,7 +653,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             setTimeout(adjustNavPosition, 100);
         });
 
-        // ===== PWA BANNER =====
         const pwaBanner = document.getElementById('pwa-custom-banner');
         const pwaBtn = document.getElementById('pwa-install-action');
         function dismissPWABanner() {
