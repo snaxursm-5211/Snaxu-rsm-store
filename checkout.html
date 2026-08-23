@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '979599958414541');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+<meta charset="UTF-8">
+    <script src="https://js.sentry-cdn.com/e8b693c77ef64ddf7ea2d61e0cfcc1bd.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Brand Bazaar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Poppins', sans-serif !important; }
+        
+        .payment-card { transition: 0.3s; border: 2px solid #e2e8f0; cursor: pointer; }
+        .payment-radio[value="advance"]:checked + .payment-card { border-color: #22c55e; }
+        .payment-radio[value="cod"]:checked + .payment-card { border-color: #1d4ed8; }
+        .payment-radio[value="advance"]:checked + .payment-card .fa-circle-check { color: #22c55e; }
+        .payment-radio[value="cod"]:checked + .payment-card .fa-circle-check { color: #1d4ed8; }
+
+        .upload-dashed { border: 2px dashed #cbd5e1; transition: 0.3s; }
+        .upload-dashed:hover { border-color: #1d4ed8; background: #f8fafc; }
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid #ffffff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: bold; font-size: 16px; transition: 0.2s; }
+        .qty-btn:active { background: #e2e8f0; transform: scale(0.9); }
+        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+        .animate-draw { stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawCheck 0.8s ease-out forwards; animation-delay: 0.2s; }
+
+        .pay-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.12);
+            padding: 11px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            gap: 8px;
+        }
+        .pay-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.85);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .pay-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        .naya-box {
+            background: rgba(255,255,255,0.12);
+            padding: 11px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .naya-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .naya-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.85);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .naya-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+        .naya-sub {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            gap: 4px;
+        }
+        .naya-sub-label {
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .naya-sub-val {
+            font-size: 10px;
+            color: rgba(255,255,255,0.75);
+            text-align: right;
+            word-break: break-all;
+        }
+        .acc-name-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            margin-top: 4px;
+            border-top: 1px solid rgba(255,255,255,0.18);
+            gap: 10px;
+        }
+        .acc-name-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.85);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .acc-name-badge {
+            background: #ffcc00;
+            color: #1a1a1a;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 pb-32">
+
+    <div id="successOverlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/90 hidden backdrop-blur-sm">
+        <div class="relative flex items-center justify-center bg-green-500 rounded-full w-24 h-24 shadow-[0_0_30px_rgba(34,197,94,0.4)] animate-bounce">
+            <svg class="w-16 h-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                <path class="animate-draw" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+        <h2 class="mt-8 text-3xl font-black text-white tracking-widest animate-pulse">ORDER COMPLETED</h2>
+        <p class="mt-2 text-[#1d4ed8] font-bold">Redirecting to WhatsApp...</p>
+    </div>
+
+    <nav class="p-4 bg-white border-b border-slate-100 flex items-center gap-4 sticky top-0 z-50">
+        <button onclick="window.history.length > 1 ? history.back() : window.location.href='index.html'"><i class="fa-solid fa-arrow-left text-xl text-slate-800"></i></button>
+        <h1 class="text-xl font-bold text-slate-900">Checkout</h1>
+    </nav>
+
+    <div class="p-4 space-y-6 max-w-lg mx-auto">
+        <div id="billing-summary" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+            <h2 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-[#1d4ed8]"></i> Your Items
+            </h2>
+            <div id="checkout-items" class="space-y-4"></div>
+            <div class="mt-6 pt-4 border-t border-slate-100 space-y-3 text-sm">
+                <div class="flex justify-between text-slate-500">
+                    <span>Subtotal</span>
+                    <span id="subtotal" class="font-semibold text-slate-800">Rs. 0</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                    <span>Delivery Charges</span>
+                    <span id="delivery-total" class="font-semibold text-slate-800">Rs. 0</span>
+                </div>
+                <div id="cod-row" class="flex justify-between text-slate-900 font-bold hidden">
+                    <span>COD Service Fee</span>
+                    <span id="cod-total-display">Rs. 0</span>
+                </div>
+                <div class="flex justify-between font-extrabold text-xl text-slate-900 pt-2 border-t border-dashed mt-2">
+                    <span>Grand Total</span>
+                    <span id="grand-total" class="text-[#1d4ed8]">Rs. 0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+            <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot text-[#1d4ed8]"></i> Shipping Details
+            </h2>
+            <div class="grid grid-cols-2 gap-3">
+                <input type="text" id="firstName" placeholder="First name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+                <input type="text" id="lastName" placeholder="Last name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+            </div>
+            <input type="email" id="custEmail" placeholder="Email Address" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+            <input type="text" id="custAddress" placeholder="Address" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+            <input type="text" id="custApartment" placeholder="Apartment, suite, etc. (optional)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+            <input type="text" id="custCity" placeholder="City" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+            <input type="tel" id="custPhone" placeholder="Phone Number (e.g. 03001234567)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+            <input type="tel" id="custWhatsapp" placeholder="WhatsApp Number (e.g. 03001234567)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+            <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-credit-card text-[#1d4ed8]"></i> Payment Method
+            </h2>
+            <div class="grid grid-cols-1 gap-3">
+                
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="payMethod" value="advance" class="payment-radio hidden" checked onchange="togglePaymentUI()">
+                    <div class="payment-card p-4 rounded-2xl bg-green-50 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white shadow-sm text-green-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-bolt"></i></div>
+                            <div>
+                                <p class="font-bold text-sm text-slate-800">Advance Payment</p>
+                                <p class="text-[10px] text-green-600 font-bold">Fast Delivery & No Extra Fees</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-slate-200 text-lg"></i>
+                    </div>
+                </label>
+                
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="payMethod" value="cod" class="payment-radio hidden" onchange="togglePaymentUI()">
+                    <div class="payment-card p-4 rounded-2xl bg-blue-50 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white shadow-sm text-[#1d4ed8] rounded-xl flex items-center justify-center"><i class="fa-solid fa-truck-fast"></i></div>
+                            <div>
+                                <p class="font-bold text-sm text-slate-800">Cash on Delivery</p>
+                                <p class="text-[10px] text-blue-600 font-bold">Pay when you receive</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-slate-200 text-lg"></i>
+                    </div>
+                </label>
+            </div>
+
+            <div id="advance-details" class="mt-4 space-y-4 pt-4 border-t border-slate-50">
+                <div class="bg-[#1d6bf3] p-5 rounded-[2rem] text-white shadow-md">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-white/70 border-b border-white/20 pb-3 mb-4">
+                        PAYMENT DETAILS
+                    </p>
+
+                    <div class="pay-row mb-3">
+                        <span class="pay-label">
+                            <i class="fa-solid fa-wallet text-xs"></i> JazzCash:
+                        </span>
+                        <span class="pay-value">03704884772</span>
+                    </div>
+
+                    <div class="pay-row mb-3">
+                        <span class="pay-label">EasyPaisa:</span>
+                        <span class="pay-value">03704884772</span>
+                    </div>
+
+                    <div class="naya-box mb-4">
+                        <div class="naya-main">
+                            <span class="naya-label">NayaPay/Bank:</span>
+                            <span class="naya-value">03346588665</span>
+                        </div>
+                        <div class="naya-sub">
+                            <span class="naya-sub-label">Raast ID:</span>
+                            <span class="naya-sub-val">03346588665</span>
+                        </div>
+                        <div class="naya-sub">
+                            <span class="naya-sub-label">IBAN:</span>
+                            <span class="naya-sub-val">PK80NAYA1234503346588665</span>
+                        </div>
+                    </div>
+
+                    <div class="acc-name-row">
+                        <span class="acc-name-label">Account Name:</span>
+                        <span class="acc-name-badge">Waleed Ahmad</span>
+                    </div>
+                </div>
+
+                <div class="upload-dashed p-6 rounded-2xl text-center relative">
+                    <input type="file" id="ssUpload" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewSS()">
+                    <div id="upload-placeholder">
+                        <i class="fa-solid fa-camera text-3xl text-[#1d4ed8] mb-2"></i>
+                        <p class="text-xs font-bold text-slate-700">Upload Payment Screenshot</p>
+                        <p class="text-[9px] text-[#1d4ed8] mt-1 font-bold">REQUIRED: Please upload proof of payment here</p>
+                    </div>
+                    <div id="preview-area" class="hidden">
+                        <img id="ssPreview" class="h-20 mx-auto rounded shadow-md">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 w-full p-4 bg-white/90 border-t border-slate-100 z-50">
+        <button id="orderBtn" onclick="placeOrder()" class="w-full bg-[#1d6bf3] text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition flex items-center justify-center gap-2">Confirm Order</button>
+    </div>
+
+    <script>
+        (function(){ emailjs.init({ publicKey: "hUB2Fd1u6Uxou_Na0" }); })();
+        const firebaseConfig = {
+          apiKey: "AIzaSyAfYl3nFIp59A_qCnWdNaIOxliZ2YlJMLM",
+          authDomain: "smart-gadget-dcce3.firebaseapp.com",
+          databaseURL: "https://smart-gadget-dcce3-default-rtdb.firebaseio.com/",
+          projectId: "smart-gadget-dcce3",
+          storageBucket: "smart-gadget-dcce3.firebasestorage.app",
+          messagingSenderId: "710583742192",
+          appId: "1:710583742192:web:281c2b50b5f65cb6ba9c35",
+          measurementId: "G-MGPQ1GJ5CN"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let cart = [];
+        let isBuyNowFlow = false;
+        
+        const buyNowData = localStorage.getItem('buyNowCart');
+        if (buyNowData) {
+            cart = JSON.parse(buyNowData) || [];
+            isBuyNowFlow = true;
+        } else {
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            isBuyNowFlow = false;
+        }
+
+        let baseSubtotal = 0, baseDelivery = 0, baseCodFee = 0;
+        const imgbbKey = "6408d90314e10ab4bab623c99b6269c5";
+
+        let userUUID = localStorage.getItem('user_chat_id');
+        if (!userUUID) { userUUID = 'USER-' + Math.random().toString(36).substr(2, 9); localStorage.setItem('user_chat_id', userUUID); }
+
+        function sendLiveSignal(statusMessage) {
+            database.ref(`live_status/${userUUID}`).set({ currentPage: statusMessage, lastActive: Date.now() });
+            database.ref(`traffic_history/${userUUID}/logs`).push({ page: statusMessage, timestamp: Date.now() });
+        }
+        window.addEventListener('beforeunload', function () { database.ref(`live_status/${userUUID}`).remove(); });
+
+        function trackPixelEvent(eventName, eventData) {
+            try {
+                if (window.fbq) {
+                    fbq('track', eventName, eventData);
+                }
+            } catch(err) {
+                console.error("Pixel tracking error for " + eventName + ":", err);
+            }
+        }
+
+        function loadCheckout() {
+            const container = document.getElementById('checkout-items');
+            baseSubtotal = 0; baseDelivery = 0; baseCodFee = 0;
+            container.innerHTML = '';
+            if(cart.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-4">Your cart is empty</p>'; updateTotals(); sendLiveSignal("Checkout"); return; }
+            sendLiveSignal("Checkout");
+            
+            let contentIds = [];
+            let contentNames = [];
+
+            cart.forEach((item, index) => {
+                const priceNum = parseInt(item.price.toString().replace(/[^\d]/g, '')) || 0;
+                const qty = item.quantity || 1;
+                baseSubtotal += (priceNum * qty);
+                baseDelivery += (parseInt(item.deliveryCharges) || 0);
+                baseCodFee += (parseInt(item.codFee) || 0);
+                
+                contentNames.push(item.name);
+                if(item.id) contentIds.push(item.id);
+
+                let varDisplayTag = "";
+                if (item.variation && item.variation.trim() !== "") { varDisplayTag = `<div class="text-[10px] text-blue-700 font-bold bg-blue-50 rounded px-1.5 py-0.5 inline-block mt-0.5">Option: ${item.variation}</div>`; }
+                container.innerHTML += `<div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover"><div class="flex-1"><div class="text-[12px] font-bold text-slate-800 line-clamp-1">${item.name}</div><div class="text-[#1d4ed8] font-extrabold text-[13px]">${item.price}</div>${varDisplayTag}<div class="flex items-center gap-3 mt-2"><button onclick="updateQty(${index}, -1)" class="qty-btn text-slate-600">-</button><span class="text-sm font-bold text-slate-800">${qty}</span><button onclick="updateQty(${index}, 1)" class="qty-btn text-slate-900">+</button></div></div><button onclick="removeItem(${index})" class="text-red-400 p-2 active:scale-90 transition"><i class="fa-solid fa-trash-can"></i></button></div>`;
+            });
+            
+            trackPixelEvent('ViewContent', {
+                content_names: contentNames,
+                content_type: 'product',
+                value: baseSubtotal,
+                currency: 'PKR'
+            });
+
+            trackPixelEvent('InitiateCheckout', {
+                content_names: contentNames,
+                value: baseSubtotal,
+                currency: 'PKR',
+                num_items: cart.length
+            });
+
+            updateTotals();
+        }
+
+        function updateQty(index, change) { 
+            cart[index].quantity = (cart[index].quantity || 1) + change; 
+            if(cart[index].quantity < 1) cart[index].quantity = 1; 
+            
+            if(isBuyNowFlow) {
+                localStorage.setItem('buyNowCart', JSON.stringify(cart));
+            } else {
+                localStorage.setItem('cart', JSON.stringify(cart));
+            }
+
+            if (change > 0 && cart[index]) {
+                const itemPrice = parseInt(cart[index].price.toString().replace(/[^\d]/g, '')) || 0;
+                trackPixelEvent('AddToCart', {
+                    content_name: cart[index].name,
+                    content_type: 'product',
+                    value: itemPrice,
+                    currency: 'PKR'
+                });
+            }
+
+            loadCheckout(); 
+        }
+        
+        function removeItem(index) { 
+            cart.splice(index, 1); 
+            if(isBuyNowFlow) {
+                localStorage.setItem('buyNowCart', JSON.stringify(cart));
+            } else {
+                localStorage.setItem('cart', JSON.stringify(cart));
+            }
+            loadCheckout(); 
+        }
+
+        function updateTotals() {
+            const method = document.querySelector('input[name="payMethod"]:checked').value;
+            const advanceBox = document.getElementById('advance-details');
+            const codRow = document.getElementById('cod-row');
+            const grandTotalDisplay = document.getElementById('grand-total');
+            document.getElementById('subtotal').innerText = 'Rs. ' + baseSubtotal;
+            document.getElementById('delivery-total').innerText = 'Rs. ' + baseDelivery;
+            if(method === 'cod') { advanceBox.classList.add('hidden'); codRow.classList.remove('hidden'); document.getElementById('cod-total-display').innerText = '+ Rs. ' + baseCodFee; grandTotalDisplay.innerText = 'Rs. ' + (baseSubtotal + baseDelivery + baseCodFee); }
+            else { advanceBox.classList.remove('hidden'); codRow.classList.add('hidden'); grandTotalDisplay.innerText = 'Rs. ' + (baseSubtotal + baseDelivery); }
+        }
+
+        function togglePaymentUI() { updateTotals(); }
+        function previewSS() { const file = document.getElementById('ssUpload').files[0]; if(file) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('ssPreview').src = e.target.result; document.getElementById('upload-placeholder').classList.add('hidden'); document.getElementById('preview-area').classList.remove('hidden'); }; reader.readAsDataURL(file); } }
+
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                const checkBuyNow = localStorage.getItem('buyNowCart');
+                if (checkBuyNow) {
+                    cart = JSON.parse(checkBuyNow) || [];
+                    isBuyNowFlow = true;
+                } else {
+                    cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    isBuyNowFlow = false;
+                }
+                loadCheckout();
+            }
+        });
+
+        function triggerSuccessEffects() {
+            document.getElementById('successOverlay').classList.remove('hidden');
+            var duration = 4 * 1000; var end = Date.now() + duration;
+            (function frame() { confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#1d4ed8', '#0f172a'] }); confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#22c55e', '#ffffff'] }); if (Date.now() < end) { requestAnimationFrame(frame); } }());
+        }
+
+        function isValidPakPhone(num) { return /^03\d{9}$/.test(num); }
+
+        async function placeOrder() {
+            const fName = document.getElementById('firstName').value.trim();
+            const lName = document.getElementById('lastName').value.trim();
+            const cEmail = document.getElementById('custEmail').value.trim();
+            const city = document.getElementById('custCity').value.trim();
+            const address = document.getElementById('custAddress').value.trim();
+            const apt = document.getElementById('custApartment').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const whatsapp = document.getElementById('custWhatsapp').value.trim();
+            const method = document.querySelector('input[name="payMethod"]:checked').value;
+            const ssFile = document.getElementById('ssUpload').files[0];
+            const btn = document.getElementById('orderBtn');
+
+            if(!fName || !lName || !city || !address || !phone || !whatsapp || !cEmail) return alert("Please fill all required fields!");
+            if(!isValidPakPhone(phone)) return alert("Please enter a valid 11-digit Phone Number starting with 03!");
+            if(!isValidPakPhone(whatsapp)) return alert("Please enter a valid 11-digit WhatsApp Number starting with 03!");
+            if(method === 'advance' && !ssFile) return alert("Screenshot required!");
+
+            btn.disabled = true; btn.innerHTML = '<div class="loader"></div> Processing...';
+
+            const sub = document.getElementById('subtotal').innerText;
+            const del = document.getElementById('delivery-total').innerText;
+            const codF = method === 'cod' ? ("Rs. " + baseCodFee) : "Rs. 0";
+            const grand = document.getElementById('grand-total').innerText;
+            const itemsString = cart.map(i => { let text = `📦 ${i.name} x ${i.quantity || 1}`; if (i.variation && i.variation.trim() !== "") { text += `\n   - Option: ${i.variation}`; } return text; }).join('\n');
+            const itemSummary = cart.map(i => { let nameStr = i.name; if (i.variation && i.variation.trim() !== "") { nameStr += ` (${i.variation})`; } return `${nameStr} (x${i.quantity || 1})`; }).join(', ');
+
+            let ssUrl = method === 'cod' ? "No Screenshot (COD)" : "Not Uploaded";
+            try {
+                const statusSnap = await database.ref('settings/emailStatus').get();
+                const isEmailEnabled = statusSnap.val() === 'on';
+                if(ssFile && method === 'advance') { const formData = new FormData(); formData.append("image", ssFile); const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData }); const data = await res.json(); ssUrl = data.data.url; }
+                const emailParams = { customer_name: (fName + " " + lName), customer_email: cEmail, customer_phone: phone, customer_whatsapp: whatsapp, customer_city: city, customer_address: (address + " " + apt), order_items: itemSummary, subtotal: sub, delivery_charges: del, cod_fee: codF, total_bill: grand, payment_method: method.toUpperCase(), screenshot_url: ssUrl };
+                const promises = [];
+                if (isEmailEnabled) { promises.push(emailjs.send("service_qk7vqye", "template_dznvwme", emailParams)); promises.push(emailjs.send("service_qk7vqye", "template_r5r1vkr", emailParams)); }
+                promises.push(database.ref('orders').push({ customerName: `${fName} ${lName}`, customerPhone: phone, whatsapp: whatsapp, whatsappNo: whatsapp, emailAddress: cEmail, deliveryCharges: del, codFee: codF, customerCity: city, customerAddress: `${address} ${apt}`, productName: itemSummary, price: grand, paymentMethod: method, screenshot: ssUrl, date: new Date().toLocaleString() }));
+                await Promise.all(promises);
+                
+                // Fully Automated Dynamic Values for Purchase Tracking
+                const numericPrice = parseInt(grand.replace(/[^\d]/g, '')) || 0; 
+                
+                trackPixelEvent('Purchase', { 
+                    value: numericPrice, 
+                    currency: 'PKR', 
+                    content_name: itemSummary,
+                    num_items: cart.length
+                });
+                
+                let fullWaMessage = `*🚀 NEW ORDER - BRAND BAZAAR 🚀*\n\n👤 *Name:* ${fName} ${lName}\n📧 *Email:* ${cEmail}\n📞 *Phone:* ${phone}\n🟢 *WhatsApp:* ${whatsapp}\n📍 *City:* ${city}\n🏠 *Address:* ${address} ${apt}\n\n*--- ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Subtotal:* ${sub}\n🚚 *Delivery:* ${del}\n💳 *COD Fee:* ${codF}\n💵 *Total Bill:* ${grand}\n\n== *Method:* ${method.toUpperCase()}\n🖼️ *Screenshot:* ${ssUrl}`;
+                sendLiveSignal("Order Placed");
+                triggerSuccessEffects();
+                
+                if (isBuyNowFlow) {
+                    localStorage.removeItem('buyNowCart');
+                } else {
+                    localStorage.removeItem('cart');
+                }
+                
+                setTimeout(() => { window.location.href = `whatsapp://send?phone=923065472228&text=${encodeURIComponent(fullWaMessage)}`; }, 2500);
+            } catch(e) { console.error(e); Sentry.captureException(e); alert("Error placing order."); btn.disabled = false; btn.innerHTML = 'Confirm Order'; }
+        }
+
+        loadCheckout();
+        setInterval(() => { if(cart.length > 0) { sendLiveSignal("Checkout"); } }, 25000);
+    </script>
+</body>
+</html>

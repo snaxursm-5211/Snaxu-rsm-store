@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '979599958414541');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Brand Bazaar | Premium Quality</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <link rel="manifest" href="/manifest.json">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker Registered!', reg.scope))
+            .catch(err => console.log('Service Worker Registration Failed:', err));
+        });
+      }
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => { deferredPrompt = e; });
+      window.addEventListener('load', () => {
+        const customBanner = document.getElementById('pwa-custom-banner');
+        if (customBanner) { customBanner.style.display = 'block'; setTimeout(adjustNavPosition, 100); }
+      });
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+        html, body { max-width: 100%; overflow-x: hidden; font-family: 'Poppins', sans-serif; scroll-behavior: smooth; }
+        :root { --primary-color: #1a56db; }
+        .glass { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); }
+        body { background: #ffffff; }
+
+        header {
+            background: linear-gradient(to bottom, #1a56db 0%, #1a56db 55%, #93b4f5 100%);
+            position: relative;
+            padding-bottom: 70px;
+        }
+        .hero-bg { position: relative; }
+
+        /* ===== PREMIUM QUALITY COLORFUL ANIMATED TITLE ===== */
+        .premium-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1.1;
+            background: linear-gradient(90deg, #ffffff 0%, #ffd700 20%, #ff6bff 40%, #00e5ff 60%, #ffd700 80%, #ffffff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmerText 3s linear infinite, titlePop 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+            display: inline-block;
+            text-shadow: none;
+            letter-spacing: -0.5px;
+        }
+        @keyframes shimmerText {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+        @keyframes titlePop {
+            0% { transform: scale(0.5) translateY(-30px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* Subtitle fade slide up */
+        .hero-subtitle {
+            animation: slideUpFade 0.9s ease 0.4s both;
+        }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stars/sparkles around the title */
+        .sparkle-wrap { position: relative; display: inline-block; }
+        .sparkle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: sparklePop 2s ease-in-out infinite; }
+        .sparkle-1 { background: #ffd700; top: -8px; left: 10%; animation-delay: 0s; }
+        .sparkle-2 { background: #ff6bff; top: -6px; right: 15%; animation-delay: 0.4s; }
+        .sparkle-3 { background: #00e5ff; bottom: -6px; left: 20%; animation-delay: 0.8s; }
+        .sparkle-4 { background: #ffd700; bottom: -8px; right: 10%; animation-delay: 1.2s; }
+        @keyframes sparklePop {
+            0%, 100% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.4); opacity: 1; }
+        }
+
+        /* ===== FLOATING WA ===== */
+        .fixed-wa { position: fixed; bottom: 20px; right: 15px; z-index: 9999; background-color: #25D366; color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(37,211,102,0.4); animation: floating 3s ease-in-out infinite; }
+        @keyframes floating { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* ===== DRAWERS ===== */
+        #side-cart, #side-menu { position: fixed; top: 0; height: 100%; background: white; z-index: 10000; transition: 0.4s ease-in-out; box-shadow: 0 0 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        #side-cart { right: -100%; width: 85%; max-width: 400px; }
+        #side-cart.active { right: 0; }
+        #side-menu { left: -100%; width: 75%; max-width: 300px; }
+        #side-menu.active { left: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; }
+        .overlay.active { display: block; }
+
+        /* ===== CHAT ===== */
+        #chat-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 20000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        #chat-modal.active { display: flex; }
+        .chat-bubble-admin { background: #eff6ff; color: #1e40af; align-self: flex-start; border-radius: 0 15px 15px 15px; border: 1px solid #bfdbfe; }
+        .chat-bubble-user { background: var(--primary-color); color: #ffffff; font-weight: 600; align-self: flex-end; border-radius: 15px 15px 0 15px; }
+        .chat-input-container { padding: 12px; border-top: 1px solid #eee; background: white; display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; gap: 8px; align-items: center; width: 100%; overflow: hidden; }
+        #userReplyInput { flex: 1 !important; min-width: 0; }
+
+        /* ===== NAV BUTTONS ===== */
+        .nav-btn { width: 100%; padding: 15px; text-align: left; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: all 0.3s; color: #1e293b; }
+        .nav-btn i { color: var(--primary-color) !important; }
+        .nav-btn:active { background: #f8fafc; color: var(--primary-color); }
+
+        /* ===== SLIDER ===== */
+        .slider-container { width: 100%; position: relative; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.25); aspect-ratio: 1/1; background: #020617; overflow: hidden; cursor: pointer; animation: sliderEntrance 1s cubic-bezier(0.34,1.56,0.64,1) 0.3s both; }
+        @keyframes sliderEntrance {
+            from { transform: scale(0.85) translateY(30px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .slider-wrapper { position: relative; width: 100%; height: 100%; }
+        .slider-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease-in-out; z-index: 1; }
+        .slider-img.active { opacity: 1; z-index: 10; }
+        .dots-container { display: flex; justify-content: center; gap: 8px; margin-top: 15px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); transition: all 0.4s ease; }
+        .dot.active { background: #ffffff; width: 24px; border-radius: 10px; }
+
+        /* ===== BADGE BOXES with hover lift ===== */
+        .badge-box {
+            background: white;
+            padding: 12px 2px;
+            border-radius: 1rem;
+            border: 1px solid #f1f5f9;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .badge-box:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(26,86,219,0.15); }
+        .badge-box i { font-size: 1.3rem; margin-bottom: 4px; color: var(--primary-color); animation: iconPulse 2.5s ease-in-out infinite; }
+        @keyframes iconPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+        .badge-box h4 { font-size: 9px; font-weight: 800; color: #0f172a; margin-bottom: 1px; text-transform: uppercase; }
+        .badge-box span { font-size: 7px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+
+        /* ===== PRODUCT CARDS ===== */
+        .product-card {
+            background: white; border-radius: 1.2rem; border: 1px solid #f1f5f9;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 16px 30px rgba(26,86,219,0.12); }
+        .add-to-cart-btn {
+            background: var(--primary-color); color: #ffffff; width: 100%; padding: 10px;
+            border-radius: 0.8rem; font-size: 10px; font-weight: 800; text-transform: uppercase;
+            margin-top: 8px; cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .add-to-cart-btn:active { transform: scale(0.96); }
+
+        /* ===== SECTION TITLE underline animate ===== */
+        .section-title-line {
+            height: 3px; width: 0px; background: linear-gradient(90deg, #1a56db, #6ee7f7);
+            border-radius: 10px; margin: 8px auto 0;
+            transition: width 1s ease;
+        }
+        .section-title-line.visible { width: 48px; }
+
+        /* ===== BRAND LOGO (MADE COMPACT & SHORTER) ===== */
+        .brand-logo { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; gap: 0px; }
+        .brand-icon { width: 34px; height: auto; display: block; margin-bottom: 1px; }
+        .brand-name { font-size: 10px; font-weight: 900; line-height: 1; display: flex; align-items: center; letter-spacing: -0.2px; white-space: nowrap; }
+        .brand-name span.text-custom-blue { margin-left: 2px !important; color: var(--primary-color); }
+
+        /* ===== QTY ===== */
+        .qty-btn { background: #f1f5f9; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .qty-input { width: 25px; text-align: center; font-size: 12px; font-weight: 700; }
+
+        /* ===== ANNOUNCEMENT BAR ===== */
+        #announcement-bar { background: #000; color: white; text-align: center; padding: 10px 0; font-size: 11px; font-weight: 700; position: absolute; width: 100%; z-index: 5500; overflow: hidden; }
+        .marquee-container { display: flex; width: 100%; overflow: hidden; white-space: nowrap; }
+        .scrolling-content { display: inline-block; white-space: nowrap; padding-right: 50px; animation: infinite-scroll 12s linear infinite; }
+        @keyframes infinite-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        /* ===== PWA BANNER ===== */
+        #pwa-custom-banner { display: none; position: absolute; top: 0; width: 100%; background: #0f172a; color: white; z-index: 6000; border-bottom: 2px solid var(--primary-color); transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+
+        /* ===== CONTACT SECTION ANIMATE ===== */
+        .contact-input-anim { transition: border-color 0.3s ease; }
+        .contact-input-anim:focus { border-color: #1a56db !important; outline: none; }
+
+        /* ===== SOCIAL ICONS HOVER ===== */
+        .social-icon-wrap { transition: transform 0.3s ease; }
+        .social-icon-wrap:active { transform: scale(0.9) rotate(-5deg); }
+
+        /* ===== SCROLL REVEAL extra animations ===== */
+        [data-aos] { will-change: transform, opacity; }
+
+        /* cart */
+        #cart-total { color: var(--primary-color) !important; }
+        #cart-count { background: var(--primary-color) !important; color: white !important; }
+
+        /* Page load body fade in */
+        body { animation: bodyFadeIn 0.6s ease both; }
+        @keyframes bodyFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ===== GLOW PULSE on Add to Cart btn ===== */
+        .add-to-cart-btn {
+            box-shadow: 0 4px 15px rgba(26,86,219,0.3);
+            animation: btnGlow 3s ease-in-out infinite;
+        }
+        @keyframes btnGlow {
+            0%,100% { box-shadow: 0 4px 15px rgba(26,86,219,0.3); }
+            50% { box-shadow: 0 4px 25px rgba(26,86,219,0.6); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="pwa-custom-banner">
+        <div class="flex items-center justify-between px-4 py-2.5 max-w-md mx-auto">
+            <div class="flex items-center gap-3">
+                <button onclick="dismissPWABanner()" class="text-slate-400 hover:text-white p-1 text-sm active:scale-75 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center border border-white/10 overflow-hidden">
+                    <img src="icon-192.png" alt="App Icon" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold tracking-wide text-white uppercase">Brand Bazaar</h4>
+                    <p class="text-[9px] text-slate-400">Fast & Premium Tech Store</p>
+                </div>
+            </div>
+            <button id="pwa-install-action" class="bg-[#1a56db] text-white text-[10px] font-extrabold uppercase px-4 py-2 rounded-lg shadow-md active:scale-95 transition">Install</button>
+        </div>
+        <div class="w-12 h-1 bg-slate-700/50 mx-auto mb-1 rounded-full"></div>
+    </div>
+
+    <div id="announcement-bar" class="hidden"></div>
+    <div class="overlay" id="main-overlay" onclick="closeAllDrawers()"></div>
+
+    <div id="chat-modal">
+        <div class="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[70vh]">
+            <div class="bg-[#1a56db] p-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-headset text-xl"></i>
+                    <div>
+                        <h3 class="font-bold text-sm text-white">Store Support</h3>
+                        <p class="text-[10px] text-blue-100 font-semibold">Online | We're here to help</p>
+                    </div>
+                </div>
+                <button onclick="closeChat()"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto flex flex-col gap-3 bg-slate-50"></div>
+            <div class="chat-input-container">
+                <input type="text" id="userReplyInput" class="flex-1 bg-slate-100 border-none p-3 rounded-xl outline-none text-xs" placeholder="Write a reply...">
+                <button onclick="sendReplyBack()" class="bg-[#1a56db] text-white p-3 rounded-xl min-w-[50px] flex-shrink-0 flex items-center justify-center active:scale-95 transition">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="side-menu">
+        <div class="p-6 border-b flex justify-between items-center bg-[#1a56db] text-white">
+            <h2 class="font-bold text-lg tracking-tight">Menu</h2>
+            <button onclick="closeAllDrawers()"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div class="flex flex-col p-2">
+            <button onclick="scrollToSection('top')" class="nav-btn"><i class="fa-solid fa-house mr-3"></i> Home</button>
+            <button onclick="scrollToSection('contact')" class="nav-btn"><i class="fa-solid fa-envelope mr-3"></i> Contact Us</button>
+        </div>
+    </div>
+
+    <div id="side-cart">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h2 class="font-bold text-lg">Your Cart</h2>
+            <button onclick="closeAllDrawers()"><i class="fa-solid fa-xmark text-xl text-slate-400"></i></button>
+        </div>
+        <div id="cart-items" class="flex-grow overflow-y-auto p-4 space-y-4"></div>
+        <div class="p-4 border-t bg-slate-50">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-slate-500 font-semibold">Total:</span>
+                <span id="cart-total" class="font-bold" style="color:#1a56db">Rs. 0</span>
+            </div>
+            <button onclick="window.location.href='checkout.html'" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest active:scale-95 transition">Check Out</button>
+        </div>
+    </div>
+
+    <a href="https://wa.me/923065472228" target="_blank" class="fixed-wa">
+        <i class="fa-brands fa-whatsapp text-2xl"></i>
+    </a>
+
+    <nav id="main-nav" class="glass fixed w-full z-[5000] px-4 py-0.5 border-b border-slate-100/50">
+        <div class="container mx-auto grid grid-cols-3 items-center">
+            <div class="flex justify-start">
+                <button onclick="toggleMenu()" class="p-1">
+                    <i class="fa-solid fa-bars-staggered text-lg text-slate-800"></i>
+                </button>
+            </div>
+            <div class="flex justify-center">
+                <a href="#" class="brand-logo">
+                    <img src="https://i.ibb.co/6JVhySRZ/IMG-20260627-113428.png" alt="Logo" class="brand-icon">
+                    <div class="brand-name">
+                        <span class="text-slate-900 uppercase">Brand</span>
+                        <span class="text-custom-blue ml-1 uppercase">Bazaar</span>
+                    </div>
+                </a>
+            </div>
+            <div class="flex justify-end items-center gap-3">
+                <div id="bell-container" class="relative hidden p-1 cursor-pointer" onclick="openChat()">
+                    <i class="fa-solid fa-bell text-lg" style="color:#1a56db"></i>
+                    <span class="absolute top-0 right-0 bg-red-500 w-2 h-2 rounded-full border border-white animate-pulse"></span>
+                </div>
+                <div class="relative p-1 cursor-pointer" onclick="toggleCart()">
+                    <i class="fa-solid fa-cart-shopping text-lg text-slate-800"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 text-white text-[8px] px-1 rounded-full border border-white font-bold" style="background:#1a56db">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header id="top" class="hero-bg pt-32 text-center px-4">
+        <div class="mb-6">
+            <div class="sparkle-wrap">
+                <span class="sparkle sparkle-1"></span>
+                <span class="sparkle sparkle-2"></span>
+                <span class="sparkle sparkle-3"></span>
+                <span class="sparkle sparkle-4"></span>
+                <h1 class="premium-title">Premium Quality</h1>
+            </div>
+            <p class="hero-subtitle text-blue-100 text-xs font-semibold opacity-90 mt-2">Your trust is our priority. Order now.</p>
+        </div>
+        <div class="max-w-sm mx-auto mb-2">
+            <div class="slider-container" onclick="nextSlide()">
+                <div id="sliderWrapper" class="slider-wrapper"></div>
+            </div>
+            <div id="dotsWrapper" class="dots-container"></div>
+        </div>
+    </header>
+
+    <div class="relative z-20 max-w-md mx-auto px-4 -mt-10">
+        <div class="grid grid-cols-3 gap-3">
+            <div class="badge-box" data-aos="zoom-in" data-aos-delay="0">
+                <i class="fa-solid fa-truck-fast"></i>
+                <h4>Delivery</h4>
+                <span>All Over Pakistan</span>
+            </div>
+            <div class="badge-box" data-aos="zoom-in" data-aos-delay="150">
+                <i class="fa-solid fa-shield"></i>
+                <h4>100% Original</h4>
+                <span>Premium Quality</span>
+            </div>
+            <div class="badge-box" data-aos="zoom-in" data-aos-delay="300">
+                <i class="fa-solid fa-headset"></i>
+                <h4>24/7 Support</h4>
+                <span>Help Center</span>
+            </div>
+        </div>
+    </div>
+
+    <section id="products" class="py-4 pt-12 px-4">
+        <div class="text-center mb-8" data-aos="fade-up">
+            <h2 class="text-2xl font-bold text-slate-800">New Products</h2>
+            <div class="section-title-line" id="productsTitleLine"></div>
+        </div>
+        <div id="product-grid" class="grid grid-cols-2 gap-4"></div>
+    </section>
+
+    <section id="contact" class="py-8 px-6 bg-slate-900 text-white rounded-t-[3rem] mt-4">
+        <div class="container mx-auto text-center">
+            <h2 class="text-2xl font-bold mb-4" data-aos="fade-down">Contact us</h2>
+            <div class="bg-white/5 p-6 rounded-2xl border border-white/10 mb-6 text-left" data-aos="fade-up" data-aos-delay="100">
+                <input type="text" id="userName" placeholder="Your Full Name" class="contact-input-anim w-full bg-transparent border-b border-white/20 py-3 outline-none text-white text-sm mb-4">
+                <textarea id="userMsg" placeholder="Type your order details here..." class="contact-input-anim w-full bg-transparent border-b border-white/20 py-3 outline-none h-20 text-white text-sm mb-6 resize-none"></textarea>
+                <button onclick="sendSupportMessage()" class="w-full text-white py-4 rounded-xl font-bold text-xs uppercase tracking-widest active:scale-95 transition" style="background:#1a56db">Send Message</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-6 border-b border-white/10 pb-6" data-aos="fade-up" data-aos-delay="150">
+                <div class="flex flex-col items-center">
+                    <i class="fa-solid fa-location-dot text-lg mb-1" style="color:#1a56db"></i>
+                    <h4 class="text-[10px] font-bold uppercase tracking-widest" style="color:#1a56db">Location</h4>
+                    <p class="text-xs opacity-80">Punjab, Pakistan</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <i class="fa-brands fa-whatsapp text-green-500 text-lg mb-1"></i>
+                    <h4 class="text-[10px] font-bold text-green-400 uppercase tracking-widest">WhatsApp</h4>
+                    <p class="text-xs opacity-80">0306 5472228</p>
+                </div>
+            </div>
+
+            <div class="flex justify-center items-center gap-6 max-w-xs mx-auto" data-aos="fade-up" data-aos-delay="200">
+                <a href="https://tiktok.com/@brandbazaar.1" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
+                    <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 transition">
+                        <i class="fa-brands fa-tiktok text-white text-base"></i>
+                    </div>
+                    <span class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">TikTok</span>
+                </a>
+                <a href="https://www.instagram.com/brandbazaar.storee?igsh=bzh6YXMwc3diYWUw" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
+                    <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 transition">
+                        <i class="fa-brands fa-instagram text-pink-500 text-base"></i>
+                    </div>
+                    <span class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">Instagram</span>
+                </a>
+                <a href="https://youtube.com/@brandbazaar.stores?si=JXF-OLVqpdrkXRUG" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
+                    <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 transition">
+                        <i class="fa-brands fa-youtube text-red-500 text-base"></i>
+                    </div>
+                    <span class="text-[9px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">YouTube</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div id="customAlertModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[30000] flex items-center justify-center p-4 hidden">
+        <div id="modalCard" class="bg-white rounded-3xl p-6 max-w-xs w-full text-center shadow-2xl transform scale-90 opacity-0 transition-all duration-200 flex flex-col items-center gap-4">
+            <div id="modalIconContainer"></div>
+            <div>
+                <h3 id="modalTitle" class="font-extrabold text-slate-900 text-base leading-tight"></h3>
+                <p id="modalBody" class="text-xs text-slate-500 mt-1.5 font-medium leading-relaxed"></p>
+            </div>
+            <button id="modalActionBtn"></button>
+        </div>
+    </div>
+
+    <footer class="py-8 text-center text-slate-500 text-[9px] bg-slate-900 tracking-widest uppercase border-t border-white/5">
+        © 2026 BRAND BAZAAR. All rights reserved.
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // ===== FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfYl3nFIp59A_qCnWdNaIOxliZ2YlJMLM",
+            authDomain: "smart-gadget-dcce3.firebaseapp.com",
+            databaseURL: "https://smart-gadget-dcce3-default-rtdb.firebaseio.com",
+            projectId: "smart-gadget-dcce3",
+            storageBucket: "smart-gadget-dcce3.firebasestorage.app",
+            messagingSenderId: "710583742192",
+            appId: "1:710583742192:web:281c2b50b5f65cb6ba9c35",
+            measurementId: "G-MGPQ1GJ5CN"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let userUUID = localStorage.getItem('user_chat_id');
+        if (!userUUID) {
+            userUUID = 'USER-' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('user_chat_id', userUUID);
+        }
+
+        function sendLiveSignal() {
+            database.ref(`live_status/${userUUID}`).set({ currentPage: "Home Page", lastActive: Date.now() });
+        }
+        sendLiveSignal();
+        setInterval(sendLiveSignal, 25000);
+        window.addEventListener('beforeunload', () => database.ref(`live_status/${userUUID}`).remove());
+        database.ref('site_traffic').push({ page: "Home Page", timestamp: Date.now() });
+
+        // ===== NAV POSITION =====
+        function adjustNavPosition() {
+            const nav = document.getElementById('main-nav');
+            const bar = document.getElementById('announcement-bar');
+            const pwaBanner = document.getElementById('pwa-custom-banner');
+            const heroHeader = document.getElementById('top');
+            let pwaHeight = 0, barHeight = 0;
+            if (pwaBanner && pwaBanner.style.display === 'block') {
+                pwaBanner.style.position = "absolute"; pwaBanner.style.top = "0px";
+                pwaHeight = pwaBanner.offsetHeight;
+            }
+            if (bar && !bar.classList.contains('hidden')) {
+                bar.style.position = "absolute"; bar.style.top = pwaHeight + "px";
+                barHeight = bar.offsetHeight || 38;
+            }
+            let totalHeaderOffset = pwaHeight + barHeight;
+            if (window.pageYOffset > totalHeaderOffset) {
+                nav.style.position = "fixed"; nav.style.top = "0px"; nav.classList.add('box-shadow');
+            } else {
+                nav.style.position = "absolute"; nav.style.top = totalHeaderOffset + "px"; nav.classList.remove('box-shadow');
+            }
+            if (heroHeader) {
+                heroHeader.style.paddingTop = (totalHeaderOffset + (nav.offsetHeight || 44) + 20) + "px";
+            }
+        }
+        window.onscroll = adjustNavPosition;
+        window.addEventListener('resize', adjustNavPosition);
+
+        // ===== SECTION TITLE LINE OBSERVER =====
+        const titleLine = document.getElementById('productsTitleLine');
+        const lineObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.5 });
+        if (titleLine) lineObserver.observe(titleLine);
+
+        // ===== ANNOUNCEMENT BAR =====
+        database.ref('announcement_bar').on('value', (snapshot) => {
+            const bar = document.getElementById('announcement-bar');
+            if(snapshot.exists() && snapshot.val().content.trim() !== "") {
+                const data = snapshot.val();
+                const content = data.content + "         ";
+                bar.innerHTML = `<div class="marquee-container"><div class="scrolling-content" style="color:${data.color||'#fff'} !important">${content.repeat(4)}</div></div>`;
+                bar.classList.remove('hidden');
+            } else { bar.classList.add('hidden'); }
+            setTimeout(adjustNavPosition, 50);
+        });
+
+        // ===== BELL =====
+        database.ref(`user_chats/${userUUID}`).on('value', (snapshot) => {
+            const data = snapshot.val();
+            const bell = document.getElementById('bell-container');
+            if (data && data.show_bell === true) bell.classList.remove('hidden');
+            else bell.classList.add('hidden');
+        });
+
+        // ===== CHAT =====
+        async function openChat() {
+            document.getElementById('chat-modal').classList.add('active');
+            database.ref(`user_chats/${userUUID}`).update({ user_seen: true });
+            database.ref(`chat_history/${userUUID}`).on('value', (snapshot) => {
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = "";
+                snapshot.forEach(child => {
+                    const msg = child.val();
+                    const isAdmin = msg.role === 'admin';
+                    container.innerHTML += `<div class="max-w-[85%] p-3 text-[11px] shadow-sm ${isAdmin ? 'chat-bubble-admin' : 'chat-bubble-user'}">${msg.text}<div class="text-[8px] mt-1 opacity-60 text-right">${msg.time}</div></div>`;
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+        function closeChat() { document.getElementById('chat-modal').classList.remove('active'); }
+
+        async function sendSupportMessage() {
+            const name = document.getElementById('userName').value;
+            const msg = document.getElementById('userMsg').value;
+            if(!name || !msg) return alert("Fill all fields");
+            const msgObj = { role: 'user', text: msg, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) };
+            await database.ref(`chat_history/${userUUID}`).push(msgObj);
+            await database.ref(`user_chats/${userUUID}`).update({ senderName: name, last_message: msg, admin_unread: true, last_update: Date.now() });
+            alert("Message sent!");
+            document.getElementById('userMsg').value = "";
+        }
+        async function sendReplyBack() {
+            const input = document.getElementById('userReplyInput');
+            if(!input.value) return;
+            const msgObj = { role: 'user', text: input.value, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) };
+            await database.ref(`chat_history/${userUUID}`).push(msgObj);
+            await database.ref(`user_chats/${userUUID}`).update({ last_message: input.value, admin_unread: true, last_update: Date.now() });
+            input.value = "";
+        }
+
+        // ===== DRAWERS =====
+        let currentSlide = 0, imagesCount = 0, autoSlideTimer;
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); document.getElementById('main-overlay').classList.toggle('active'); }
+        function toggleCart() { document.getElementById('side-cart').classList.toggle('active'); document.getElementById('main-overlay').classList.toggle('active'); renderCart(); }
+        function closeAllDrawers() { document.getElementById('side-menu').classList.remove('active'); document.getElementById('side-cart').classList.remove('active'); document.getElementById('main-overlay').classList.remove('active'); }
+        function scrollToSection(id) { closeAllDrawers(); document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+
+        // ===== SLIDER =====
+        database.ref('slider').on('value', (snapshot) => {
+            const wrapper = document.getElementById('sliderWrapper');
+            const dotsWrapper = document.getElementById('dotsWrapper');
+            if(snapshot.exists()){
+                wrapper.innerHTML = ""; dotsWrapper.innerHTML = "";
+                let index = 0;
+                snapshot.forEach(child => {
+                    const img = document.createElement('img');
+                    img.src = child.val().url;
+                    img.className = `slider-img ${index === 0 ? 'active' : ''}`;
+                    wrapper.appendChild(img);
+                    const dot = document.createElement('div');
+                    dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                    dotsWrapper.appendChild(dot);
+                    index++;
+                });
+                imagesCount = index; startAutoSlide(); setupSwipe();
+            }
+        });
+        function updateSlider() {
+            document.querySelectorAll('.slider-img').forEach((img,i) => img.classList.toggle('active', i===currentSlide));
+            document.querySelectorAll('.dot').forEach((dot,i) => dot.classList.toggle('active', i===currentSlide));
+        }
+        function nextSlide() { if(imagesCount>0){ currentSlide=(currentSlide+1)%imagesCount; updateSlider(); startAutoSlide(); } }
+        function startAutoSlide() { clearInterval(autoSlideTimer); if(imagesCount>1) autoSlideTimer=setInterval(nextSlide,4500); }
+        function setupSwipe() {
+            let touchstartX = 0;
+            const slider = document.querySelector('.slider-container');
+            slider.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive:true});
+            slider.addEventListener('touchend', e => {
+                let diff = touchstartX - e.changedTouches[0].screenX;
+                if(diff > 50) nextSlide();
+                if(diff < -50) { currentSlide=(currentSlide-1+imagesCount)%imagesCount; updateSlider(); startAutoSlide(); }
+            }, {passive:true});
+        }
+
+        // ===== MODAL =====
+        function openCustomModal(title, text, type, actionCallback) {
+            const modal=document.getElementById('customAlertModal'), card=document.getElementById('modalCard');
+            const iconBox=document.getElementById('modalIconContainer'), titleEl=document.getElementById('modalTitle');
+            const bodyEl=document.getElementById('modalBody'), btn=document.getElementById('modalActionBtn');
+            titleEl.innerText=title; bodyEl.innerText=text;
+            if(type==='instagram'){
+                iconBox.className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg bg-gradient-to-tr from-purple-600 to-pink-500 text-white";
+                iconBox.innerHTML='<i class="fa-brands fa-instagram"></i>';
+                btn.className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md active:scale-95 transition-all duration-200 mt-1";
+                btn.innerText="Proceed to Instagram";
+            } else {
+                iconBox.className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg bg-red-600 text-white";
+                iconBox.innerHTML='<i class="fa-solid fa-triangle-exclamation"></i>';
+                btn.className="w-full bg-red-600 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl shadow-md active:scale-95 transition-all duration-200 mt-1";
+                btn.innerText="Try Again";
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => { card.classList.remove('scale-90','opacity-0'); card.classList.add('scale-100','opacity-100'); }, 50);
+            btn.onclick = function() {
+                card.classList.remove('scale-100','opacity-100'); card.classList.add('scale-90','opacity-0');
+                setTimeout(() => { modal.classList.add('hidden'); if(actionCallback) actionCallback(); }, 200);
+            };
+        }
+
+        // ===== CART =====
+        function addToCart(id, name, price, img, originalPrice) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let existingItem = cart.find(item => item.id === id || item.name === name);
+            if(existingItem) existingItem.quantity += 1;
+            else cart.push({ id, name, price, img, quantity: 1, originalPrice });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount(); toggleCart();
+        }
+        function updateQuantity(index, change) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart[index].quantity += change;
+            if(cart[index].quantity < 1) cart[index].quantity = 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+        }
+        function removeFromCart(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount(); renderCart();
+        }
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const container = document.getElementById('cart-items'), totalEl = document.getElementById('cart-total');
+            container.innerHTML = cart.length === 0 ? '<p class="text-center text-slate-400 mt-10">Cart is empty</p>' : '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                const cleanPrice = parseInt(item.price.toString().replace(/\D/g, '')) || 0;
+                total += cleanPrice * (item.quantity || 1);
+                container.innerHTML += `
+                    <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl">
+                        <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg bg-white border">
+                        <div class="flex-grow min-w-0">
+                            <h4 class="font-bold text-[11px] truncate w-32 text-slate-800">${item.name}</h4>
+                            <p class="font-bold text-xs text-[#1a56db]">Rs. ${cleanPrice}</p>
+                            ${item.variation ? `<p class="text-slate-400 font-bold text-[9px]">Option: ${item.variation}</p>` : ''}
+                            <div class="flex items-center mt-1 gap-2">
+                                <button onclick="updateQuantity(${index},-1)" class="qty-btn">-</button>
+                                <span class="qty-input">${item.quantity || 1}</span>
+                                <button onclick="updateQuantity(${index},1)" class="qty-btn">+</button>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${index})"><i class="fa-solid fa-trash-can text-red-400 text-sm"></i></button>
+                    </div>`;
+            });
+            totalEl.innerText = `Rs. ${total}`;
+            updateCartCount();
+        }
+        function updateCartCount() {
+            let cart = [];
+            try { cart = JSON.parse(localStorage.getItem('cart')) || []; } catch(e){}
+            const countEl = document.getElementById('cart-count');
+            if(countEl) {
+                countEl.innerText = cart.length;
+            }
+        }
+        
+        // ===== AUTOMATIC CART SYNC (ON BACK BUTTON / PAGESHOW) =====
+        window.addEventListener('pageshow', (event) => {
+            updateCartCount();
+            if (document.getElementById('side-cart').classList.contains('active')) {
+                renderCart();
+            }
+        });
+
+        // Fauri synchronization page load hotay hi run krnay k liye
+        updateCartCount();
+
+        // ===== PRODUCTS =====
+        database.ref('products').on('value', (snapshot) => {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+            let delay = 0;
+            snapshot.forEach((child) => {
+                const p = child.val(), id = child.key;
+                const firstImage = (p.images ? p.images[0] : p.image) || 'https://placehold.co/400x400';
+                const showOriginalPrice = p.originalPrice && p.originalPrice !== p.price;
+                const finalOriginalPrice = showOriginalPrice ? p.originalPrice : p.price;
+                grid.innerHTML += `
+                    <div class="product-card p-2" data-aos="fade-up" data-aos-delay="${delay}">
+                        <div class="rounded-xl overflow-hidden aspect-square mb-2 relative bg-slate-50" onclick="window.location.href='product.html?id=${id}'">
+                            <img src="${firstImage}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="px-1 flex flex-col justify-between flex-grow">
+                            <h3 class="font-bold text-[11px] text-slate-800 truncate">${p.name}</h3>
+                            <div class="mt-1">
+                                ${showOriginalPrice ? `<span class="text-[10px] text-slate-400 line-through">Rs. ${p.originalPrice}</span>` : ''}
+                                <div class="text-sm font-extrabold" style="color:#1a56db">Rs. ${p.price}</div>
+                            </div>
+                            <button onclick="addToCart('${id}','${p.name}','${p.price}','${firstImage}','${finalOriginalPrice}')" class="add-to-cart-btn active:scale-95 transition">Add To Cart</button>
+                        </div>
+                    </div>`;
+                delay = (delay + 100) % 400;
+            });
+            AOS.refresh();
+            setTimeout(adjustNavPosition, 100);
+        });
+
+        // ===== PWA BANNER =====
+        const pwaBanner = document.getElementById('pwa-custom-banner');
+        const pwaBtn = document.getElementById('pwa-install-action');
+        function dismissPWABanner() {
+            if(pwaBanner){ pwaBanner.style.transform='translateY(-100%)'; pwaBanner.style.opacity='0'; setTimeout(()=>{ pwaBanner.style.display='none'; adjustNavPosition(); },300); }
+        }
+        if(pwaBtn){
+            pwaBtn.addEventListener('click', () => {
+                if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(r=>{ if(r.outcome==='accepted') dismissPWABanner(); deferredPrompt=null; }); }
+                else alert("Please open this site on Google Chrome on Android or click the three dots menu in Chrome to install manually.");
+            });
+        }
+        if(pwaBanner){
+            let touchStartY=0;
+            pwaBanner.addEventListener('touchstart', e=>{ touchStartY=e.changedTouches[0].screenY; },{passive:true});
+            pwaBanner.addEventListener('touchend', e=>{ if(touchStartY-e.changedTouches[0].screenY>40) dismissPWABanner(); },{passive:true});
+        }
+
+        setTimeout(adjustNavPosition, 200);
+        AOS.init({ duration: 800, once: true, easing: 'ease-out-cubic' });
+    </script>
+</body>
+</html>

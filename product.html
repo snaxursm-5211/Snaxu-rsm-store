@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '979599958414541');
+fbq('track', 'PageView');
+
+fbq('track', 'ViewContent', {
+    content_name: 'Royal Chrono Iced Rose Gold Luxury Wach',
+    content_type: 'product',
+    value: 1999,
+    currency: 'PKR'
+});
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
+/></noscript>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Product Details | Brand Bazaar</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+        
+        body { font-family: 'Poppins', sans-serif !important; background: #ffffff; color: #0f172a; overflow-x: hidden; width: 100%; position: relative; }
+        :root { --primary-color: #1a56db; }
+        
+        .glass { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); }
+        .main-nav { background: white; border-bottom: 1px solid rgba(241, 245, 249, 0.5); display: flex; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; }
+        .nav-grid { display: grid; grid-template-columns: 1fr auto 1fr; width: 100%; align-items: center; }
+        
+        .brand-logo { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; gap: 0px; }
+        .brand-icon { width: 34px; height: auto; display: block; margin-bottom: 1px; object-fit: contain; } 
+        .brand-name { font-size: 10px; font-weight: 900 !important; line-height: 1; display: flex; align-items: center; letter-spacing: -0.2px; white-space: nowrap; }
+        .brand-name span.text-custom-blue { margin-left: 2px !important; color: var(--primary-color); }
+
+        .sidebar { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 80%; max-width: 300px; background: white; height: 100vh; position: fixed; left: -110%; top: 0; z-index: 6000; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { background: var(--primary-color); color: #ffffff; padding: 18px 20px; display: flex; justify-between; align-items: center; font-weight: 700 !important; font-size: 18px; }
+        
+        .cart-drawer { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 85%; max-width: 350px; background: white; height: 100dvh; position: fixed; right: -110%; top: 0; z-index: 6000; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); }
+        .cart-drawer.active { right: 0; }
+        .cart-header { padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-weight: 700 !important; font-size: 16px; flex-shrink: 0; }
+
+        #cartItemsList { flex: 1; overflow-y: auto; padding: 1rem; }
+        .cart-footer { padding: 15px; border-top: 1px solid #f1f5f9; background: white; flex-shrink: 0; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
+
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 5500; backdrop-filter: blur(2px); }
+        .overlay.active { display: block; }
+
+        .slider-wrapper { width: 100%; position: relative; border-radius: 1.5rem; overflow: hidden; background: #f8fafc; border: 1px solid #f1f5f9; }
+        .slider-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 100%; aspect-ratio: 1/1; }
+        .slider-container::-webkit-scrollbar { display: none; }
+        .slide { flex: 0 0 100%; width: 100%; scroll-snap-align: start; scroll-snap-stop: always; display: flex; align-items: center; justify-content: center; position: relative; }
+        .slide img { max-height: 100%; max-width: 100%; object-fit: contain; }
+        
+        .thumb-img, .thumb-video { width: 55px; height: 55px; border-radius: 10px; cursor: pointer; border: 2px solid transparent; flex-shrink: 0; transition: border-color 0.2s ease; }
+        .thumb-img { object-fit: cover; }
+        .thumb-video { background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: var(--primary-color); border: 2px dashed #cbd5e1; }
+        .thumb-img.active, .thumb-video.active { border-color: var(--primary-color); border-style: solid; background: #eff6ff; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Modal Smooth Popup Animations */
+        .modal-wrapper {
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .modal-enter {
+            opacity: 1 !important;
+            transform: scale(1) translateY(0) !important;
+        }
+        .modal-exit {
+            opacity: 0;
+            transform: scale(0.92) translateY(10px);
+        }
+    </style>
+</head>
+<body class="pt-[55px]">
+
+    <div id="overlay" class="overlay" onclick="closeAll()"></div>
+
+    <nav class="main-nav glass px-4 py-0.5">
+        <div class="nav-grid">
+            <div class="flex justify-start">
+                <button onclick="toggleSidebar()" class="p-1">
+                    <i class="fa-solid fa-bars-staggered text-lg text-slate-800"></i>
+                </button>
+            </div>
+            
+            <div class="flex justify-center">
+                <a href="index.html" class="brand-logo">
+                    <img src="https://i.ibb.co/6JVhySRZ/IMG-20260627-113428.png" alt="Logo" class="brand-icon">
+                    <div class="brand-name">
+                        <span class="text-slate-900 uppercase">Brand</span>
+                        <span class="text-custom-blue uppercase">Bazaar</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="flex justify-end">
+                <div class="relative p-1 cursor-pointer" onclick="toggleCart()">
+                    <i class="fa-solid fa-cart-shopping text-lg text-slate-800"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 text-white text-[8px] px-1 rounded-full border border-white font-bold" style="background: var(--primary-color)">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span>Menu</span>
+            <button onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <nav class="p-4">
+            <a href="index.html" class="flex items-center gap-4 p-4 text-slate-700 font-bold border-b border-slate-50">
+                <i class="fa-solid fa-house text-[#1a56db] w-5"></i> Home
+            </a>
+            <a href="index.html#contact" class="flex items-center gap-4 p-4 text-slate-700 font-bold border-b border-slate-50">
+                <i class="fa-solid fa-envelope text-[#1a56db] w-5"></i> Contact Us
+            </a>
+        </nav>
+    </div>
+
+    <div id="cartDrawer" class="cart-drawer">
+        <div class="cart-header">
+            <span>Your Cart</span>
+            <button onclick="toggleCart()" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div id="cartItemsList" class="space-y-4"></div>
+
+        <div class="cart-footer">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total</span>
+                <span id="cartTotal" class="text-xl font-bold text-[#1a56db]">Rs. 0</span>
+            </div>
+            <button onclick="window.location.href='checkout.html'" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase text-xs tracking-widest">Check Out</button>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 mt-4">
+        <div class="mb-4">
+            <div class="slider-wrapper">
+                <div id="imageSlider" class="slider-container"></div>
+            </div>
+            <div id="thumbContainer" class="flex gap-2 overflow-x-auto no-scrollbar py-3"></div>
+        </div>
+
+        <div class="pb-32">
+            <h1 id="pName" class="text-xl font-bold text-slate-900 mb-1 tracking-tight">Loading...</h1>
+            <div class="flex items-center gap-3 mb-4">
+                <span id="pOldPrice" class="text-sm text-slate-400 line-through"></span>
+                <span id="pPrice" class="text-xl font-bold text-slate-900"></span>
+            </div>
+
+            <div id="variationsSection" class="mb-6 hidden">
+                <h3 class="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-2">Select Option</h3>
+                <div id="variationsContainer" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div class="pt-5 border-t border-slate-100 mb-8">
+                <h3 class="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-3">Product Description</h3>
+                <p id="pDesc" class="text-slate-700 text-[15px] leading-relaxed whitespace-pre-wrap"></p>
+            </div>
+
+            <!-- CUSTOMER REVIEWS SECTION -->
+            <div class="pt-6 border-t border-slate-200">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Customer Reviews</h3>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="flex text-amber-400 text-xs" id="avgStarsContainer">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <span id="avgRatingText" class="text-xs font-bold text-slate-800">5.0</span>
+                            <span id="totalReviewsCountText" class="text-xs text-slate-400">(0 reviews)</span>
+                        </div>
+                    </div>
+                    <!-- WRITE A REVIEW BUTTON WITH BLUE THEME COLOR -->
+                    <button onclick="startReviewFlow()" class="bg-[#1a56db] text-white text-xs px-4 py-2.5 rounded-xl font-bold shadow-md shadow-blue-100 hover:bg-blue-700 transition-all">Write a Review</button>
+                </div>
+
+                <!-- Star Rating Interactive Click Bar -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 flex flex-col items-center text-center">
+                    <p class="text-xs font-bold text-slate-700 mb-2">Tap to Rate this Product</p>
+                    <div class="flex gap-2 text-2xl text-amber-400 cursor-pointer" id="interactiveStarPicker">
+                        <i class="fa-regular fa-star" onclick="directStarClick(1)"></i>
+                        <i class="fa-regular fa-star" onclick="directStarClick(2)"></i>
+                        <i class="fa-regular fa-star" onclick="directStarClick(3)"></i>
+                        <i class="fa-regular fa-star" onclick="directStarClick(4)"></i>
+                        <i class="fa-regular fa-star" onclick="directStarClick(5)"></i>
+                    </div>
+                    <span id="ratingLabelText" class="text-[11px] font-bold text-slate-400 mt-1">Select stars to review</span>
+                </div>
+
+                <!-- Live Customer Reviews List Container -->
+                <div id="customerReviewsList" class="space-y-4">
+                    <!-- Dynamic reviews will load here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 0: Choose Stars First (Triggers on 'Write a Review' Click) -->
+    <div id="reviewModal0" class="fixed inset-0 z-[7000] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="modal-wrapper modal-exit bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
+            <button onclick="closeAllModals()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            
+            <div class="text-center mb-6 pt-2">
+                <h3 class="text-base font-bold text-slate-900 uppercase tracking-wider">Rate Product</h3>
+                <p class="text-xs text-slate-400 mt-1">How many stars would you give this product?</p>
+            </div>
+
+            <div class="flex justify-center gap-3 text-3xl text-amber-400 cursor-pointer mb-6" id="modal0StarPicker">
+                <i class="fa-solid fa-star" onclick="setModal0Stars(1)"></i>
+                <i class="fa-solid fa-star" onclick="setModal0Stars(2)"></i>
+                <i class="fa-solid fa-star" onclick="setModal0Stars(3)"></i>
+                <i class="fa-solid fa-star" onclick="setModal0Stars(4)"></i>
+                <i class="fa-solid fa-star" onclick="setModal0Stars(5)"></i>
+            </div>
+
+            <div class="text-center mb-6">
+                <span id="modal0RatingTextLabel" class="text-xs font-bold text-[#1a56db] bg-blue-50 px-3 py-1 rounded-full">5 = Excellent</span>
+            </div>
+
+            <button onclick="proceedFromModal0To1()" class="w-full bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">Continue</button>
+        </div>
+    </div>
+
+    <!-- MODAL 1: Feedback & Image Upload -->
+    <div id="reviewModal1" class="fixed inset-0 z-[7000] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="modal-wrapper modal-exit bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
+            <button onclick="closeAllModals()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+                <img id="modalProdImg" src="" class="w-12 h-12 rounded-xl object-cover bg-slate-100 border">
+                <div>
+                    <h4 id="modalProdName" class="text-xs font-bold text-slate-900 line-clamp-1">Product Name</h4>
+                    <div class="flex items-center gap-1 text-amber-400 text-xs mt-0.5" id="modalStarsDisplay"></div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Your Feedback <span class="text-red-500">*</span></label>
+                <textarea id="reviewFeedbackInput" rows="4" placeholder="What did you like or dislike about this product?" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-[#1a56db]"></textarea>
+            </div>
+
+            <!-- Image Upload Feature (Multiple Images with Change & Delete Functionality) -->
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Attach Photos (Optional)</label>
+                <div class="flex flex-wrap gap-3 items-center" id="reviewImagesPreviewContainer">
+                    <label class="w-20 h-20 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#1a56db] bg-slate-50 transition-all">
+                        <i class="fa-solid fa-image text-slate-400 text-lg mb-1"></i>
+                        <span class="text-[10px] font-bold text-slate-500">Add Pic</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="addNewReviewImage(event)">
+                    </label>
+                </div>
+                <!-- Hidden Input for Editing Specific Existing Image -->
+                <input type="file" id="replaceImageFileInput" accept="image/*" class="hidden" onchange="handleReplaceImageSelect(event)">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="backToModal0()" class="w-1/3 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest">Back</button>
+                <button onclick="proceedToModal2()" class="w-2/3 bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: User Name & Email -> Submit -->
+    <div id="reviewModal2" class="fixed inset-0 z-[7000] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="modal-wrapper modal-exit bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
+            <button onclick="closeAllModals()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            
+            <div class="text-center mb-6">
+                <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Almost Done!</h3>
+                <p class="text-xs text-slate-400 mt-1">Please enter your details to publish your review.</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Your Name <span class="text-red-500">*</span></label>
+                <input type="text" id="reviewAuthorName" placeholder="e.g. Ali Ahmed" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-[#1a56db]">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email (Optional)</label>
+                <input type="email" id="reviewAuthorEmail" placeholder="e.g. ali@example.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-[#1a56db]">
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="backToModal1()" class="w-1/3 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest">Back</button>
+                <button id="submitReviewFinalBtn" onclick="submitFinalReview()" class="w-2/3 bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal for Customer Image Viewing -->
+    <div id="imageLightboxModal" class="fixed inset-0 z-[8000] bg-black/90 hidden items-center justify-center p-4" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" class="max-w-full max-h-full rounded-xl object-contain">
+    </div>
+
+    <div class="fixed bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-100 flex gap-3 z-40">
+        <button onclick="handleAddToCart()" class="flex-1 bg-slate-100 text-slate-900 py-4 rounded-xl font-bold text-[15px]">Add to Cart</button>
+        <button onclick="handleBuyNow()" class="flex-1 bg-[#1a56db] text-white py-4 rounded-xl font-bold text-[15px] shadow-lg shadow-blue-100/50">Buy Now</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfYl3nFIp59A_qCnWdNaIOxliZ2YlJMLM",
+            authDomain: "smart-gadget-dcce3.firebaseapp.com",
+            databaseURL: "https://smart-gadget-dcce3-default-rtdb.firebaseio.com/",
+            projectId: "smart-gadget-dcce3",
+            storageBucket: "smart-gadget-dcce3.firebasestorage.app",
+            messagingSenderId: "710583742192",
+            appId: "1:710583742192:web:281c2b50b5f65cb6ba9c35",
+            measurementId: "G-MGPQ1GJ5CN"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let currentProduct = null; 
+        let selectedVariationName = ""; 
+        let selectedVariationPrice = ""; 
+
+        // Review Form States
+        let currentSelectedRating = 5;
+        let reviewFeedbackText = "";
+        let reviewBase64Images = []; // Multiple images array
+        let indexToReplaceImage = -1; // Stores target image index when changing photo
+
+        let userUUID = localStorage.getItem('user_chat_id');
+        if (!userUUID) {
+            userUUID = 'USER-' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('user_chat_id', userUUID);
+        }
+
+        function sendLiveSignal(productName = "Product Page") {
+            database.ref(`live_status/${userUUID}`).set({
+                currentPage: productName,
+                lastActive: Date.now()
+            });
+        }
+
+        window.addEventListener('beforeunload', function () {
+            database.ref(`live_status/${userUUID}`).remove();
+        });
+
+        function toggleSidebar() { 
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function toggleCart() {
+            const cart = document.getElementById('cartDrawer');
+            const overlay = document.getElementById('overlay');
+            cart.classList.toggle('active');
+            overlay.classList.toggle('active');
+            if(cart.classList.contains('active')) {
+                renderCart();
+            }
+        }
+
+        function closeAll() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('cartDrawer').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            closeAllModals();
+        }
+
+        function getYouTubeEmbedUrl(url) {
+            if (!url) return null;
+            let videoId = null;
+            try {
+                if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+                } else if (url.includes('youtube.com/embed/')) {
+                    videoId = url.split('youtube.com/embed/')[1].split(/[?#]/)[0];
+                } else if (url.includes('v=')) {
+                    videoId = url.split('v=')[1].split('&')[0];
+                } else if (url.includes('shorts/')) {
+                    videoId = url.split('shorts/')[1].split(/[?#]/)[0];
+                }
+            } catch(e) {
+                console.error("Error parsing YouTube URL", e);
+            }
+            if (videoId && videoId.trim().length === 11) {
+                return "https://www.youtube.com/embed/" + videoId.trim() + "?rel=0&modestbranding=1";
+            }
+            return null;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+
+        if (productId) {
+            database.ref('products/' + productId).once('value', (snapshot) => {
+                const p = snapshot.val();
+                if (p) {
+                    currentProduct = p; 
+                    document.getElementById('pName').innerText = p.name;
+                    document.getElementById('pPrice').innerText = 'Rs. ' + p.price;
+                    if(p.originalPrice) document.getElementById('pOldPrice').innerText = 'Rs. ' + p.originalPrice;
+                    document.getElementById('pDesc').innerText = p.desc;
+                    
+                    sendLiveSignal(`Viewing: ${p.name}`);
+                    setInterval(() => { sendLiveSignal(`Viewing: ${p.name}`); }, 25000);
+
+                    loadProductReviews(productId);
+
+                    const slider = document.getElementById('imageSlider');
+                    const thumbContainer = document.getElementById('thumbContainer');
+
+                    let slideCount = 0;
+                    let totalImagesToLoad = [];
+                    const mainImages = p.images || [p.image];
+                    
+                    mainImages.forEach((img) => {
+                        if (img && img.trim() !== '') {
+                            totalImagesToLoad.push(img);
+                        }
+                    });
+
+                    if (p.variations && p.variations.length > 0) {
+                        p.variations.forEach((v) => {
+                            if (v.image && v.image.trim() !== '') {
+                                if (!totalImagesToLoad.includes(v.image)) {
+                                    totalImagesToLoad.push(v.image);
+                                }
+                            }
+                        });
+                    }
+
+                    totalImagesToLoad.forEach((img) => {
+                        const slide = document.createElement('div');
+                        slide.className = 'slide';
+                        slide.innerHTML = `<img src="${img}">`;
+                        slider.appendChild(slide);
+
+                        const thumb = document.createElement('img');
+                        thumb.src = img;
+                        thumb.className = `thumb-img thumb-item ${slideCount === 0 ? 'active' : ''}`;
+                        
+                        const currentIndex = slideCount;
+                        thumb.onclick = () => {
+                            slider.scrollTo({ left: slider.clientWidth * currentIndex, behavior: 'smooth' });
+                        };
+                        thumbContainer.appendChild(thumb);
+                        slideCount++;
+                    });
+
+                    if (p.video && p.video.trim() !== '') {
+                        const embedUrl = getYouTubeEmbedUrl(p.video);
+                        if (embedUrl) {
+                            const videoIndex = slideCount;
+                            const videoSlide = document.createElement('div');
+                            videoSlide.className = 'slide bg-black';
+                            videoSlide.innerHTML = `
+                                <div class="w-full h-full p-1 flex items-center justify-center aspect-square">
+                                    <iframe class="w-full h-full rounded-xl" src="${embedUrl}" title="Product Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>`;
+                            slider.appendChild(videoSlide);
+
+                            const videoThumb = document.createElement('div');
+                            videoThumb.className = 'thumb-video thumb-item';
+                            videoThumb.innerHTML = `<i class="fa-solid fa-play text-lg"></i>`;
+                            videoThumb.onclick = () => {
+                                slider.scrollTo({ left: slider.clientWidth * videoIndex, behavior: 'smooth' });
+                            };
+                            thumbContainer.appendChild(videoThumb);
+                            slideCount++;
+                        }
+                    }
+
+                    if (p.variations && p.variations.length > 0) {
+                        document.getElementById('variationsSection').classList.remove('hidden');
+                        const varContainer = document.getElementById('variationsContainer');
+                        
+                        p.variations.forEach((v, index) => {
+                            const btn = document.createElement('button');
+                            btn.innerText = v.name;
+                            btn.className = `var-btn px-4 py-2 text-xs font-bold rounded-lg border transition-all ${index === 0 ? 'border-[#1a56db] bg-blue-50 text-slate-900' : 'border-slate-200 text-slate-700 bg-white'}`;
+                            
+                            if(index === 0) {
+                                selectedVariationName = v.name;
+                                if (v.price && v.price.trim() !== '') {
+                                    selectedVariationPrice = v.price;
+                                    document.getElementById('pPrice').innerText = 'Rs. ' + v.price;
+                                }
+                            }
+
+                            btn.onclick = () => {
+                                document.querySelectorAll('.var-btn').forEach(b => {
+                                    b.classList.remove('border-[#1a56db]', 'bg-blue-50', 'text-slate-900');
+                                    b.classList.add('border-slate-200', 'text-slate-700', 'bg-white');
+                                });
+                                btn.classList.remove('border-slate-200', 'text-slate-700', 'bg-white');
+                                btn.classList.add('border-[#1a56db]', 'bg-blue-50', 'text-slate-900');
+                                
+                                selectedVariationName = v.name;
+
+                                if (v.price && v.price.trim() !== '') {
+                                    selectedVariationPrice = v.price;
+                                    document.getElementById('pPrice').innerText = 'Rs. ' + v.price;
+                                } else {
+                                    selectedVariationPrice = "";
+                                    document.getElementById('pPrice').innerText = 'Rs. ' + p.price;
+                                }
+
+                                if (v.image && v.image.trim() !== '') {
+                                    const matchedIndex = totalImagesToLoad.indexOf(v.image);
+                                    if (matchedIndex !== -1) {
+                                        slider.scrollTo({ left: slider.clientWidth * matchedIndex, behavior: 'smooth' });
+                                    }
+                                } else if (v.imageIndex !== undefined && v.imageIndex < slideCount) {
+                                    slider.scrollTo({ left: slider.clientWidth * v.imageIndex, behavior: 'smooth' });
+                                }
+                            };
+                            varContainer.appendChild(btn);
+                        });
+                    }
+
+                    let isScrolling;
+                    slider.addEventListener('scroll', () => {
+                        window.clearTimeout(isScrolling);
+                        isScrolling = setTimeout(() => {
+                            const index = Math.round(slider.scrollLeft / slider.clientWidth);
+                            const allThumbs = document.querySelectorAll('.thumb-item');
+                            
+                            allThumbs.forEach((touch, i) => {
+                                if(i === index) {
+                                    touch.classList.add('active');
+                                    touch.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                                } else {
+                                    touch.classList.remove('active');
+                                }
+                            });
+                        }, 60);
+                    });
+                }
+            });
+        }
+
+        // --- REVIEW SYSTEM WITH MULTI-IMAGE & CHANGE CAPABILITY ---
+        const ratingLabels = {
+            1: "1 = Poor",
+            2: "2 = Fair",
+            3: "3 = Good",
+            4: "4 = Very Good",
+            5: "5 = Excellent"
+        };
+
+        // Smooth Animation Helper
+        function showModalWithAnim(modalId) {
+            const modal = document.getElementById(modalId);
+            const wrapper = modal.querySelector('.modal-wrapper');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                wrapper.classList.remove('modal-exit');
+                wrapper.classList.add('modal-enter');
+            }, 20);
+        }
+
+        function hideModalWithAnim(modalId) {
+            const modal = document.getElementById(modalId);
+            const wrapper = modal.querySelector('.modal-wrapper');
+            if(wrapper) {
+                wrapper.classList.remove('modal-enter');
+                wrapper.classList.add('modal-exit');
+            }
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function closeAllModals() {
+            hideModalWithAnim('reviewModal0');
+            hideModalWithAnim('reviewModal1');
+            hideModalWithAnim('reviewModal2');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // STEP 0: When clicking "Write a Review" button -> Ask Stars First
+        function startReviewFlow() {
+            setModal0Stars(5); // Default 5 stars
+            document.getElementById('overlay').classList.add('active');
+            showModalWithAnim('reviewModal0');
+        }
+
+        function setModal0Stars(rating) {
+            currentSelectedRating = rating;
+            const container = document.getElementById('modal0StarPicker');
+            const label = document.getElementById('modal0RatingTextLabel');
+            label.innerText = ratingLabels[rating] || "";
+            
+            let html = "";
+            for(let i = 1; i <= 5; i++) {
+                html += `<i class="${i <= rating ? 'fa-solid' : 'fa-regular'} fa-star" onclick="setModal0Stars(${i})"></i>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function proceedFromModal0To1() {
+            hideModalWithAnim('reviewModal0');
+            openReviewModalStep1(currentSelectedRating);
+        }
+
+        function backToModal0() {
+            hideModalWithAnim('reviewModal1');
+            showModalWithAnim('reviewModal0');
+        }
+
+        // Direct Click on page stars -> Goes directly to feedback popup (Step 1)
+        function directStarClick(rating) {
+            currentSelectedRating = rating;
+            document.getElementById('overlay').classList.add('active');
+            openReviewModalStep1(rating);
+        }
+
+        function openReviewModalStep1(rating) {
+            currentSelectedRating = rating;
+            
+            if(currentProduct) {
+                document.getElementById('modalProdName').innerText = currentProduct.name;
+                const firstImg = (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || '');
+                document.getElementById('modalProdImg').src = firstImg;
+            }
+
+            let starsHtml = '';
+            for(let i=1; i<=5; i++) {
+                starsHtml += `<i class="${i <= rating ? 'fa-solid' : 'fa-regular'} fa-star text-amber-400"></i>`;
+            }
+            document.getElementById('modalStarsDisplay').innerHTML = starsHtml + `<span class="text-slate-600 font-bold ml-1">(${rating}/5)</span>`;
+
+            showModalWithAnim('reviewModal1');
+        }
+
+        // Add new image to the list
+        function addNewReviewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    reviewBase64Images.push(e.target.result);
+                    renderReviewImagePreviews();
+                };
+                reader.readAsDataURL(file);
+            }
+            event.target.value = ""; // Reset input
+        }
+
+        // Click existing image to change/replace it
+        function openReplaceImagePicker(index) {
+            indexToReplaceImage = index;
+            document.getElementById('replaceImageFileInput').click();
+        }
+
+        function handleReplaceImageSelect(event) {
+            const file = event.target.files[0];
+            if (file && indexToReplaceImage !== -1) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    reviewBase64Images[indexToReplaceImage] = e.target.result;
+                    renderReviewImagePreviews();
+                    indexToReplaceImage = -1;
+                };
+                reader.readAsDataURL(file);
+            }
+            event.target.value = ""; // Reset input
+        }
+
+        // Render all image previews with Add, Edit, and Delete options
+        function renderReviewImagePreviews() {
+            const container = document.getElementById('reviewImagesPreviewContainer');
+            container.innerHTML = `
+                <label class="w-20 h-20 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[#1a56db] bg-slate-50 transition-all">
+                    <i class="fa-solid fa-image text-slate-400 text-lg mb-1"></i>
+                    <span class="text-[10px] font-bold text-slate-500">Add Pic</span>
+                    <input type="file" accept="image/*" class="hidden" onchange="addNewReviewImage(event)">
+                </label>
+            `;
+
+            reviewBase64Images.forEach((imgData, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative w-20 h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-100 cursor-pointer group';
+                div.innerHTML = `
+                    <img src="${imgData}" class="w-full h-full object-cover" onclick="openReplaceImagePicker(${index})" title="Click to change photo">
+                    <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                        <i class="fa-solid fa-pen text-white text-xs"></i>
+                    </div>
+                    <button type="button" onclick="removeReviewImage(${index}); event.stopPropagation();" class="absolute top-1 right-1 bg-black/60 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function removeReviewImage(index) {
+            reviewBase64Images.splice(index, 1);
+            renderReviewImagePreviews();
+        }
+
+        function proceedToModal2() {
+            const feedback = document.getElementById('reviewFeedbackInput').value.trim();
+            if(!feedback) {
+                alert("Please enter your feedback text!");
+                return;
+            }
+            reviewFeedbackText = feedback;
+
+            hideModalWithAnim('reviewModal1');
+            showModalWithAnim('reviewModal2');
+        }
+
+        function backToModal1() {
+            hideModalWithAnim('reviewModal2');
+            showModalWithAnim('reviewModal1');
+        }
+
+        function submitFinalReview() {
+            const authorName = document.getElementById('reviewAuthorName').value.trim();
+            const authorEmail = document.getElementById('reviewAuthorEmail').value.trim();
+
+            if(!authorName) {
+                alert("Please enter your name!");
+                return;
+            }
+
+            const btn = document.getElementById('submitReviewFinalBtn');
+            btn.innerText = "Submitting...";
+            btn.disabled = true;
+
+            const reviewData = {
+                productId: productId,
+                productName: currentProduct ? currentProduct.name : "",
+                rating: currentSelectedRating,
+                feedback: reviewFeedbackText,
+                images: reviewBase64Images, // Saved as an array of images
+                image: reviewBase64Images.length > 0 ? reviewBase64Images[0] : "", // Backward compatibility for single image view
+                name: authorName,
+                email: authorEmail,
+                timestamp: Date.now(),
+                adminReply: ""
+            };
+
+            database.ref('product_reviews').push(reviewData, (error) => {
+                btn.innerText = "Submit Review";
+                btn.disabled = false;
+                if(error) {
+                    alert("Error submitting review. Please try again.");
+                } else {
+                    alert("Thank you! Your review has been submitted successfully.");
+                    document.getElementById('reviewFeedbackInput').value = "";
+                    document.getElementById('reviewAuthorName').value = "";
+                    document.getElementById('reviewAuthorEmail').value = "";
+                    reviewBase64Images = [];
+                    renderReviewImagePreviews();
+                    closeAllModals();
+                }
+            });
+        }
+
+        function loadProductReviews(prodId) {
+            database.ref('product_reviews').orderByChild('productId').equalTo(prodId).on('value', (snapshot) => {
+                const listContainer = document.getElementById('customerReviewsList');
+                listContainer.innerHTML = "";
+                
+                let totalScore = 0;
+                let count = 0;
+
+                const reviews = [];
+                snapshot.forEach((childSnap) => {
+                    reviews.push({ id: childSnap.key, ...childSnap.val() });
+                });
+
+                if(reviews.length === 0) {
+                    listContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs font-bold bg-slate-50 rounded-2xl border border-slate-100">No reviews yet. Be the first to review!</div>`;
+                    document.getElementById('avgRatingText').innerText = "0.0";
+                    document.getElementById('totalReviewsCountText').innerText = "(0 reviews)";
+                    return;
+                }
+
+                reviews.forEach(rev => {
+                    totalScore += parseInt(rev.rating || 5);
+                    count++;
+
+                    let starsHtml = '';
+                    for(let i=1; i<=5; i++) {
+                        starsHtml += `<i class="${i <= rev.rating ? 'fa-solid' : 'fa-regular'} fa-star"></i>`;
+                    }
+
+                    const dateStr = new Date(rev.timestamp).toLocaleDateString();
+
+                    let itemHtml = `
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900">${rev.name}</h4>
+                                    <div class="flex text-amber-400 text-[10px] mt-0.5">${starsHtml}</div>
+                                </div>
+                                <span class="text-[10px] text-slate-400 font-bold">${dateStr}</span>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed">${rev.feedback}</p>
+                    `;
+
+                    // Render multiple images if available, else render single image
+                    const revImages = rev.images || (rev.image ? [rev.image] : []);
+                    if(revImages.length > 0) {
+                        itemHtml += `<div class="mt-2 flex flex-wrap gap-2">`;
+                        revImages.forEach(imgUrl => {
+                            if(imgUrl && imgUrl.trim() !== '') {
+                                itemHtml += `<img src="${imgUrl}" class="w-16 h-16 rounded-xl object-cover cursor-pointer border border-slate-200" onclick="openLightbox('${imgUrl}')">`;
+                            }
+                        });
+                        itemHtml += `</div>`;
+                    }
+
+                    if(rev.adminReply && rev.adminReply.trim() !== '') {
+                        itemHtml += `
+                            <div class="bg-blue-50/70 border border-blue-100 p-3 rounded-xl mt-3">
+                                <p class="text-[10px] font-bold text-[#1a56db] uppercase tracking-wider mb-0.5">Store Response:</p>
+                                <p class="text-xs text-slate-700">${rev.adminReply}</p>
+                            </div>
+                        `;
+                    }
+
+                    itemHtml += `</div>`;
+                    listContainer.innerHTML += itemHtml;
+                });
+
+                const avg = (totalScore / count).toFixed(1);
+                document.getElementById('avgRatingText').innerText = avg;
+                document.getElementById('totalReviewsCountText').innerText = `(${count} review${count > 1 ? 's' : ''})`;
+            });
+        }
+
+        function openLightbox(imgUrl) {
+            document.getElementById('lightboxImg').src = imgUrl;
+            document.getElementById('imageLightboxModal').classList.remove('hidden');
+            document.getElementById('imageLightboxModal').classList.add('flex');
+        }
+
+        function closeLightbox() {
+            document.getElementById('imageLightboxModal').classList.remove('flex');
+            document.getElementById('imageLightboxModal').classList.add('hidden');
+        }
+        // --- END REVIEW SYSTEM ---
+
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const list = document.getElementById('cartItemsList');
+            let total = 0;
+            list.innerHTML = cart.length ? "" : `<div class="text-center py-20 text-slate-300 text-xs font-bold">Cart is empty</div>`;
+            
+            cart.forEach((item, index) => {
+                const priceNum = parseInt(item.price.toString().replace(/\D/g,''));
+                total += (priceNum * (item.quantity || 1));
+                list.innerHTML += `
+                    <div class="flex gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <img src="${item.img}" class="w-14 h-14 rounded-lg object-cover bg-white border">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-bold text-slate-800 truncate">${item.name}</h4>
+                            <p class="text-[#1a56db] font-bold text-sm">${item.price}</p>
+                            ${item.variation ? `<p class="text-slate-500 font-bold text-[11px]">Option: ${item.variation}</p>` : ''}
+                            <p class="text-[10px] text-slate-400 font-bold">Qty: ${item.quantity || 1}</p>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                    </div>`;
+            });
+            document.getElementById('cartTotal').innerText = 'Rs. ' + total;
+            updateCartCount();
+        }
+
+        function removeFromCart(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const countElement = document.getElementById('cart-count');
+            if (countElement) {
+                countElement.innerText = cart.length;
+            }
+        }
+
+        function handleAddToCart() {
+            if(!currentProduct) return;
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? 'Rs. ' + selectedVariationPrice : currentProduct.price;
+
+            let existingItem = cart.find(item => item.name === currentProduct.name && item.variation === selectedVariationName);
+
+            if (existingItem) {
+                existingItem.quantity = (existingItem.quantity || 1) + 1;
+            } else {
+                cart.push({ 
+                    name: currentProduct.name, 
+                    price: finalPrice, 
+                    img: (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || ''),
+                    deliveryCharges: currentProduct.delivery || 0,
+                    codFee: currentProduct.cod_fee || 0,
+                    variation: selectedVariationName,
+                    quantity: 1
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            toggleCart();
+        }
+
+        function handleBuyNow() {
+            if(!currentProduct) return;
+            
+            let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? 'Rs. ' + selectedVariationPrice : currentProduct.price;
+            
+            let buyNowCart = [{ 
+                name: currentProduct.name, 
+                price: finalPrice, 
+                img: (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || ''),
+                deliveryCharges: currentProduct.delivery || 0,
+                codFee: currentProduct.cod_fee || 0,
+                variation: selectedVariationName,
+                quantity: 1
+            }];
+            
+            localStorage.setItem('buyNowCart', JSON.stringify(buyNowCart));
+            window.location.href = 'checkout.html';
+        }
+
+        window.addEventListener('DOMContentLoaded', updateCartCount);
+        updateCartCount();
+    </script>
+</body>
+</html>
