@@ -1,23 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '979599958414541');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
 <meta charset="UTF-8">
     <script src="https://js.sentry-cdn.com/e8b693c77ef64ddf7ea2d61e0cfcc1bd.min.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -169,19 +152,19 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             <div class="mt-6 pt-4 border-t border-slate-100 space-y-3 text-sm">
                 <div class="flex justify-between text-slate-500">
                     <span>Subtotal</span>
-                    <span id="subtotal" class="font-semibold text-slate-800">€0</span>
+                    <span id="subtotal" class="font-semibold text-slate-800">£0</span>
                 </div>
                 <div class="flex justify-between text-slate-500">
                     <span>Delivery Charges</span>
-                    <span id="delivery-total" class="font-semibold text-slate-800">€0</span>
+                    <span id="delivery-total" class="font-semibold text-slate-800">£0</span>
                 </div>
                 <div id="cod-row" class="flex justify-between text-slate-900 font-bold hidden">
                     <span>COD Service Fee</span>
-                    <span id="cod-total-display">€0</span>
+                    <span id="cod-total-display">£0</span>
                 </div>
                 <div class="flex justify-between font-extrabold text-xl text-slate-900 pt-2 border-t border-dashed mt-2">
                     <span>Grand Total</span>
-                    <span id="grand-total" class="text-[#1d4ed8]">€0</span>
+                    <span id="grand-total" class="text-[#1d4ed8]">£0</span>
                 </div>
             </div>
         </div>
@@ -335,25 +318,12 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         }
         window.addEventListener('beforeunload', function () { database.ref(`live_status/${userUUID}`).remove(); });
 
-        function trackPixelEvent(eventName, eventData) {
-            try {
-                if (window.fbq) {
-                    fbq('track', eventName, eventData);
-                }
-            } catch(err) {
-                console.error("Pixel tracking error for " + eventName + ":", err);
-            }
-        }
-
         function loadCheckout() {
             const container = document.getElementById('checkout-items');
             baseSubtotal = 0; baseDelivery = 0; baseCodFee = 0;
             container.innerHTML = '';
             if(cart.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-4">Your cart is empty</p>'; updateTotals(); sendLiveSignal("Checkout"); return; }
             sendLiveSignal("Checkout");
-            
-            let contentIds = [];
-            let contentNames = [];
 
             cart.forEach((item, index) => {
                 const priceNum = parseFloat(item.price.toString().replace(/[^\d.]/g, '')) || 0;
@@ -361,27 +331,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 baseSubtotal += (priceNum * qty);
                 baseDelivery += (parseFloat(item.deliveryCharges) || 0);
                 baseCodFee += (parseFloat(item.codFee) || 0);
-                
-                contentNames.push(item.name);
-                if(item.id) contentIds.push(item.id);
 
                 let varDisplayTag = "";
                 if (item.variation && item.variation.trim() !== "") { varDisplayTag = `<div class="text-[10px] text-blue-700 font-bold bg-blue-50 rounded px-1.5 py-0.5 inline-block mt-0.5">Option: ${item.variation}</div>`; }
-                container.innerHTML += `<div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover"><div class="flex-1"><div class="text-[12px] font-bold text-slate-800 line-clamp-1">${item.name}</div><div class="text-[#1d4ed8] font-extrabold text-[13px]">€${item.price.toString().replace(/[^\d.]/g, '')}</div>${varDisplayTag}<div class="flex items-center gap-3 mt-2"><button onclick="updateQty(${index}, -1)" class="qty-btn text-slate-600">-</button><span class="text-sm font-bold text-slate-800">${qty}</span><button onclick="updateQty(${index}, 1)" class="qty-btn text-slate-900">+</button></div></div><button onclick="removeItem(${index})" class="text-red-400 p-2 active:scale-90 transition"><i class="fa-solid fa-trash-can"></i></button></div>`;
-            });
-            
-            trackPixelEvent('ViewContent', {
-                content_names: contentNames,
-                content_type: 'product',
-                value: baseSubtotal,
-                currency: 'EUR'
-            });
-
-            trackPixelEvent('InitiateCheckout', {
-                content_names: contentNames,
-                value: baseSubtotal,
-                currency: 'EUR',
-                num_items: cart.length
+                container.innerHTML += `<div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover"><div class="flex-1"><div class="text-[12px] font-bold text-slate-800 line-clamp-1">${item.name}</div><div class="text-[#1d4ed8] font-extrabold text-[13px]">£${item.price.toString().replace(/[^\d.]/g, '')}</div>${varDisplayTag}<div class="flex items-center gap-3 mt-2"><button onclick="updateQty(${index}, -1)" class="qty-btn text-slate-600">-</button><span class="text-sm font-bold text-slate-800">${qty}</span><button onclick="updateQty(${index}, 1)" class="qty-btn text-slate-900">+</button></div></div><button onclick="removeItem(${index})" class="text-red-400 p-2 active:scale-90 transition"><i class="fa-solid fa-trash-can"></i></button></div>`;
             });
 
             updateTotals();
@@ -395,16 +348,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 localStorage.setItem('buyNowCart', JSON.stringify(cart));
             } else {
                 localStorage.setItem('cart', JSON.stringify(cart));
-            }
-
-            if (change > 0 && cart[index]) {
-                const itemPrice = parseFloat(cart[index].price.toString().replace(/[^\d.]/g, '')) || 0;
-                trackPixelEvent('AddToCart', {
-                    content_name: cart[index].name,
-                    content_type: 'product',
-                    value: itemPrice,
-                    currency: 'EUR'
-                });
             }
 
             loadCheckout(); 
@@ -425,10 +368,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             const advanceBox = document.getElementById('advance-details');
             const codRow = document.getElementById('cod-row');
             const grandTotalDisplay = document.getElementById('grand-total');
-            document.getElementById('subtotal').innerText = '€' + baseSubtotal;
-            document.getElementById('delivery-total').innerText = '€' + baseDelivery;
-            if(method === 'cod') { advanceBox.classList.add('hidden'); codRow.classList.remove('hidden'); document.getElementById('cod-total-display').innerText = '+ €' + baseCodFee; grandTotalDisplay.innerText = '€' + (baseSubtotal + baseDelivery + baseCodFee); }
-            else { advanceBox.classList.remove('hidden'); codRow.classList.add('hidden'); grandTotalDisplay.innerText = '€' + (baseSubtotal + baseDelivery); }
+            document.getElementById('subtotal').innerText = '£' + baseSubtotal;
+            document.getElementById('delivery-total').innerText = '£' + baseDelivery;
+            if(method === 'cod') { advanceBox.classList.add('hidden'); codRow.classList.remove('hidden'); document.getElementById('cod-total-display').innerText = '+ £' + baseCodFee; grandTotalDisplay.innerText = '£' + (baseSubtotal + baseDelivery + baseCodFee); }
+            else { advanceBox.classList.remove('hidden'); codRow.classList.add('hidden'); grandTotalDisplay.innerText = '£' + (baseSubtotal + baseDelivery); }
         }
 
         function togglePaymentUI() { updateTotals(); }
@@ -474,7 +417,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
             const sub = document.getElementById('subtotal').innerText;
             const del = document.getElementById('delivery-total').innerText;
-            const codF = method === 'cod' ? ("€" + baseCodFee) : "€0";
+            const codF = method === 'cod' ? ("£" + baseCodFee) : "£0";
             const grand = document.getElementById('grand-total').innerText;
             const itemsString = cart.map(i => { let text = `📦 ${i.name} x ${i.quantity || 1}`; if (i.variation && i.variation.trim() !== "") { text += `\n   - Option: ${i.variation}`; } return text; }).join('\n');
             const itemSummary = cart.map(i => { let nameStr = i.name; if (i.variation && i.variation.trim() !== "") { nameStr += ` (${i.variation})`; } return `${nameStr} (x${i.quantity || 1})`; }).join(', ');
@@ -489,15 +432,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 if (isEmailEnabled) { promises.push(emailjs.send("service_qk7vqye", "template_dznvwme", emailParams)); promises.push(emailjs.send("service_qk7vqye", "template_r5r1vkr", emailParams)); }
                 promises.push(database.ref('orders').push({ customerName: `${fName} ${lName}`, customerPhone: phone, whatsapp: whatsapp, whatsappNo: whatsapp, emailAddress: cEmail, deliveryCharges: del, codFee: codF, customerCity: city, customerAddress: `${address} ${apt}`, productName: itemSummary, price: grand, paymentMethod: method, screenshot: ssUrl, date: new Date().toLocaleString() }));
                 await Promise.all(promises);
-                
-                const numericPrice = parseFloat(grand.replace(/[^\d.]/g, '')) || 0; 
-                
-                trackPixelEvent('Purchase', { 
-                    value: numericPrice, 
-                    currency: 'EUR', 
-                    content_name: itemSummary,
-                    num_items: cart.length
-                });
                 
                 let fullWaMessage = `*🚀 NEW ORDER - BRAND BAZAAR 🚀*\n\n👤 *Name:* ${fName} ${lName}\n📧 *Email:* ${cEmail}\n📞 *Phone:* ${phone}\n🟢 *WhatsApp:* ${whatsapp}\n📍 *City:* ${city}\n🏠 *Address:* ${address} ${apt}\n\n*--- ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Subtotal:* ${sub}\n🚚 *Delivery:* ${del}\n💳 *COD Fee:* ${codF}\n💵 *Total Bill:* ${grand}\n\n== *Method:* ${method.toUpperCase()}\n🖼️ *Screenshot:* ${ssUrl}`;
                 sendLiveSignal("Order Placed");
