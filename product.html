@@ -275,9 +275,18 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         <img id="lightboxImg" src="" class="max-w-full max-h-full rounded-xl object-contain">
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-slate-100 flex gap-3 z-40">
-        <button onclick="handleAddToCart()" class="flex-1 bg-slate-100 text-slate-900 py-4 rounded-xl font-bold text-[15px]">Add to Cart</button>
-        <button onclick="handleBuyNow()" class="flex-1 bg-[#1a56db] text-white py-4 rounded-xl font-bold text-[15px] shadow-lg shadow-blue-100/50">Buy Now</button>
+    <!-- UPDATED BOTTOM BAR WITH 3 BUTTONS -->
+    <div class="fixed bottom-0 left-0 w-full p-3 bg-white/95 backdrop-blur-md border-t border-slate-100 flex gap-2 z-40">
+        <button onclick="handleAddToCart()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1">
+            <span>Add to Cart</span>
+        </button>
+        <button onclick="handleBuyFromAmazon()" class="flex-1 bg-[#FF9900] text-slate-900 py-3.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 shadow-md shadow-orange-100">
+            <i class="fa-brands fa-amazon text-sm"></i>
+            <span>Buy from Amazon</span>
+        </button>
+        <button onclick="handleBuyNow()" class="flex-1 bg-[#1a56db] text-white py-3.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1 shadow-lg shadow-blue-100/50">
+            <span>Buy Now</span>
+        </button>
     </div>
 
     <script>
@@ -876,6 +885,16 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
             toggleCart();
+        }
+
+        function handleBuyFromAmazon() {
+            if (!currentProduct) return;
+            const targetUrl = currentProduct.amazonLink || currentProduct.amazon_link;
+            if (targetUrl && targetUrl.trim() !== "") {
+                window.open(targetUrl.trim(), '_blank');
+            } else {
+                alert("Amazon link is not available for this product.");
+            }
         }
 
         function handleBuyNow() {
