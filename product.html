@@ -20,7 +20,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         :root { --primary-color: #1a56db; }
         
         .glass { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); }
-        .main-nav { background: white; border-bottom: 1px solid rgba(241, 245, 249, 0.5); display: flex; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; }
+        .main-nav { background: white; border-bottom: 1px solid rgba(241, 245, 249, 0.8); display: flex; align-items: center; position: fixed; top: 0; width: 100%; z-index: 5000; }
         .nav-grid { display: grid; grid-template-columns: 1fr auto 1fr; width: 100%; align-items: center; }
         
         .brand-logo { display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; gap: 0px; }
@@ -30,11 +30,11 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
         .sidebar { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 80%; max-width: 300px; background: white; height: 100vh; position: fixed; left: -110%; top: 0; z-index: 6000; }
         .sidebar.active { left: 0; }
-        .sidebar-header { background: var(--primary-color); color: #ffffff; padding: 18px 20px; display: flex; justify-between; align-items: center; font-weight: 700 !important; font-size: 18px; }
+        .sidebar-header { background: var(--primary-color); color: #ffffff; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 700 !important; font-size: 18px; }
         
         .cart-drawer { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 85%; max-width: 350px; background: white; height: 100dvh; position: fixed; right: -110%; top: 0; z-index: 6000; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); }
         .cart-drawer.active { right: 0; }
-        .cart-header { padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-between; align-items: center; font-weight: 700 !important; font-size: 16px; flex-shrink: 0; }
+        .cart-header { padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-weight: 700 !important; font-size: 16px; flex-shrink: 0; }
 
         #cartItemsList { flex: 1; overflow-y: auto; padding: 1rem; }
         .cart-footer { padding: 15px; border-top: 1px solid #f1f5f9; background: white; flex-shrink: 0; padding-bottom: calc(15px + env(safe-area-inset-bottom)); }
@@ -68,19 +68,20 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         }
     </style>
 </head>
-<body class="pt-[55px]">
+<body class="pt-[60px]">
 
     <div id="overlay" class="overlay" onclick="closeAll()"></div>
 
-    <nav class="main-nav glass px-4 py-0.5">
+    <!-- Balanced Navbar Padding Fix -->
+    <nav class="main-nav glass px-4 py-2">
         <div class="nav-grid">
-            <div class="flex justify-start">
-                <button onclick="toggleSidebar()" class="p-1">
+            <div class="flex justify-start items-center">
+                <button onclick="toggleSidebar()" class="p-1.5">
                     <i class="fa-solid fa-bars-staggered text-lg text-slate-800"></i>
                 </button>
             </div>
             
-            <div class="flex justify-center">
+            <div class="flex justify-center items-center">
                 <a href="index.html" class="brand-logo">
                     <img src="https://i.ibb.co/Lh0c2RFv/1000007418-removebg-preview.png" alt="SNAXU RSM Logo" class="brand-icon">
                     <div class="brand-name">
@@ -90,10 +91,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 </a>
             </div>
             
-            <div class="flex justify-end">
-                <div class="relative p-1 cursor-pointer" onclick="toggleCart()">
+            <div class="flex justify-end items-center">
+                <div class="relative p-1.5 cursor-pointer" onclick="toggleCart()">
                     <i class="fa-solid fa-cart-shopping text-lg text-slate-800"></i>
-                    <span id="cart-count" class="absolute -top-1 -right-1 text-white text-[8px] px-1 rounded-full border border-white font-bold" style="background: var(--primary-color)">0</span>
+                    <span id="cart-count" class="absolute top-0 right-0 text-white text-[9px] px-1 py-0.2 rounded-full border border-white font-bold" style="background: var(--primary-color)">0</span>
                 </div>
             </div>
         </div>
@@ -169,7 +170,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                             <span id="totalReviewsCountText" class="text-xs text-slate-400">(0 reviews)</span>
                         </div>
                     </div>
-                    <!-- WRITE A REVIEW BUTTON WITH BLUE THEME COLOR -->
                     <button onclick="startReviewFlow()" class="bg-[#1a56db] text-white text-xs px-4 py-2.5 rounded-xl font-bold shadow-md shadow-blue-100 hover:bg-blue-700 transition-all">Write a Review</button>
                 </div>
 
@@ -187,23 +187,19 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 </div>
 
                 <!-- Live Customer Reviews List Container -->
-                <div id="customerReviewsList" class="space-y-4">
-                    <!-- Dynamic reviews will load here -->
-                </div>
+                <div id="customerReviewsList" class="space-y-4"></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 0: Choose Stars First (Triggers on 'Write a Review' Click) -->
+    <!-- MODAL 0 -->
     <div id="reviewModal0" class="fixed inset-0 z-[7000] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="modal-wrapper modal-exit bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
             <button onclick="closeAllModals()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            
             <div class="text-center mb-6 pt-2">
                 <h3 class="text-base font-bold text-slate-900 uppercase tracking-wider">Rate Product</h3>
                 <p class="text-xs text-slate-400 mt-1">How many stars would you give this product?</p>
             </div>
-
             <div class="flex justify-center gap-3 text-3xl text-amber-400 cursor-pointer mb-6" id="modal0StarPicker">
                 <i class="fa-solid fa-star" onclick="setModal0Stars(1)"></i>
                 <i class="fa-solid fa-star" onclick="setModal0Stars(2)"></i>
@@ -211,20 +207,17 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 <i class="fa-solid fa-star" onclick="setModal0Stars(4)"></i>
                 <i class="fa-solid fa-star" onclick="setModal0Stars(5)"></i>
             </div>
-
             <div class="text-center mb-6">
                 <span id="modal0RatingTextLabel" class="text-xs font-bold text-[#1a56db] bg-blue-50 px-3 py-1 rounded-full">5 = Excellent</span>
             </div>
-
             <button onclick="proceedFromModal0To1()" class="w-full bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">Continue</button>
         </div>
     </div>
 
-    <!-- MODAL 1: Feedback & Image Upload -->
+    <!-- MODAL 1 -->
     <div id="reviewModal1" class="fixed inset-0 z-[7000] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="modal-wrapper modal-exit bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
             <button onclick="closeAllModals()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            
             <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
                 <img id="modalProdImg" src="" class="w-12 h-12 rounded-xl object-cover bg-slate-100 border">
                 <div>
@@ -232,13 +225,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                     <div class="flex items-center gap-1 text-amber-400 text-xs mt-0.5" id="modalStarsDisplay"></div>
                 </div>
             </div>
-
             <div class="mb-4">
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Your Feedback <span class="text-red-500">*</span></label>
                 <textarea id="reviewFeedbackInput" rows="4" placeholder="What did you like or dislike about this product?" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-[#1a56db]"></textarea>
             </div>
-
-            <!-- Image Upload Feature (Multiple Images with Change & Delete Functionality) -->
             <div class="mb-6">
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Attach Photos (Optional)</label>
                 <div class="flex flex-wrap gap-3 items-center" id="reviewImagesPreviewContainer">
@@ -248,10 +238,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                         <input type="file" accept="image/*" class="hidden" onchange="addNewReviewImage(event)">
                     </label>
                 </div>
-                <!-- Hidden Input for Editing Specific Existing Image -->
                 <input type="file" id="replaceImageFileInput" accept="image/*" class="hidden" onchange="handleReplaceImageSelect(event)">
             </div>
-
             <div class="flex gap-3">
                 <button onclick="backToModal0()" class="w-1/3 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest">Back</button>
                 <button onclick="proceedToModal2()" class="w-2/3 bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">Next</button>
@@ -259,26 +247,22 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         </div>
     </div>
 
-    <!-- MODAL 2: User Name & Email -> Submit -->
+    <!-- MODAL 2 -->
     <div id="reviewModal2" class="fixed inset-0 z-[7000] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="modal-wrapper modal-exit bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative">
             <button onclick="closeAllModals()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            
             <div class="text-center mb-6">
                 <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Almost Done!</h3>
                 <p class="text-xs text-slate-400 mt-1">Please enter your details to publish your review.</p>
             </div>
-
             <div class="mb-4">
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Your Name <span class="text-red-500">*</span></label>
                 <input type="text" id="reviewAuthorName" placeholder="e.g. Ali Ahmed" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-[#1a56db]">
             </div>
-
             <div class="mb-6">
                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email (Optional)</label>
                 <input type="email" id="reviewAuthorEmail" placeholder="e.g. ali@example.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-[#1a56db]">
             </div>
-
             <div class="flex gap-3">
                 <button onclick="backToModal1()" class="w-1/3 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest">Back</button>
                 <button id="submitReviewFinalBtn" onclick="submitFinalReview()" class="w-2/3 bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">Submit Review</button>
@@ -286,7 +270,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         </div>
     </div>
 
-    <!-- Lightbox Modal for Customer Image Viewing -->
+    <!-- Lightbox Modal -->
     <div id="imageLightboxModal" class="fixed inset-0 z-[8000] bg-black/90 hidden items-center justify-center p-4" onclick="closeLightbox()">
         <img id="lightboxImg" src="" class="max-w-full max-h-full rounded-xl object-contain">
     </div>
@@ -314,11 +298,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         let selectedVariationName = ""; 
         let selectedVariationPrice = ""; 
 
-        // Review Form States
         let currentSelectedRating = 5;
         let reviewFeedbackText = "";
-        let reviewBase64Images = []; // Multiple images array
-        let indexToReplaceImage = -1; // Stores target image index when changing photo
+        let reviewBase64Images = []; 
+        let indexToReplaceImage = -1; 
 
         let userUUID = localStorage.getItem('user_chat_id');
         if (!userUUID) {
@@ -532,7 +515,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             });
         }
 
-        // --- REVIEW SYSTEM WITH MULTI-IMAGE & CHANGE CAPABILITY ---
         const ratingLabels = {
             1: "1 = Poor",
             2: "2 = Fair",
@@ -541,7 +523,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             5: "5 = Excellent"
         };
 
-        // Smooth Animation Helper
         function showModalWithAnim(modalId) {
             const modal = document.getElementById(modalId);
             const wrapper = modal.querySelector('.modal-wrapper');
@@ -573,9 +554,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             document.getElementById('overlay').classList.remove('active');
         }
 
-        // STEP 0: When clicking "Write a Review" button -> Ask Stars First
         function startReviewFlow() {
-            setModal0Stars(5); // Default 5 stars
+            setModal0Stars(5); 
             document.getElementById('overlay').classList.add('active');
             showModalWithAnim('reviewModal0');
         }
@@ -603,7 +583,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             showModalWithAnim('reviewModal0');
         }
 
-        // Direct Click on page stars -> Goes directly to feedback popup (Step 1)
         function directStarClick(rating) {
             currentSelectedRating = rating;
             document.getElementById('overlay').classList.add('active');
@@ -628,7 +607,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             showModalWithAnim('reviewModal1');
         }
 
-        // Add new image to the list
         function addNewReviewImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -639,10 +617,9 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 };
                 reader.readAsDataURL(file);
             }
-            event.target.value = ""; // Reset input
+            event.target.value = ""; 
         }
 
-        // Click existing image to change/replace it
         function openReplaceImagePicker(index) {
             indexToReplaceImage = index;
             document.getElementById('replaceImageFileInput').click();
@@ -659,10 +636,9 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 };
                 reader.readAsDataURL(file);
             }
-            event.target.value = ""; // Reset input
+            event.target.value = ""; 
         }
 
-        // Render all image previews with Add, Edit, and Delete options
         function renderReviewImagePreviews() {
             const container = document.getElementById('reviewImagesPreviewContainer');
             container.innerHTML = `
@@ -727,8 +703,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 productName: currentProduct ? currentProduct.name : "",
                 rating: currentSelectedRating,
                 feedback: reviewFeedbackText,
-                images: reviewBase64Images, // Saved as an array of images
-                image: reviewBase64Images.length > 0 ? reviewBase64Images[0] : "", // Backward compatibility for single image view
+                images: reviewBase64Images, 
+                image: reviewBase64Images.length > 0 ? reviewBase64Images[0] : "", 
                 name: authorName,
                 email: authorEmail,
                 timestamp: Date.now(),
@@ -795,7 +771,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                             <p class="text-xs text-slate-700 leading-relaxed">${rev.feedback}</p>
                     `;
 
-                    // Render multiple images if available, else render single image
                     const revImages = rev.images || (rev.image ? [rev.image] : []);
                     if(revImages.length > 0) {
                         itemHtml += `<div class="mt-2 flex flex-wrap gap-2">`;
@@ -836,7 +811,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             document.getElementById('imageLightboxModal').classList.remove('flex');
             document.getElementById('imageLightboxModal').classList.add('hidden');
         }
-        // --- END REVIEW SYSTEM ---
 
         function renderCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
