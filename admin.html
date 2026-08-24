@@ -81,9 +81,6 @@
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Review cards intentionally have NO entrance animation — with several images per
-           card, re-triggering a fade/translate animation on every tab switch was the source
-           of the visible lag/jank. Cards now appear instantly. */
         .review-card { }
 
         /* --- REVIEW IMAGE LIGHTBOX VIEWER --- */
@@ -338,6 +335,9 @@
                     <div><label>Delivery Charges</label><input type="number" id="pDelivery" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" value="200"></div>
                     <div><label>COD Fee</label><input type="number" id="pCod" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" value="0"></div>
                 </div>
+                <!-- Amazon Link Field Added -->
+                <div class="mb-4"><label>Amazon Affiliate / Product Link</label><input type="text" id="pAmazonLink" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="https://amazon.com/... (Leave blank if not applicable)"></div>
+                
                 <div class="mb-4"><label>Description</label><textarea id="pDesc" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl h-24 outline-none" placeholder="Product description..."></textarea></div>
                 <div class="mb-6"><label>YouTube Video Link</label><input type="text" id="pVideo" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="YouTube URL..."></div>
                 
@@ -451,7 +451,6 @@
         const ADMIN_USER = "waleed5211";
         const ADMIN_PASS = "waleed123.";
 
-        // --- HELPER FUNCTIONS FOR COOKIES READING/WRITING ---
         function setPanelCookie(name, value, days) {
             let expires = "";
             if (days) {
@@ -473,7 +472,6 @@
             return null;
         }
 
-        // Immediate Authentication Check Layer Execution Engine (With Cookie Validation Support)
         (function evaluateSessionState() {
             if (sessionStorage.getItem("w_panel_auth") === "true" || getPanelCookie("w_remember_token") === "active_session") {
                 document.addEventListener("DOMContentLoaded", () => {
@@ -517,22 +515,22 @@
         }
         // =================== END SECURITY LAYER ENGINE ===================
 
-        // NEW UPDATED FIREBASE CONFIGURATION (Slashes slash formatting stabilized)
+        // UPDATED FIREBASE CONFIGURATION (Aapka Diya Hua)
         const firebaseConfig = {
-            apiKey: "AIzaSyAfYl3nFIp59A_qCnWdNaIOxliZ2YlJMLM",
-            authDomain: "smart-gadget-dcce3.firebaseapp.com",
-            databaseURL: "https://smart-gadget-dcce3-default-rtdb.firebaseio.com/",
-            projectId: "smart-gadget-dcce3",
-            storageBucket: "smart-gadget-dcce3.firebasestorage.app",
-            messagingSenderId: "710583742192",
-            appId: "1:710583742192:web:281c2b50b5f65cb6ba9c35",
-            measurementId: "G-MGPQ1GJ5CN"
+            apiKey: "AIzaSyBZQ__x-D12c1hnuSRFDIJlFJpCLhtzCN4",
+            authDomain: "snaxu-rsm.firebaseapp.com",
+            databaseURL: "https://snaxu-rsm-default-rtdb.firebaseio.com",
+            projectId: "snaxu-rsm",
+            storageBucket: "snaxu-rsm.firebasestorage.app",
+            messagingSenderId: "126279163854",
+            appId: "1:126279163854:web:7865148bea4a59912f159f",
+            measurementId: "G-2QBHEZ5B4Z"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // NEW IMGBB API KEY
-        const imgbbKey = "6408d90314e10ab4bab623c99b6269c5";
+        // UPDATED IMGBB API KEY (Aapka Diya Hua)
+        const imgbbKey = "4405527d68f68414d2fe95dc732c97d0";
 
         let activeChatUserID = null;
         let isBellOn = false;
@@ -567,7 +565,6 @@
             if(window.innerWidth < 768) toggleSidebar();
         }
 
-        /* --- DYNAMIC IMAGE FIELDS FOR ADD PRODUCT --- */
         function addNewImageField() {
             imageCount++;
             const container = document.getElementById('image-inputs-container');
@@ -588,7 +585,6 @@
             label.innerHTML = `<i class="fa-solid fa-check-circle mb-1"></i><br>Ready`;
         }
 
-        /* --- DYNAMIC VARIATIONS UI ROWS SYSTEM --- */
         let variationCounter = 0;
         function addNewVariationRow() {
             variationCounter++;
@@ -622,7 +618,6 @@
             }
         }
 
-        /* --- MASTER EMAIL TOGGLE FUNCTIONS --- */
         database.ref('settings/emailStatus').on('value', (snap) => {
             isMasterEmailOn = snap.val() === 'on';
             const btn = document.getElementById('masterEmailBtn');
@@ -648,7 +643,6 @@
             await database.ref('settings/emailStatus').set(newState);
         }
 
-        /* --- ANNOUNCEMENT SLIDER FUNCTIONS --- */
         function applyColor() {
             const color = document.getElementById('textColorPicker').value;
             document.execCommand('foreColor', false, color);
@@ -669,7 +663,6 @@
             if(snap.exists()) document.getElementById('announcementEditor').innerHTML = snap.val().content;
         });
 
-        // --- Chat & Support Management ---
         database.ref('user_chats').on('value', (snapshot) => {
             const list = document.getElementById('chat-users-list');
             const notifDot = document.getElementById('msg-notif-dot');
@@ -748,7 +741,6 @@
         }
         function closeChat() { activeChatUserID = null; document.getElementById('chat-window').classList.add('hidden'); document.getElementById('chat-placeholder').classList.remove('hidden'); }
 
-        // --- Store Management (Slider, Products, Orders) ---
         async function uploadSliderImage() {
             const file = document.getElementById('sliderFileInput').files[0];
             const status = document.getElementById('sliderUploadStatus');
@@ -876,6 +868,7 @@
 
             const cleanDesc = p.desc ? p.desc.replace(/"/g, '&quot;') : '';
             const youtubeVideoLink = p.video || '';
+            const amazonLinkValue = p.amazonLink || ''; // Edit modal ke liye Amazon link
 
             content.innerHTML = `
                 <div class="space-y-3">
@@ -888,6 +881,9 @@
                         <div><label>Delivery</label><input type="number" id="eDel" value="${p.delivery || 200}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none"></div>
                         <div><label>COD Fee</label><input type="number" id="eCod" value="${p.cod_fee || 0}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none"></div>
                     </div>
+                    <!-- Amazon Link Field inside Edit Modal -->
+                    <div><label>Amazon Link</label><input type="text" id="eAmazonLink" value="${amazonLinkValue}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none" placeholder="https://amazon.com/..."></div>
+                    
                     <div><label>Description</label><textarea id="eDesc" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 h-24 outline-none">${cleanDesc}</textarea></div>
                     <div><label>YouTube Link</label><input type="text" id="eVideo" value="${youtubeVideoLink}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none" placeholder="YouTube URL..."></div>
                     
@@ -902,7 +898,6 @@
             document.getElementById('orderModal').classList.add('active');
         }
 
-        /* --- STABLE PRE-COMPILATION DRAFT SYSTEM ROUTINES --- */
         function addNewVariationToDraft(productKey) {
             const p = globalProductsCache[productKey];
             p.name = document.getElementById('eName').value;
@@ -910,6 +905,7 @@
             p.originalPrice = document.getElementById('eOldPrice').value;
             p.delivery = document.getElementById('eDel').value;
             p.cod_fee = document.getElementById('eCod').value;
+            p.amazonLink = document.getElementById('eAmazonLink').value;
             p.desc = document.getElementById('eDesc').value;
             p.video = document.getElementById('eVideo').value;
 
@@ -942,6 +938,7 @@
                 p.originalPrice = document.getElementById('eOldPrice').value;
                 p.delivery = document.getElementById('eDel').value;
                 p.cod_fee = document.getElementById('eCod').value;
+                p.amazonLink = document.getElementById('eAmazonLink').value;
                 p.desc = document.getElementById('eDesc').value;
                 p.video = document.getElementById('eVideo').value;
                 p.variations = currentEditingVariations;
@@ -971,6 +968,7 @@
                         p.originalPrice = document.getElementById('eOldPrice').value;
                         p.delivery = document.getElementById('eDel').value;
                         p.cod_fee = document.getElementById('eCod').value;
+                        p.amazonLink = document.getElementById('eAmazonLink').value;
                         p.desc = document.getElementById('eDesc').value;
                         p.video = document.getElementById('eVideo').value;
                         p.variations = currentEditingVariations;
@@ -992,13 +990,13 @@
             p.originalPrice = document.getElementById('eOldPrice').value;
             p.delivery = document.getElementById('eDel').value;
             p.cod_fee = document.getElementById('eCod').value;
+            p.amazonLink = document.getElementById('eAmazonLink').value;
             p.desc = document.getElementById('eDesc').value;
             p.video = document.getElementById('eVideo').value;
             p.variations = currentEditingVariations;
             openEditProduct(p, productKey);
         }
 
-        /* --- ARRANGE / MOVE IMAGES ORDER --- */
         let temporaryTargetKey = null;
         let temporaryTargetIndex = null;
 
@@ -1020,7 +1018,6 @@
             }
         }
 
-        /* --- REPLACE CURRENT IMAGE BY CLICKING IT --- */
         function triggerReplaceImage(key, index) {
             temporaryTargetKey = key;
             temporaryTargetIndex = index;
@@ -1062,7 +1059,6 @@
             temporaryTargetIndex = null;
         }
 
-        /* --- REDIRECT LOGIC TO REMOVE IMAGE IN EDIT MODE --- */
         async function removeImageFromProduct(key, imgIndex) {
             if(!confirm("Are you sure you want to delete this image?")) return;
             const snap = await database.ref('products/' + key).once('value');
@@ -1077,7 +1073,6 @@
             }
         }
 
-        /* --- LOGIC TO UPLOAD & ADD NEW IMAGE IN EDIT MODE --- */
         async function uploadNewImageToProduct(key) {
             const fileInput = document.getElementById('editModalNewImg');
             const statusEl = document.getElementById('editImgStatus');
@@ -1113,6 +1108,7 @@
 
         async function updateProduct(key) {
             const videoValue = document.getElementById('eVideo').value;
+            const amazonLinkValue = document.getElementById('eAmazonLink').value;
             let cleanVariationsPayload = null;
             if (currentEditingVariations && currentEditingVariations.length > 0) {
                 cleanVariationsPayload = currentEditingVariations.map(v => ({
@@ -1128,6 +1124,7 @@
                 originalPrice: document.getElementById('eOldPrice').value, 
                 delivery: document.getElementById('eDel').value, 
                 cod_fee: document.getElementById('eCod').value, 
+                amazonLink: amazonLinkValue,
                 desc: document.getElementById('eDesc').value, 
                 video: videoValue,
                 variations: cleanVariationsPayload
@@ -1329,7 +1326,6 @@
 
         function deleteOrder(key) { if(confirm("Delete order?")) { database.ref('orders/' + key).remove(); closeModal(); } }
 
-        /* --- REVIEW MANAGEMENT SYSTEM --- */
         function switchReviewFilterView(targetTab) {
             currentReviewFilterTab = targetTab;
             const btnPending = document.getElementById('review-tab-pending');
@@ -1360,7 +1356,6 @@
             renderReviewsEngine();
         });
 
-        /* --- REVIEW IMAGE LIGHTBOX VIEWER LOGIC --- */
         let currentLightboxImages = [];
         let currentLightboxIndex = 0;
 
@@ -1379,8 +1374,6 @@
             document.getElementById('lightboxImage').src = currentLightboxImages[currentLightboxIndex];
         }
 
-        // Helper for review thumbnails: receives the full image list (URI-encoded JSON)
-        // plus which one was clicked, so the lightbox opens with slide/prev-next support.
         function openImageLightboxFromData(encodedImagesJson, startIndex) {
             try {
                 const images = JSON.parse(decodeURIComponent(encodedImagesJson));
@@ -1408,11 +1401,7 @@
             if(e.key === 'ArrowLeft') navigateLightbox(-1);
             if(e.key === 'ArrowRight') navigateLightbox(1);
         });
-        /* --- END REVIEW IMAGE LIGHTBOX VIEWER LOGIC --- */
 
-        /* Extracts every image URL a review might carry — supports a real images[] array,
-           a single image string, or a comma/pipe separated string of multiple URLs — so
-           reviews with 1, 2, 3 or many photos all display correctly. */
         function extractReviewImages(r) {
             let raw = [];
             if (Array.isArray(r.images)) raw = r.images;
@@ -1528,7 +1517,6 @@
                 database.ref('product_reviews/' + key).remove();
             }
         }
-        /* --- END REVIEW MANAGEMENT SYSTEM --- */
 
         async function uploadAll() {
             const btn = document.getElementById('uploadBtn');
@@ -1576,209 +1564,30 @@
                     }
                 }
 
+                // Amazon Link value capture karte waqt
+                const amazonLinkInputVal = document.getElementById('pAmazonLink').value;
+
                 await database.ref('products').push({ 
                     name: document.getElementById('pName').value, 
                     price: document.getElementById('pPrice').value, 
                     originalPrice: document.getElementById('pOldPrice').value, 
                     delivery: document.getElementById('pDelivery').value, 
                     cod_fee: document.getElementById('pCod').value, 
+                    amazonLink: amazonLinkInputVal, // Firebase me save ho raha hai
                     desc: document.getElementById('pDesc').value, 
-                    video: document.getElementById('pVideo').value, 
-                    images: uploadedUrls, 
-                    variations: productVariationsArray.length > 0 ? productVariationsArray : null,
-                    date: new Date().toLocaleString() 
+                    video: document.getElementById('pVideo').value,
+                    images: uploadedUrls,
+                    variations: productVariationsArray.length > 0 ? productVariationsArray : null
                 });
 
-                alert("Success!"); location.reload();
-            } catch (e) { alert("Error!"); btn.disabled = false; btn.innerText = "Upload Product"; }
-        }
-
-        // =================== START STATISTICS BACKGROUND ENGINE LOGIC ===================
-        database.ref('live_status').on('value', (snapshot) => {
-            const liveTrafficCountEl = document.getElementById('liveTrafficCount');
-            const livePagesListEl = document.getElementById('livePagesList');
-            
-            if(!liveTrafficCountEl || !livePagesListEl) return;
-
-            if(!snapshot.exists()) {
-                liveTrafficCountEl.innerText = "0";
-                livePagesListEl.innerHTML = `<p class="text-slate-500 text-center py-10">Zero user online right now.</p>`;
-                return;
-            }
-
-            let liveCount = 0;
-            let listHTML = "";
-            const cutoffTime = Date.now() - (60 * 1000); 
-
-            snapshot.forEach(child => {
-                const session = child.val();
-                if(session.lastActive && session.lastActive > cutoffTime) {
-                    liveCount++;
-                    const pageName = session.currentPage || "Browsing Store";
-                    listHTML += `
-                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/40 border border-slate-800/80">
-                            <div class="flex items-center gap-2 truncate">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></span>
-                                <span class="text-slate-300 font-semibold truncate text-[11px]">Visitor_${child.key.substring(0,5)}</span>
-                            </div>
-                            <span class="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md font-medium truncate max-w-[120px]">${pageName}</span>
-                        </div>`;
-                }
-            });
-
-            liveTrafficCountEl.innerText = liveCount;
-            livePagesListEl.innerHTML = liveCount > 0 ? listHTML : `<p class="text-slate-500 text-center py-10">Zero user online right now.</p>`;
-        });
-
-        database.ref('site_traffic').on('value', (snapshot) => {
-            globalTrafficCache = {};
-            if(snapshot.exists()) {
-                globalTrafficCache = snapshot.val();
-            }
-            filterMetricsByTimeRange();
-        });
-
-        function toggleSaleCardDisplay() {
-            const selection = document.getElementById('saleCardViewSelect').value;
-            const totalVal = document.getElementById('statTotalRevenue').innerText;
-            const todayVal = document.getElementById('statTodayRevenue').innerText;
-            
-            if(selection === 'today') {
-                document.getElementById('saleCardValueDisplay').innerText = todayVal;
-                document.getElementById('saleCardSecondaryLabel').innerText = "Total Revenue:";
-                document.getElementById('saleCardSecondaryValue').innerText = totalVal;
-            } else {
-                document.getElementById('saleCardValueDisplay').innerText = totalVal;
-                document.getElementById('saleCardSecondaryLabel').innerText = "Today's Cash:";
-                document.getElementById('saleCardSecondaryValue').innerText = todayVal;
-            }
-        }
-
-        function toggleOrderCardDisplay() {
-            const selection = document.getElementById('orderCardViewSelect').value;
-            const totalVal = document.getElementById('statTotalOrders').innerText;
-            const todayVal = document.getElementById('statTodayOrders').innerText;
-            
-            if(selection === 'today') {
-                document.getElementById('orderCardValueDisplay').innerText = todayVal;
-                document.getElementById('orderCardSecondaryLabel').innerText = "Total Orders:";
-                document.getElementById('orderCardSecondaryValue').innerText = totalVal + " Orders";
-            } else {
-                document.getElementById('orderCardValueDisplay').innerText = totalVal;
-                document.getElementById('orderCardSecondaryLabel').innerText = "Today's Orders:";
-                document.getElementById('orderCardSecondaryValue').innerText = todayVal;
-            }
-        }
-
-        function filterMetricsByTimeRange() {
-            const rangeDays = document.getElementById('statsTimeFilter')?.value || "30";
-            const nowMs = Date.now();
-            const filterLimitMs = rangeDays === 'all' ? 0 : nowMs - (parseInt(rangeDays) * 24 * 60 * 60 * 1000);
-            const todayLocaleStr = new Date().toLocaleDateString();
-
-            let totalRevenueSum = 0;
-            let totalOrdersCount = 0;
-            let todayRevenueSum = 0;
-            let todayOrdersCount = 0;
-
-            Object.values(globalOrdersCache).forEach(order => {
-                if(!order) return;
-                let rawPrice = 0;
-                if(order.price) {
-                    rawPrice = parseInt(order.price.toString().replace(/\D/g, '')) || 0;
-                }
-
-                let orderTimestampMs = nowMs; 
-                if(order.date) {
-                    orderTimestampMs = Date.parse(order.date) || nowMs;
-                    const orderLocaleDate = new Date(orderTimestampMs).toLocaleDateString();
-                    if(orderLocaleDate === todayLocaleStr) {
-                        todayRevenueSum += rawPrice;
-                        todayOrdersCount++;
-                    }
-                }
-
-                if(orderTimestampMs >= filterLimitMs) {
-                    totalRevenueSum += rawPrice;
-                    totalOrdersCount++;
-                }
-            });
-
-            if (document.getElementById('statTodayRevenue')) document.getElementById('statTodayRevenue').innerText = 'Rs. ' + todayRevenueSum.toLocaleString();
-            if (document.getElementById('statTodayOrders')) document.getElementById('statTodayOrders').innerText = todayOrdersCount + ' Orders';
-            if (document.getElementById('statTotalRevenue')) document.getElementById('statTotalRevenue').innerText = 'Rs. ' + totalRevenueSum.toLocaleString();
-            if (document.getElementById('statTotalOrders')) document.getElementById('statTotalOrders').innerText = totalOrdersCount;
-
-            toggleSaleCardDisplay();
-            toggleOrderCardDisplay();
-
-            let totalPageViewsFiltered = 0;
-            let historyLogContainerHTML = "";
-            let parsedTrafficArray = [];
-
-            Object.keys(globalTrafficCache).forEach(key => {
-                const nodeData = globalTrafficCache[key];
-                if(!nodeData || !nodeData.timestamp) return;
-
-                if(nodeData.timestamp >= filterLimitMs) {
-                    totalPageViewsFiltered++;
-                    parsedTrafficArray.push(nodeData);
-                }
-            });
-
-            if (document.getElementById('statTotalTraffic')) document.getElementById('statTotalTraffic').innerText = totalPageViewsFiltered.toLocaleString();
-
-            parsedTrafficArray.sort((a,b) => b.timestamp - a.timestamp);
-            const maximumVisibleLogs = parsedTrafficArray.slice(0, 40); 
-
-            if(maximumVisibleLogs.length > 0) {
-                maximumVisibleLogs.forEach(log => {
-                    const timeString = log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A';
-                    historyLogContainerHTML += `
-                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/30 border border-slate-800/50 hover:bg-slate-900/60 transition">
-                            <span class="text-slate-400 text-[11px]"><i class="fa-regular fa-clock mr-1 text-slate-600"></i>${timeString}</span>
-                            <span class="text-purple-400 font-semibold bg-purple-500/10 px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">${log.page || 'Page Open'}</span>
-                        </div>`;
-                });
-            } else {
-                historyLogContainerHTML = `<p class="text-slate-500 text-center py-10 text-[11px]">No logged historical traffic matching selected timeframe criteria.</p>`;
-            }
-            if (document.getElementById('trafficHistoryTimeline')) document.getElementById('trafficHistoryTimeline').innerHTML = historyLogContainerHTML;
-        }
-
-        /* --- SYSTEM WIDEOUT MASTER RESET FUNCTION --- */
-        async function triggerMasterStoreWipeout() {
-            const step1 = confirm("⚠️ WARNING!\nKya aap sach mein store ka saara purana data aik hi baar mein delete karna chahte hain?");
-            if(!step1) return;
-
-            const step2 = confirm("🚨 CRITICAL ACCOUNT WIPE WARNING!\nIs se apke saare orders, customer messages, site traffic analytics history logs aur active sessions completely database aur storage se destroy ho jayenge. Kya aap sure hain?");
-            if(!step2) return;
-
-            const verificationPhrase = prompt("Is complex action ko verify karne ke liye yahan uppercase mein 'DELETE ALL' likhein:");
-            if(verificationPhrase !== "DELETE ALL") {
-                alert("Verification failed! Reset sequence canceled safely.");
-                return;
-            }
-
-            try {
-                const targetWipeNodes = ['orders', 'user_chats', 'chat_history', 'site_traffic', 'live_status'];
-                for (let node of targetWipeNodes) {
-                    await database.ref(node).remove();
-                }
-
-                globalOrdersCache = {};
-                globalTrafficCache = {};
-                alert("🔥 Success! Store dashboard database statistics logs aur files successfully clear ho chuki hain.");
+                alert("Product uploaded successfully with Amazon Link!");
                 location.reload();
-            } catch (runtimeError) {
-                alert("Wipe operation encountered an error.");
-                console.error(runtimeError);
+            } catch(e) {
+                alert("Upload failed!");
+                btn.disabled = false;
+                btn.innerHTML = "Upload Product";
             }
         }
-
-        setInterval(() => { filterMetricsByTimeRange(); }, 30000);
-        setTimeout(() => { filterMetricsByTimeRange(); }, 1200);
-        // =================== END STATISTICS BACKGROUND ENGINE LOGIC ===================
     </script>
 </body>
 </html>
