@@ -92,19 +92,14 @@
                 <i class="fa-solid fa-location-dot text-[#1d4ed8]"></i> Shipping Details
             </h2>
             
-            <!-- First Name & Last Name (Side by Side) -->
             <div class="grid grid-cols-2 gap-3">
                 <input type="text" id="firstName" placeholder="First name *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
                 <input type="text" id="lastName" placeholder="Last name *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
             </div>
 
-            <!-- Email Address -->
             <input type="email" id="custEmail" placeholder="Email Address *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
-
-            <!-- Phone Number -->
             <input type="tel" id="custPhone" placeholder="Phone Number *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
 
-            <!-- Country (Fixed UK) -->
             <div>
                 <label class="block text-xs font-semibold text-slate-500 mb-1 ml-1">Country / Region</label>
                 <select id="custCountry" class="w-full p-4 bg-slate-100 text-slate-800 font-medium rounded-2xl outline-none border border-transparent cursor-not-allowed text-sm" disabled>
@@ -112,19 +107,10 @@
                 </select>
             </div>
 
-            <!-- Address Line 1 -->
             <input type="text" id="custAddress1" placeholder="Address Line 1 (House number, street name) *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
-
-            <!-- Address Line 2 (Optional) -->
             <input type="text" id="custAddress2" placeholder="Address Line 2 (Optional: Apartment, suite, unit, etc.)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
-
-            <!-- Town / City -->
             <input type="text" id="custCity" placeholder="Town / City *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
-
-            <!-- County (Optional) -->
             <input type="text" id="custCounty" placeholder="County (Optional)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
-
-            <!-- Postcode -->
             <input type="text" id="custPostcode" placeholder="Postcode (e.g. SW1A 1AA) *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] uppercase text-sm">
         </div>
 
@@ -152,29 +138,22 @@
                     Pay securely using Card, Apple Pay, Google Pay, or PayPal.
                 </p>
 
-                <!-- Payment Provider Icons -->
                 <div class="flex flex-wrap items-center gap-2 pl-6 pt-2 border-t border-slate-200">
-                    <!-- Visa -->
                     <div class="h-7 px-2.5 bg-white rounded border border-slate-200 flex items-center justify-center text-blue-800 font-extrabold italic text-xs tracking-wider">
                         VISA
                     </div>
-                    <!-- Mastercard -->
                     <div class="h-7 px-2.5 bg-white rounded border border-slate-200 flex items-center justify-center font-bold text-xs text-orange-600 gap-1">
                         <i class="fa-solid fa-circle text-red-500 text-[10px]"></i><i class="fa-solid fa-circle text-yellow-500 text-[10px] -ml-2"></i>
                     </div>
-                    <!-- AMEX -->
                     <div class="h-7 px-2 bg-blue-600 text-white rounded font-black text-[10px] flex items-center justify-center">
                         AMEX
                     </div>
-                    <!-- Apple Pay -->
                     <div class="h-7 px-2.5 bg-black text-white rounded font-bold text-xs flex items-center justify-center gap-1">
                         <i class="fa-brands fa-apple text-sm"></i> Pay
                     </div>
-                    <!-- Google Pay -->
                     <div class="h-7 px-2.5 bg-white border border-slate-200 rounded font-bold text-xs flex items-center justify-center gap-0.5 text-slate-700">
                         <span class="text-blue-500">G</span>Pay
                     </div>
-                    <!-- PayPal -->
                     <div class="h-7 px-2.5 bg-sky-50 border border-sky-200 rounded font-bold text-xs flex items-center justify-center text-blue-900 italic">
                         PayPal
                     </div>
@@ -195,7 +174,6 @@
     <script>
         (function(){ emailjs.init({ publicKey: "hUB2Fd1u6Uxou_Na0" }); })();
         
-        // Initialize Firebase Compat Realtime DB
         const firebaseConfig = {
           apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
           authDomain: "snaxu-rsm-21cc9.firebaseapp.com",
@@ -247,7 +225,7 @@
 
                 let varDisplayTag = "";
                 if (item.variation && item.variation.trim() !== "") { varDisplayTag = `<div class="text-[10px] text-blue-700 font-bold bg-blue-50 rounded px-1.5 py-0.5 inline-block mt-0.5">Option: ${item.variation}</div>`; }
-                container.innerHTML += `<div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover"><div class="flex-1"><div class="text-[12px] font-bold text-slate-800 line-clamp-1">${item.name}</div><div class="text-[#1d4ed8] font-extrabold text-[13px]">£${item.price.toString().replace(/[^\d.]/g, '')}</div>${varDisplayTag}<div class="flex items-center gap-3 mt-2"><button onclick="updateQty(${index}, -1)" class="qty-btn text-slate-600">-</button><span class="text-sm font-bold text-slate-800">${qty}</span><button onclick="updateQty(${index}, 1)" class="qty-btn text-slate-900">+</button></div></div><button onclick="removeItem(${index})" class="text-red-400 p-2 active:scale-90 transition"><i class="fa-solid fa-trash-can"></i></button></div>`;
+                container.innerHTML += `<div class="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover"><div class="flex-1"><div class="text-[12px] font-bold text-slate-800 line-clamp-1">${item.name}</div><div class="text-[#1d4ed8] font-extrabold text-[13px]">£${priceNum.toFixed(2)}</div>${varDisplayTag}<div class="flex items-center gap-3 mt-2"><button onclick="updateQty(${index}, -1)" class="qty-btn text-slate-600">-</button><span class="text-sm font-bold text-slate-800">${qty}</span><button onclick="updateQty(${index}, 1)" class="qty-btn text-slate-900">+</button></div></div><button onclick="removeItem(${index})" class="text-red-400 p-2 active:scale-90 transition"><i class="fa-solid fa-trash-can"></i></button></div>`;
             });
 
             updateTotals();
@@ -278,9 +256,13 @@
 
         function updateTotals() {
             const grandTotalDisplay = document.getElementById('grand-total');
-            document.getElementById('subtotal').innerText = '£' + baseSubtotal;
-            document.getElementById('delivery-total').innerText = '£' + baseDelivery;
-            grandTotalDisplay.innerText = '£' + (baseSubtotal + baseDelivery);
+            const subtotalClean = baseSubtotal.toFixed(2);
+            const deliveryClean = baseDelivery.toFixed(2);
+            const grandTotalClean = (baseSubtotal + baseDelivery).toFixed(2);
+
+            document.getElementById('subtotal').innerText = '£' + subtotalClean;
+            document.getElementById('delivery-total').innerText = '£' + deliveryClean;
+            grandTotalDisplay.innerText = '£' + grandTotalClean;
         }
 
         window.addEventListener('pageshow', function(event) {
@@ -316,7 +298,6 @@
             const postcode = document.getElementById('custPostcode').value.trim();
             const btn = document.getElementById('orderBtn');
 
-            // Validation for required UK fields
             if(!fName || !lName || !cEmail || !phone || !addr1 || !city || !postcode) {
                 return alert("Please fill in all required shipping fields!");
             }
@@ -380,7 +361,7 @@
                 
                 await Promise.all(promises);
                 
-                let fullWaMessage = `*🚀 NEW ORDER - BRAND BAZAAR 🚀*\n\n👤 *Name:* ${fName} ${lName}\n📧 *Email:* ${cEmail}\n📞 *Phone:* ${phone}\n📍 *Address:* ${fullAddress}\n\n*--- ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Subtotal:* ${sub}\n🚚 *Delivery:* ${del}\n💵 *Total Bill:* ${grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)`;
+                let fullWaMessage = `*🚀 NEW ORDER - SNAXU RSM 🚀*\n\n👤 *Name:* ${fName} ${lName}\n📧 *Email:* ${cEmail}\n📞 *Phone:* ${phone}\n📍 *Address:* ${fullAddress}\n\n*--- ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Subtotal:* ${sub}\n🚚 *Delivery:* ${del}\n💵 *Total Bill:* ${grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)`;
                 
                 sendLiveSignal("Order Placed");
                 triggerSuccessEffects();
@@ -391,7 +372,7 @@
                     localStorage.removeItem('cart');
                 }
                 
-                setTimeout(() => { window.location.href = `whatsapp://send?phone=923065472228&text=${encodeURIComponent(fullWaMessage)}`; }, 2500);
+                setTimeout(() => { window.location.href = `whatsapp://send?phone=447508097607&text=${encodeURIComponent(fullWaMessage)}`; }, 2500);
             } catch(e) { 
                 console.error(e); 
                 Sentry.captureException(e); 
