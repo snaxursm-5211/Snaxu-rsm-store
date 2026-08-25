@@ -353,9 +353,13 @@
                     customerCity: city, 
                     customerAddress: fullAddress, 
                     postcode: postcode,
+                    itemsDetailed: itemsString,
                     productName: itemSummary, 
+                    subtotal: sub,
                     price: grand, 
                     paymentMethod: "Card / Stripe", 
+                    status: 'pending',
+                    timestamp: Date.now(),
                     date: new Date().toLocaleString() 
                 }));
                 
