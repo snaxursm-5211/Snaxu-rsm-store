@@ -270,8 +270,8 @@
         <i class="fa-brands fa-whatsapp text-2xl"></i>
     </a>
 
-    <!-- Navbar height increased slightly using py-2.5 -->
-    <nav id="main-nav" class="glass fixed w-full z-[5000] px-4 py-2.5 border-b border-slate-100/50">
+    <!-- Navbar height adjusted slightly to py-1.5 for perfect balance -->
+    <nav id="main-nav" class="glass fixed w-full z-[5000] px-4 py-1.5 border-b border-slate-100/50">
         <div class="container mx-auto grid grid-cols-3 items-center">
             <div class="flex justify-start">
                 <button onclick="toggleMenu()" class="p-1">
@@ -369,7 +369,6 @@
                 </div>
             </div>
 
-            <!-- Added YouTube link back alongside TikTok and Instagram -->
             <div class="flex justify-center items-center gap-6 max-w-xs mx-auto" data-aos="fade-up" data-aos-delay="200">
                 <a href="https://youtube.com/@snaxursm?si=LIGw1kF836_isUqp" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center social-icon-wrap">
                     <div class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 transition">
@@ -410,16 +409,16 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // ===== FIREBASE =====
+        // ===== FIREBASE CONFIG REPLACED =====
         const firebaseConfig = {
-            apiKey: "AIzaSyBZQ__x-D12c1hnuSRFDIJlFJpCLhtzCN4",
-            authDomain: "snaxu-rsm.firebaseapp.com",
-            databaseURL: "https://snaxu-rsm-default-rtdb.firebaseio.com",
-            projectId: "snaxu-rsm",
-            storageBucket: "snaxu-rsm.firebasestorage.app",
-            messagingSenderId: "126279163854",
-            appId: "1:126279163854:web:7865148bea4a59912f159f",
-            measurementId: "G-2QBHEZ5B4Z"
+            apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
+            authDomain: "snaxu-rsm-21cc9.firebaseapp.com",
+            databaseURL: "https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com",
+            projectId: "snaxu-rsm-21cc9",
+            storageBucket: "snaxu-rsm-21cc9.firebasestorage.app",
+            messagingSenderId: "310366807539",
+            appId: "1:310366807539:web:61beb0fecbd55632695e86",
+            measurementId: "G-LME2P5WZTK"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
