@@ -1286,7 +1286,8 @@
             }
         }
 
-        database.ref('reviews').on('value', (snapshot) => {
+        /* --- REVIEWS ENGINE (now unified on product_reviews / rating / feedback / userName->name) --- */
+        database.ref('product_reviews').on('value', (snapshot) => {
             globalReviewsCache = snapshot.val() || {};
             renderReviewsEngine();
         });
@@ -1355,16 +1356,21 @@
 
             keys.forEach(key => {
                 const rev = globalReviewsCache[key];
+                // product.html reviews use status implicitly absent = pending; keep same semantics as before
                 const isApproved = rev.status === 'approved';
                 if(!isApproved) hasPending = true;
 
                 if((currentReviewFilterTab === 'pending' && !isApproved) || (currentReviewFilterTab === 'confirmed' && isApproved)) {
                     count++;
-                    const prodName = globalProductsCache[rev.productId]?.name || 'Unknown Product';
+                    const prodName = rev.productName || globalProductsCache[rev.productId]?.name || 'Unknown Product';
                     let starIcons = '';
                     for(let i=1; i<=5; i++) {
                         starIcons += `<i class="fa-solid fa-star ${i <= (rev.rating || 5) ? 'text-amber-400' : 'text-slate-700'} text-xs"></i>`;
                     }
+
+                    const reviewerName = rev.name || rev.userName || 'Anonymous Client';
+                    const reviewerComment = rev.feedback || rev.comment || 'No textual feedback.';
+                    const reviewDate = rev.timestamp ? new Date(rev.timestamp).toLocaleDateString() : (rev.date || 'Recent');
 
                     let imgGalleryHTML = '';
                     if(rev.images && Array.isArray(rev.images) && rev.images.length > 0) {
@@ -1389,10 +1395,10 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-bold text-sm text-white">${rev.userName || 'Anonymous Client'}</h4>
-                                    <span class="text-[10px] text-slate-500">${rev.date || 'Recent'}</span>
+                                    <h4 class="font-bold text-sm text-white">${reviewerName}</h4>
+                                    <span class="text-[10px] text-slate-500">${reviewDate}</span>
                                 </div>
-                                <p class="text-xs text-slate-300 leading-relaxed bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">${rev.comment || 'No textual feedback.'}</p>
+                                <p class="text-xs text-slate-300 leading-relaxed bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">${reviewerComment}</p>
                                 ${imgGalleryHTML}
                             </div>
                             <div class="flex gap-2 pt-4 mt-3 border-t border-slate-800/60">
@@ -1410,21 +1416,29 @@
         }
 
         async function approveReview(key) {
-            await database.ref('reviews/' + key).update({ status: 'approved' });
+            await database.ref('product_reviews/' + key).update({ status: 'approved' });
         }
 
         async function deleteReview(key) {
             if(confirm("Permanently delete this customer review?")) {
-                await database.ref('reviews/' + key).remove();
+                await database.ref('product_reviews/' + key).remove();
             }
         }
 
-        /* --- FIXED REALTIME TRAFFIC & METRICS ENGINE --- */
-        database.ref('analytics/active_users').on('value', (snapshot) => {
+        /* --- FIXED REALTIME TRAFFIC & METRICS ENGINE (now unified on live_status / site_traffic) --- */
+        database.ref('live_status').on('value', (snapshot) => {
             const countEl = document.getElementById('liveTrafficCount');
             const listEl = document.getElementById('livePagesList');
             const val = snapshot.val() || {};
-            const count = Object.keys(val).length;
+            const now = Date.now();
+            const STALE_MS = 60000; // consider a visitor offline if no signal in 60s
+
+            const activeKeys = Object.keys(val).filter(uKey => {
+                const lastActive = val[uKey].lastActive || 0;
+                return (now - lastActive) <= STALE_MS;
+            });
+
+            const count = activeKeys.length;
             if(countEl) countEl.innerText = count;
 
             if(listEl) {
@@ -1432,11 +1446,11 @@
                 if(count === 0) {
                     listEl.innerHTML = `<p class="text-slate-500 text-center py-8">No live users on site right now.</p>`;
                 } else {
-                    Object.keys(val).forEach(uKey => {
+                    activeKeys.forEach(uKey => {
                         const user = val[uKey];
                         listEl.innerHTML += `
                             <div class="flex items-center justify-between bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
-                                <span class="text-slate-300 font-semibold truncate max-w-[150px]"><i class="fa-solid fa-file-lines text-blue-500 mr-2"></i>${user.page || 'Home Page'}</span>
+                                <span class="text-slate-300 font-semibold truncate max-w-[150px]"><i class="fa-solid fa-file-lines text-blue-500 mr-2"></i>${user.currentPage || 'Home Page'}</span>
                                 <span class="text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full border border-red-500/20 font-bold animate-pulse">Live</span>
                             </div>`;
                     });
@@ -1444,7 +1458,7 @@
             }
         });
 
-        database.ref('analytics/page_views').on('value', (snapshot) => {
+        database.ref('site_traffic').on('value', (snapshot) => {
             globalTrafficCache = snapshot.val() || {};
             calculateMetrics();
         });
@@ -1558,10 +1572,11 @@
             if(code === "DELETE ALL") {
                 await database.ref('products').remove();
                 await database.ref('orders').remove();
-                await database.ref('reviews').remove();
+                await database.ref('product_reviews').remove();
                 await database.ref('user_chats').remove();
                 await database.ref('chat_history').remove();
-                await database.ref('analytics').remove();
+                await database.ref('live_status').remove();
+                await database.ref('site_traffic').remove();
                 alert("Master Store Wipeout Complete.");
             }
         }
