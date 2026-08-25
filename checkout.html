@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <script src="https://js.sentry-cdn.com/e8b693c77ef64ddf7ea2d61e0cfcc1bd.min.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -9,121 +9,41 @@
     <title>Checkout | Snaxu rsm</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <!-- Firebase v12.18.0 Module Initialization -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
+        authDomain: "snaxu-rsm-21cc9.firebaseapp.com",
+        databaseURL: "https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com",
+        projectId: "snaxu-rsm-21cc9",
+        storageBucket: "snaxu-rsm-21cc9.firebasestorage.app",
+        messagingSenderId: "310366807539",
+        appId: "1:310366807539:web:61beb0fecbd55632695e86",
+        measurementId: "G-LME2P5WZTK"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Poppins', sans-serif !important; }
         
-        .payment-card { transition: 0.3s; border: 2px solid #e2e8f0; cursor: pointer; }
-        .payment-radio[value="advance"]:checked + .payment-card { border-color: #22c55e; }
-        .payment-radio[value="cod"]:checked + .payment-card { border-color: #1d4ed8; }
-        .payment-radio[value="advance"]:checked + .payment-card .fa-circle-check { color: #22c55e; }
-        .payment-radio[value="cod"]:checked + .payment-card .fa-circle-check { color: #1d4ed8; }
-
-        .upload-dashed { border: 2px dashed #cbd5e1; transition: 0.3s; }
-        .upload-dashed:hover { border-color: #1d4ed8; background: #f8fafc; }
         .loader { border: 2px solid #f3f3f3; border-top: 2px solid #ffffff; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .qty-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: bold; font-size: 16px; transition: 0.2s; }
         .qty-btn:active { background: #e2e8f0; transform: scale(0.9); }
         @keyframes drawCheck { to { stroke-dashoffset: 0; } }
         .animate-draw { stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawCheck 0.8s ease-out forwards; animation-delay: 0.2s; }
-
-        .pay-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.12);
-            padding: 11px 14px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.08);
-            gap: 8px;
-        }
-        .pay-label {
-            font-size: 12px;
-            color: rgba(255,255,255,0.85);
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .pay-value {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ffffff;
-            white-space: nowrap;
-            letter-spacing: 0.3px;
-        }
-        .naya-box {
-            background: rgba(255,255,255,0.12);
-            padding: 11px 14px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-        .naya-main {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-        .naya-label {
-            font-size: 12px;
-            color: rgba(255,255,255,0.85);
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .naya-value {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ffffff;
-            white-space: nowrap;
-        }
-        .naya-sub {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 6px;
-            gap: 4px;
-        }
-        .naya-sub-label {
-            font-size: 10px;
-            color: rgba(255,255,255,0.6);
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .naya-sub-val {
-            font-size: 10px;
-            color: rgba(255,255,255,0.75);
-            text-align: right;
-            word-break: break-all;
-        }
-        .acc-name-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 12px;
-            margin-top: 4px;
-            border-top: 1px solid rgba(255,255,255,0.18);
-            gap: 10px;
-        }
-        .acc-name-label {
-            font-size: 12px;
-            color: rgba(255,255,255,0.85);
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .acc-name-badge {
-            background: #ffcc00;
-            color: #1a1a1a;
-            font-weight: 800;
-            font-size: 12px;
-            padding: 6px 14px;
-            border-radius: 10px;
-            white-space: nowrap;
-        }
     </style>
 </head>
 <body class="bg-slate-50 pb-32">
@@ -144,6 +64,7 @@
     </nav>
 
     <div class="p-4 space-y-6 max-w-lg mx-auto">
+        <!-- Billing Summary -->
         <div id="billing-summary" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
             <h2 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <i class="fa-solid fa-bag-shopping text-[#1d4ed8]"></i> Your Items
@@ -158,10 +79,6 @@
                     <span>Delivery Charges</span>
                     <span id="delivery-total" class="font-semibold text-slate-800">£0</span>
                 </div>
-                <div id="cod-row" class="flex justify-between text-slate-900 font-bold hidden">
-                    <span>COD Service Fee</span>
-                    <span id="cod-total-display">£0</span>
-                </div>
                 <div class="flex justify-between font-extrabold text-xl text-slate-900 pt-2 border-t border-dashed mt-2">
                     <span>Grand Total</span>
                     <span id="grand-total" class="text-[#1d4ed8]">£0</span>
@@ -169,111 +86,108 @@
             </div>
         </div>
 
+        <!-- UK Shipping Details -->
         <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
             <h2 class="font-bold text-slate-800 flex items-center gap-2">
                 <i class="fa-solid fa-location-dot text-[#1d4ed8]"></i> Shipping Details
             </h2>
+            
+            <!-- First Name & Last Name (Side by Side) -->
             <div class="grid grid-cols-2 gap-3">
-                <input type="text" id="firstName" placeholder="First name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
-                <input type="text" id="lastName" placeholder="Last name" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+                <input type="text" id="firstName" placeholder="First name *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
+                <input type="text" id="lastName" placeholder="Last name *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
             </div>
-            <input type="email" id="custEmail" placeholder="Email Address" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
-            <input type="text" id="custAddress" placeholder="Address" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
-            <input type="text" id="custApartment" placeholder="Apartment, suite, etc. (optional)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
-            <input type="text" id="custCity" placeholder="City" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
-            <input type="tel" id="custPhone" placeholder="Phone Number" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
-            <input type="tel" id="custWhatsapp" placeholder="WhatsApp Number" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8]">
+
+            <!-- Email Address -->
+            <input type="email" id="custEmail" placeholder="Email Address *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
+
+            <!-- Phone Number -->
+            <input type="tel" id="custPhone" placeholder="Phone Number *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
+
+            <!-- Country (Fixed UK) -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1 ml-1">Country / Region</label>
+                <select id="custCountry" class="w-full p-4 bg-slate-100 text-slate-800 font-medium rounded-2xl outline-none border border-transparent cursor-not-allowed text-sm" disabled>
+                    <option value="United Kingdom" selected>United Kingdom</option>
+                </select>
+            </div>
+
+            <!-- Address Line 1 -->
+            <input type="text" id="custAddress1" placeholder="Address Line 1 (House number, street name) *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
+
+            <!-- Address Line 2 (Optional) -->
+            <input type="text" id="custAddress2" placeholder="Address Line 2 (Optional: Apartment, suite, unit, etc.)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
+
+            <!-- Town / City -->
+            <input type="text" id="custCity" placeholder="Town / City *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
+
+            <!-- County (Optional) -->
+            <input type="text" id="custCounty" placeholder="County (Optional)" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] text-sm">
+
+            <!-- Postcode -->
+            <input type="text" id="custPostcode" placeholder="Postcode (e.g. SW1A 1AA) *" class="w-full p-4 bg-slate-50 rounded-2xl outline-none border border-transparent focus:border-[#1d4ed8] uppercase text-sm">
         </div>
 
+        <!-- Single Selected Stripe / Card & Wallet Payment Block -->
         <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-4">
-            <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                <i class="fa-solid fa-credit-card text-[#1d4ed8]"></i> Payment Method
+            <h2 class="font-bold text-slate-800 flex items-center justify-between">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-credit-card text-[#1d4ed8]"></i> Payment Method
+                </span>
+                <span class="text-[10px] bg-green-100 text-green-700 font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                    <i class="fa-solid fa-shield-halved"></i> Secured
+                </span>
             </h2>
-            <div class="grid grid-cols-1 gap-3">
-                
-                <label class="relative cursor-pointer">
-                    <input type="radio" name="payMethod" value="advance" class="payment-radio hidden" checked onchange="togglePaymentUI()">
-                    <div class="payment-card p-4 rounded-2xl bg-green-50 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-white shadow-sm text-green-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-bolt"></i></div>
-                            <div>
-                                <p class="font-bold text-sm text-slate-800">Advance Payment</p>
-                                <p class="text-[10px] text-green-600 font-bold">Fast Delivery & No Extra Fees</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-slate-200 text-lg"></i>
-                    </div>
-                </label>
-                
-                <label class="relative cursor-pointer">
-                    <input type="radio" name="payMethod" value="cod" class="payment-radio hidden" onchange="togglePaymentUI()">
-                    <div class="payment-card p-4 rounded-2xl bg-blue-50 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-white shadow-sm text-[#1d4ed8] rounded-xl flex items-center justify-center"><i class="fa-solid fa-truck-fast"></i></div>
-                            <div>
-                                <p class="font-bold text-sm text-slate-800">Cash on Delivery</p>
-                                <p class="text-[10px] text-blue-600 font-bold">Pay when you receive</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-slate-200 text-lg"></i>
-                    </div>
-                </label>
-            </div>
 
-            <div id="advance-details" class="mt-4 space-y-4 pt-4 border-t border-slate-50">
-                <div class="bg-[#1d6bf3] p-5 rounded-[2rem] text-white shadow-md">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-white/70 border-b border-white/20 pb-3 mb-4">
-                        PAYMENT DETAILS
-                    </p>
-
-                    <div class="pay-row mb-3">
-                        <span class="pay-label">
-                            <i class="fa-solid fa-wallet text-xs"></i> JazzCash:
-                        </span>
-                        <span class="pay-value">03704884772</span>
+            <div class="p-4 rounded-2xl bg-slate-50 border-2 border-[#1d4ed8] relative">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="payMethod" value="stripe_card" checked class="w-4 h-4 accent-[#1d4ed8]">
+                        <span class="font-bold text-sm text-slate-800">Credit / Debit Card & Digital Wallets</span>
                     </div>
-
-                    <div class="pay-row mb-3">
-                        <span class="pay-label">EasyPaisa:</span>
-                        <span class="pay-value">03704884772</span>
-                    </div>
-
-                    <div class="naya-box mb-4">
-                        <div class="naya-main">
-                            <span class="naya-label">NayaPay/Bank:</span>
-                            <span class="naya-value">03346588665</span>
-                        </div>
-                        <div class="naya-sub">
-                            <span class="naya-sub-label">Raast ID:</span>
-                            <span class="naya-sub-val">03346588665</span>
-                        </div>
-                        <div class="naya-sub">
-                            <span class="naya-sub-label">IBAN:</span>
-                            <span class="naya-sub-val">PK80NAYA1234503346588665</span>
-                        </div>
-                    </div>
-
-                    <div class="acc-name-row">
-                        <span class="acc-name-label">Account Name:</span>
-                        <span class="acc-name-badge">Waleed Ahmad</span>
-                    </div>
+                    <i class="fa-solid fa-circle-check text-[#1d4ed8] text-lg"></i>
                 </div>
 
-                <div class="upload-dashed p-6 rounded-2xl text-center relative">
-                    <input type="file" id="ssUpload" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewSS()">
-                    <div id="upload-placeholder">
-                        <i class="fa-solid fa-camera text-3xl text-[#1d4ed8] mb-2"></i>
-                        <p class="text-xs font-bold text-slate-700">Upload Payment Screenshot</p>
-                        <p class="text-[9px] text-[#1d4ed8] mt-1 font-bold">REQUIRED: Please upload proof of payment here</p>
+                <p class="text-xs text-slate-500 mb-4 pl-6">
+                    Pay securely using Card, Apple Pay, Google Pay, or PayPal.
+                </p>
+
+                <!-- Payment Provider Icons -->
+                <div class="flex flex-wrap items-center gap-2 pl-6 pt-2 border-t border-slate-200">
+                    <!-- Visa -->
+                    <div class="h-7 px-2.5 bg-white rounded border border-slate-200 flex items-center justify-center text-blue-800 font-extrabold italic text-xs tracking-wider">
+                        VISA
                     </div>
-                    <div id="preview-area" class="hidden">
-                        <img id="ssPreview" class="h-20 mx-auto rounded shadow-md">
+                    <!-- Mastercard -->
+                    <div class="h-7 px-2.5 bg-white rounded border border-slate-200 flex items-center justify-center font-bold text-xs text-orange-600 gap-1">
+                        <i class="fa-solid fa-circle text-red-500 text-[10px]"></i><i class="fa-solid fa-circle text-yellow-500 text-[10px] -ml-2"></i>
+                    </div>
+                    <!-- AMEX -->
+                    <div class="h-7 px-2 bg-blue-600 text-white rounded font-black text-[10px] flex items-center justify-center">
+                        AMEX
+                    </div>
+                    <!-- Apple Pay -->
+                    <div class="h-7 px-2.5 bg-black text-white rounded font-bold text-xs flex items-center justify-center gap-1">
+                        <i class="fa-brands fa-apple text-sm"></i> Pay
+                    </div>
+                    <!-- Google Pay -->
+                    <div class="h-7 px-2.5 bg-white border border-slate-200 rounded font-bold text-xs flex items-center justify-center gap-0.5 text-slate-700">
+                        <span class="text-blue-500">G</span>Pay
+                    </div>
+                    <!-- PayPal -->
+                    <div class="h-7 px-2.5 bg-sky-50 border border-sky-200 rounded font-bold text-xs flex items-center justify-center text-blue-900 italic">
+                        PayPal
                     </div>
                 </div>
             </div>
+
+            <p class="text-[11px] text-center text-slate-400 mt-2">
+                <i class="fa-solid fa-lock text-[10px]"></i> Encrypted 256-bit checkout via Stripe
+            </p>
         </div>
     </div>
 
+    <!-- Fixed Confirm Order Button -->
     <div class="fixed bottom-0 left-0 w-full p-4 bg-white/90 border-t border-slate-100 z-50">
         <button id="orderBtn" onclick="placeOrder()" class="w-full bg-[#1d6bf3] text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition flex items-center justify-center gap-2">Confirm Order</button>
     </div>
@@ -281,15 +195,16 @@
     <script>
         (function(){ emailjs.init({ publicKey: "hUB2Fd1u6Uxou_Na0" }); })();
         
+        // Initialize Firebase Compat Realtime DB
         const firebaseConfig = {
-          apiKey: "AIzaSyBZQ__x-D12c1hnuSRFDIJlFJpCLhtzCN4",
-          authDomain: "snaxu-rsm.firebaseapp.com",
-          databaseURL: "https://snaxu-rsm-default-rtdb.firebaseio.com",
-          projectId: "snaxu-rsm",
-          storageBucket: "snaxu-rsm.firebasestorage.app",
-          messagingSenderId: "126279163854",
-          appId: "1:126279163854:web:7865148bea4a59912f159f",
-          measurementId: "G-2QBHEZ5B4Z"
+          apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
+          authDomain: "snaxu-rsm-21cc9.firebaseapp.com",
+          databaseURL: "https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com",
+          projectId: "snaxu-rsm-21cc9",
+          storageBucket: "snaxu-rsm-21cc9.firebasestorage.app",
+          messagingSenderId: "310366807539",
+          appId: "1:310366807539:web:61beb0fecbd55632695e86",
+          measurementId: "G-LME2P5WZTK"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -306,8 +221,7 @@
             isBuyNowFlow = false;
         }
 
-        let baseSubtotal = 0, baseDelivery = 0, baseCodFee = 0;
-        const imgbbKey = "6408d90314e10ab4bab623c99b6269c5";
+        let baseSubtotal = 0, baseDelivery = 0;
 
         let userUUID = localStorage.getItem('user_chat_id');
         if (!userUUID) { userUUID = 'USER-' + Math.random().toString(36).substr(2, 9); localStorage.setItem('user_chat_id', userUUID); }
@@ -320,7 +234,7 @@
 
         function loadCheckout() {
             const container = document.getElementById('checkout-items');
-            baseSubtotal = 0; baseDelivery = 0; baseCodFee = 0;
+            baseSubtotal = 0; baseDelivery = 0;
             container.innerHTML = '';
             if(cart.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-4">Your cart is empty</p>'; updateTotals(); sendLiveSignal("Checkout"); return; }
             sendLiveSignal("Checkout");
@@ -330,7 +244,6 @@
                 const qty = item.quantity || 1;
                 baseSubtotal += (priceNum * qty);
                 baseDelivery += (parseFloat(item.deliveryCharges) || 0);
-                baseCodFee += (parseFloat(item.codFee) || 0);
 
                 let varDisplayTag = "";
                 if (item.variation && item.variation.trim() !== "") { varDisplayTag = `<div class="text-[10px] text-blue-700 font-bold bg-blue-50 rounded px-1.5 py-0.5 inline-block mt-0.5">Option: ${item.variation}</div>`; }
@@ -364,18 +277,11 @@
         }
 
         function updateTotals() {
-            const method = document.querySelector('input[name="payMethod"]:checked').value;
-            const advanceBox = document.getElementById('advance-details');
-            const codRow = document.getElementById('cod-row');
             const grandTotalDisplay = document.getElementById('grand-total');
             document.getElementById('subtotal').innerText = '£' + baseSubtotal;
             document.getElementById('delivery-total').innerText = '£' + baseDelivery;
-            if(method === 'cod') { advanceBox.classList.add('hidden'); codRow.classList.remove('hidden'); document.getElementById('cod-total-display').innerText = '+ £' + baseCodFee; grandTotalDisplay.innerText = '£' + (baseSubtotal + baseDelivery + baseCodFee); }
-            else { advanceBox.classList.remove('hidden'); codRow.classList.add('hidden'); grandTotalDisplay.innerText = '£' + (baseSubtotal + baseDelivery); }
+            grandTotalDisplay.innerText = '£' + (baseSubtotal + baseDelivery);
         }
-
-        function togglePaymentUI() { updateTotals(); }
-        function previewSS() { const file = document.getElementById('ssUpload').files[0]; if(file) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('ssPreview').src = e.target.result; document.getElementById('upload-placeholder').classList.add('hidden'); document.getElementById('preview-area').classList.remove('hidden'); }; reader.readAsDataURL(file); } }
 
         window.addEventListener('pageshow', function(event) {
             if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
@@ -401,39 +307,81 @@
             const fName = document.getElementById('firstName').value.trim();
             const lName = document.getElementById('lastName').value.trim();
             const cEmail = document.getElementById('custEmail').value.trim();
-            const city = document.getElementById('custCity').value.trim();
-            const address = document.getElementById('custAddress').value.trim();
-            const apt = document.getElementById('custApartment').value.trim();
             const phone = document.getElementById('custPhone').value.trim();
-            const whatsapp = document.getElementById('custWhatsapp').value.trim();
-            const method = document.querySelector('input[name="payMethod"]:checked').value;
-            const ssFile = document.getElementById('ssUpload').files[0];
+            const country = document.getElementById('custCountry').value;
+            const addr1 = document.getElementById('custAddress1').value.trim();
+            const addr2 = document.getElementById('custAddress2').value.trim();
+            const city = document.getElementById('custCity').value.trim();
+            const county = document.getElementById('custCounty').value.trim();
+            const postcode = document.getElementById('custPostcode').value.trim();
             const btn = document.getElementById('orderBtn');
 
-            if(!fName || !lName || !city || !address || !phone || !whatsapp || !cEmail) return alert("Please fill all required fields!");
-            if(method === 'advance' && !ssFile) return alert("Screenshot required!");
+            // Validation for required UK fields
+            if(!fName || !lName || !cEmail || !phone || !addr1 || !city || !postcode) {
+                return alert("Please fill in all required shipping fields!");
+            }
 
             btn.disabled = true; btn.innerHTML = '<div class="loader"></div> Processing...';
 
             const sub = document.getElementById('subtotal').innerText;
             const del = document.getElementById('delivery-total').innerText;
-            const codF = method === 'cod' ? ("£" + baseCodFee) : "£0";
             const grand = document.getElementById('grand-total').innerText;
-            const itemsString = cart.map(i => { let text = `📦 ${i.name} x ${i.quantity || 1}`; if (i.variation && i.variation.trim() !== "") { text += `\n   - Option: ${i.variation}`; } return text; }).join('\n');
-            const itemSummary = cart.map(i => { let nameStr = i.name; if (i.variation && i.variation.trim() !== "") { nameStr += ` (${i.variation})`; } return `${nameStr} (x${i.quantity || 1})`; }).join(', ');
+            
+            const fullAddress = `${addr1}${addr2 ? ', ' + addr2 : ''}, ${city}${county ? ', ' + county : ''}, ${postcode}, ${country}`;
 
-            let ssUrl = method === 'cod' ? "No Screenshot (COD)" : "Not Uploaded";
+            const itemsString = cart.map(i => { 
+                let text = `📦 ${i.name} x ${i.quantity || 1}`; 
+                if (i.variation && i.variation.trim() !== "") { text += `\n   - Option: ${i.variation}`; } 
+                return text; 
+            }).join('\n');
+            
+            const itemSummary = cart.map(i => { 
+                let nameStr = i.name; 
+                if (i.variation && i.variation.trim() !== "") { nameStr += ` (${i.variation})`; } 
+                return `${nameStr} (x${i.quantity || 1})`; 
+            }).join(', ');
+
             try {
                 const statusSnap = await database.ref('settings/emailStatus').get();
                 const isEmailEnabled = statusSnap.val() === 'on';
-                if(ssFile && method === 'advance') { const formData = new FormData(); formData.append("image", ssFile); const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData }); const data = await res.json(); ssUrl = data.data.url; }
-                const emailParams = { customer_name: (fName + " " + lName), customer_email: cEmail, customer_phone: phone, customer_whatsapp: whatsapp, customer_city: city, customer_address: (address + " " + apt), order_items: itemSummary, subtotal: sub, delivery_charges: del, cod_fee: codF, total_bill: grand, payment_method: method.toUpperCase(), screenshot_url: ssUrl };
+                
+                const emailParams = { 
+                    customer_name: (fName + " " + lName), 
+                    customer_email: cEmail, 
+                    customer_phone: phone, 
+                    customer_city: city, 
+                    customer_address: fullAddress, 
+                    order_items: itemSummary, 
+                    subtotal: sub, 
+                    delivery_charges: del, 
+                    total_bill: grand, 
+                    payment_method: "Credit / Debit Card (Stripe)" 
+                };
+
                 const promises = [];
-                if (isEmailEnabled) { promises.push(emailjs.send("service_qk7vqye", "template_dznvwme", emailParams)); promises.push(emailjs.send("service_qk7vqye", "template_r5r1vkr", emailParams)); }
-                promises.push(database.ref('orders').push({ customerName: `${fName} ${lName}`, customerPhone: phone, whatsapp: whatsapp, whatsappNo: whatsapp, emailAddress: cEmail, deliveryCharges: del, codFee: codF, customerCity: city, customerAddress: `${address} ${apt}`, productName: itemSummary, price: grand, paymentMethod: method, screenshot: ssUrl, date: new Date().toLocaleString() }));
+                if (isEmailEnabled) { 
+                    promises.push(emailjs.send("service_qk7vqye", "template_dznvwme", emailParams)); 
+                    promises.push(emailjs.send("service_qk7vqye", "template_r5r1vkr", emailParams)); 
+                }
+                
+                promises.push(database.ref('orders').push({ 
+                    customerName: `${fName} ${lName}`, 
+                    customerPhone: phone, 
+                    emailAddress: cEmail, 
+                    deliveryCharges: del, 
+                    customerCity: city, 
+                    customerAddress: fullAddress, 
+                    postcode: postcode,
+                    productName: itemSummary, 
+                    price: grand, 
+                    paymentMethod: "Card / Stripe", 
+                    date: new Date().toLocaleString() 
+                }));
+                
                 await Promise.all(promises);
                 
-                let fullWaMessage = `*🚀 NEW ORDER - BRAND BAZAAR 🚀*\n\n👤 *Name:* ${fName} ${lName}\n📧 *Email:* ${cEmail}\n📞 *Phone:* ${phone}\n🟢 *WhatsApp:* ${whatsapp}\n📍 *City:* ${city}\n🏠 *Address:* ${address} ${apt}\n\n*--- ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Subtotal:* ${sub}\n🚚 *Delivery:* ${del}\n💳 *COD Fee:* ${codF}\n💵 *Total Bill:* ${grand}\n\n== *Method:* ${method.toUpperCase()}\n🖼️ *Screenshot:* ${ssUrl}`;
+                let fullWaMessage = `*🚀 NEW ORDER - BRAND BAZAAR 🚀*\n\n👤 *Name:* ${fName} ${lName}\n📧 *Email:* ${cEmail}\n📞 *Phone:* ${phone}\n📍 *Address:* ${fullAddress}\n\n*--- ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Subtotal:* ${sub}\n🚚 *Delivery:* ${del}\n💵 *Total Bill:* ${grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)`;
+                
                 sendLiveSignal("Order Placed");
                 triggerSuccessEffects();
                 
@@ -444,7 +392,13 @@
                 }
                 
                 setTimeout(() => { window.location.href = `whatsapp://send?phone=923065472228&text=${encodeURIComponent(fullWaMessage)}`; }, 2500);
-            } catch(e) { console.error(e); Sentry.captureException(e); alert("Error placing order."); btn.disabled = false; btn.innerHTML = 'Confirm Order'; }
+            } catch(e) { 
+                console.error(e); 
+                Sentry.captureException(e); 
+                alert("Error placing order."); 
+                btn.disabled = false; 
+                btn.innerHTML = 'Confirm Order'; 
+            }
         }
 
         loadCheckout();
