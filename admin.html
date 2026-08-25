@@ -1224,6 +1224,16 @@
             renderOrdersEngine();
         }
 
+        // Helper: turns any price value (with or without a £ sign) into a clean number
+        function parseMoney(val) {
+            if (val === undefined || val === null) return 0;
+            const n = parseFloat(val.toString().replace(/[^\d.]/g, ''));
+            return isNaN(n) ? 0 : n;
+        }
+        function formatMoney(val) {
+            return '£' + parseMoney(val).toFixed(2);
+        }
+
         function renderOrdersEngine() {
             const list = document.getElementById('orders-list');
             if(!list) return;
@@ -1238,11 +1248,30 @@
                 
                 if((currentOrderFilterTab === 'pending' && !isConfirmed) || (currentOrderFilterTab === 'confirmed' && isConfirmed)) {
                     count++;
-                    const priceTotal = order.totalPrice || order.price || '0.00';
+
+                    // Match the actual field names saved by checkout.html
                     const cName = order.customerName || order.name || 'Anonymous Client';
-                    const cPhone = order.phone || order.phoneNumber || 'N/A';
-                    const cAddress = order.address || order.shippingAddress || 'No Address Provided';
-                    const pName = order.productName || order.pName || (globalProductsCache[order.productId]?.name) || 'Store Item';
+                    const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
+                    const cEmail = order.emailAddress || order.customerEmail || order.email || '';
+                    const cAddress = order.customerAddress || order.address || order.shippingAddress || 'No Address Provided';
+                    const cCity = order.customerCity || order.city || '';
+                    const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
+
+                    const subtotalDisplay = formatMoney(order.subtotal);
+                    const deliveryDisplay = formatMoney(order.deliveryCharges);
+                    const totalDisplay = formatMoney(order.price || order.totalPrice);
+                    const paymentMethod = order.paymentMethod || 'N/A';
+
+                    // Full itemized list (product names, quantities, chosen options)
+                    let itemsHTML = '';
+                    if (order.itemsDetailed) {
+                        itemsHTML = order.itemsDetailed
+                            .split('\n')
+                            .map(line => `<div>${line.replace(/</g, '&lt;')}</div>`)
+                            .join('');
+                    } else {
+                        itemsHTML = `<div>${(order.productName || 'Store Item').toString().replace(/</g, '&lt;')}</div>`;
+                    }
 
                     list.innerHTML += `
                         <div class="glass-card p-5 order-view-card relative flex flex-col justify-between border border-slate-800/80">
@@ -1253,13 +1282,30 @@
                                         ${isConfirmed ? 'Confirmed' : 'Pending'}
                                     </span>
                                 </div>
+
                                 <h3 class="font-bold text-base text-white mb-1">${cName}</h3>
-                                <p class="text-xs text-blue-400 font-semibold mb-2"><i class="fa-solid fa-box mr-1.5 text-slate-500"></i>${pName}</p>
-                                <p class="text-xs text-slate-400 mb-2"><i class="fa-solid fa-phone mr-1.5 text-slate-500"></i>${cPhone}</p>
-                                <p class="text-xs text-slate-300 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/50 mb-3"><i class="fa-solid fa-location-dot mr-1.5 text-slate-500"></i>${cAddress}</p>
+                                ${orderDate ? `<p class="text-[10px] text-slate-500 mb-3">${orderDate}</p>` : ''}
+
+                                <div class="text-xs text-slate-300 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/50 mb-3 space-y-1.5">
+                                    ${cEmail ? `<p><i class="fa-solid fa-envelope mr-1.5 text-slate-500 w-3 inline-block"></i>${cEmail}</p>` : ''}
+                                    <p><i class="fa-solid fa-phone mr-1.5 text-slate-500 w-3 inline-block"></i>${cPhone}</p>
+                                    <p><i class="fa-solid fa-location-dot mr-1.5 text-slate-500 w-3 inline-block"></i>${cAddress}${cCity ? ', ' + cCity : ''}</p>
+                                </div>
+
+                                <div class="text-xs text-slate-300 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/40 mb-3">
+                                    <p class="text-blue-400 font-bold mb-1.5"><i class="fa-solid fa-box mr-1"></i> Items Ordered</p>
+                                    <div class="space-y-0.5 text-slate-300">${itemsHTML}</div>
+                                </div>
+
+                                <div class="text-[11px] text-slate-400 space-y-1.5 mb-3 bg-slate-950/30 p-3 rounded-xl border border-slate-800/30">
+                                    <div class="flex justify-between"><span>Subtotal</span><span class="text-slate-200 font-semibold">${subtotalDisplay}</span></div>
+                                    <div class="flex justify-between"><span>Delivery</span><span class="text-slate-200 font-semibold">${deliveryDisplay}</span></div>
+                                    <div class="flex justify-between"><span>Payment Method</span><span class="text-slate-200 font-semibold">${paymentMethod}</span></div>
+                                </div>
+
                                 <div class="text-xs font-bold text-slate-200 mb-4 flex justify-between items-center bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20">
                                     <span>Total Payable:</span>
-                                    <span class="text-green-400 text-sm font-black">£${priceTotal}</span>
+                                    <span class="text-green-400 text-sm font-black">${totalDisplay}</span>
                                 </div>
                             </div>
                             <div class="flex gap-2 pt-2 border-t border-slate-800/60">
@@ -1482,7 +1528,7 @@
                 const ordTime = ord.timestamp || ord.createdAt || now;
                 
                 if(daysScope === 'all' || (now - ordTime <= scopeMs)) {
-                    const amt = parseFloat(ord.totalPrice || ord.price || 0);
+                    const amt = parseMoney(ord.totalPrice || ord.price || 0);
                     totalRev += amt;
                     totalOrdCount++;
 
