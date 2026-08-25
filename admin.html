@@ -79,7 +79,6 @@
         /* Smooth Card Animations & Layout Triggers */
         .order-view-card { animation: fadeInSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeInSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .review-card { }
 
         /* --- REVIEW IMAGE LIGHTBOX VIEWER --- */
         #imageLightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 500; align-items: center; justify-content: center; padding: 30px; }
@@ -650,6 +649,152 @@
         database.ref('announcement_bar').once('value', (snap) => {
             if(snap.exists()) document.getElementById('announcementEditor').innerHTML = snap.val().content;
         });
+
+        // --- REALTIME ANALYTICS / LIVE TRAFFIC / STATS SYNC ENGINE ---
+        database.ref('live_traffic').on('value', (snapshot) => {
+            const liveData = snapshot.val() || {};
+            const livePagesList = document.getElementById('livePagesList');
+            const liveTrafficCountEl = document.getElementById('liveTrafficCount');
+            
+            let activeCount = 0;
+            let pagesHtml = "";
+            const nowTimestamp = Date.now();
+
+            Object.keys(liveData).forEach(sessionId => {
+                const session = liveData[sessionId];
+                // Consider active if updated within the last 45 seconds
+                if(session && session.last_active && (nowTimestamp - session.last_active < 45000)) {
+                    activeCount++;
+                    const pageName = session.current_page || "Store Home";
+                    pagesHtml += `
+                        <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-white font-medium truncate max-w-[180px]"><i class="fa-solid fa-globe text-blue-400 mr-2"></i>${pageName}</span>
+                            <span class="text-[10px] bg-red-500/10 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">Online</span>
+                        </div>`;
+                }
+            });
+
+            if(liveTrafficCountEl) liveTrafficCountEl.innerText = activeCount;
+            if(livePagesList) {
+                livePagesList.innerHTML = pagesHtml || `<p class="text-slate-500 text-center py-10">No live visitors browsing right now.</p>`;
+            }
+        });
+
+        database.ref('traffic_logs').on('value', (snapshot) => {
+            globalTrafficCache = snapshot.val() || {};
+            calculateMetrics();
+        });
+
+        database.ref('orders').on('value', (snapshot) => {
+            globalOrdersCache = snapshot.val() || {};
+            renderOrdersEngine();
+        });
+
+        function toggleSaleCardDisplay() {
+            calculateMetrics();
+        }
+
+        function toggleOrderCardDisplay() {
+            calculateMetrics();
+        }
+
+        function filterMetricsByTimeRange() {
+            calculateMetrics();
+        }
+
+        function calculateMetrics() {
+            const daysLimit = document.getElementById('statsTimeFilter').value;
+            const now = Date.now();
+            const cutoffTime = daysLimit === 'all' ? 0 : now - (parseInt(daysLimit) * 24 * 60 * 60 * 1000);
+            const todayStart = new Date().setHours(0,0,0,0);
+
+            // 1. Calculate Traffic Metrics
+            let totalTrafficCount = 0;
+            let trafficHistoryObj = {};
+
+            Object.keys(globalTrafficCache).forEach(key => {
+                const log = globalTrafficCache[key];
+                const logTime = log.timestamp || 0;
+                if(logTime >= cutoffTime) {
+                    totalTrafficCount++;
+                    const dateStr = new Date(logTime).toLocaleDateString();
+                    trafficHistoryObj[dateStr] = (trafficHistoryObj[dateStr] || 0) + 1;
+                }
+            });
+
+            const statTotalTrafficEl = document.getElementById('statTotalTraffic');
+            if(statTotalTrafficEl) statTotalTrafficEl.innerText = totalTrafficCount;
+
+            // Render Traffic History Timeline
+            const timelineContainer = document.getElementById('trafficHistoryTimeline');
+            if(timelineContainer) {
+                let timelineHtml = "";
+                const sortedDates = Object.keys(trafficHistoryObj).sort((a,b) => new Date(b) - new Date(a));
+                sortedDates.forEach(date => {
+                    timelineHtml += `
+                        <div class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
+                            <span class="text-slate-300 font-semibold">${date}</span>
+                            <span class="bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-lg font-bold">${trafficHistoryObj[date]} Views</span>
+                        </div>`;
+                });
+                timelineContainer.innerHTML = timelineHtml || `<p class="text-slate-500 text-center py-10">No traffic logs found for this timeframe.</p>`;
+            }
+
+            // 2. Calculate Sales & Orders Financial Metrics
+            let totalRevenueSum = 0;
+            let todayRevenueSum = 0;
+            let totalOrdersCount = 0;
+            let todayOrdersCount = 0;
+
+            Object.keys(globalOrdersCache).forEach(key => {
+                const order = globalOrdersCache[key];
+                const orderTimestamp = order.timestamp || order.createdAt || now;
+                const rawPrice = order.totalPrice || order.price || 0;
+                const priceNum = parseFloat(rawPrice) || 0;
+
+                if(orderTimestamp >= cutoffTime) {
+                    totalOrdersCount++;
+                    totalRevenueSum += priceNum;
+                }
+
+                if(orderTimestamp >= todayStart) {
+                    todayOrdersCount++;
+                    todayRevenueSum += priceNum;
+                }
+            });
+
+            // Update Sales Card View
+            const saleCardView = document.getElementById('saleCardViewSelect').value;
+            const saleCardValueDisplay = document.getElementById('saleCardValueDisplay');
+            const saleCardSecondaryLabel = document.getElementById('saleCardSecondaryLabel');
+            const saleCardSecondaryValue = document.getElementById('saleCardSecondaryValue');
+
+            if(saleCardView === 'total') {
+                if(saleCardValueDisplay) saleCardValueDisplay.innerText = `£${totalRevenueSum.toFixed(2)}`;
+                if(saleCardSecondaryLabel) saleCardSecondaryLabel.innerText = "Today's Cash:";
+                if(saleCardSecondaryValue) saleCardSecondaryValue.innerText = `£${todayRevenueSum.toFixed(2)}`;
+            } else {
+                if(saleCardValueDisplay) saleCardValueDisplay.innerText = `£${todayRevenueSum.toFixed(2)}`;
+                if(saleCardSecondaryLabel) saleCardSecondaryLabel.innerText = "Total Revenue:";
+                if(saleCardSecondaryValue) saleCardSecondaryValue.innerText = `£${totalRevenueSum.toFixed(2)}`;
+            }
+
+            // Update Order Card View
+            const orderCardView = document.getElementById('orderCardViewSelect').value;
+            const orderCardValueDisplay = document.getElementById('orderCardValueDisplay');
+            const orderCardSecondaryLabel = document.getElementById('orderCardSecondaryLabel');
+            const orderCardSecondaryValue = document.getElementById('orderCardSecondaryValue');
+
+            if(orderCardView === 'total') {
+                if(orderCardValueDisplay) orderCardValueDisplay.innerText = totalOrdersCount;
+                if(orderCardSecondaryLabel) orderCardSecondaryLabel.innerText = "Today's Orders:";
+                if(orderCardSecondaryValue) orderCardSecondaryValue.innerText = `${todayOrdersCount} Orders`;
+            } else {
+                if(orderCardValueDisplay) orderCardValueDisplay.innerText = todayOrdersCount;
+                if(orderCardSecondaryLabel) orderCardSecondaryLabel.innerText = "Total Orders:";
+                if(orderCardSecondaryValue) orderCardSecondaryValue.innerText = `${totalOrdersCount} Orders`;
+            }
+        }
 
         // --- Chat & Support Management ---
         database.ref('user_chats').on('value', (snapshot) => {
@@ -1227,11 +1372,6 @@
         }
 
         // --- ORDER MANAGEMENT SYSTEM ---
-        database.ref('orders').on('value', (snapshot) => {
-            globalOrdersCache = snapshot.val() || {};
-            renderOrdersEngine();
-        });
-
         function switchOrderFilterView(tab) {
             currentOrderFilterTab = tab;
             const btnP = document.getElementById('order-tab-pending');
@@ -1290,7 +1430,6 @@
             if(count === 0) {
                 list.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs font-semibold">No ${currentOrderFilterTab} orders found.</div>`;
             }
-            calculateMetrics();
         }
 
         async function confirmOrder(key) {
@@ -1324,44 +1463,6 @@
             renderReviewsEngine();
         }
 
-        /* --- LIGHTBOX GALLERY STATE & NAV SYSTEM --- */
-        let activeLightboxImages = [];
-        let activeLightboxIndex = 0;
-
-        function openImageLightbox(imagesArr, index) {
-            if(!imagesArr || imagesArr.length === 0) return;
-            activeLightboxImages = imagesArr;
-            activeLightboxIndex = index;
-            
-            const lb = document.getElementById('imageLightbox');
-            const img = document.getElementById('lightboxImage');
-            const prev = document.getElementById('lightboxPrevBtn');
-            const next = document.getElementById('lightboxNextBtn');
-
-            img.src = activeLightboxImages[activeLightboxIndex];
-            
-            if(activeLightboxImages.length > 1) {
-                prev.classList.remove('hidden');
-                next.classList.remove('hidden');
-            } else {
-                prev.classList.add('hidden');
-                next.classList.add('hidden');
-            }
-
-            lb.classList.add('active');
-        }
-
-        function closeImageLightbox() {
-            document.getElementById('imageLightbox').classList.remove('active');
-        }
-
-        function navigateLightbox(dir) {
-            activeLightboxIndex += dir;
-            if(activeLightboxIndex < 0) activeLightboxIndex = activeLightboxImages.length - 1;
-            if(activeLightboxIndex >= activeLightboxImages.length) activeLightboxIndex = 0;
-            document.getElementById('lightboxImage').src = activeLightboxImages[activeLightboxIndex];
-        }
-
         function renderReviewsEngine() {
             const list = document.getElementById('reviews-list');
             const notifDot = document.getElementById('review-notif-dot');
@@ -1373,217 +1474,88 @@
             let hasPending = false;
 
             keys.forEach(key => {
-                const rev = globalReviewsCache[key];
-                const isApproved = rev.status === 'approved';
-                if(!isApproved) hasPending = true;
+                const r = globalReviewsCache[key];
+                const isConfirmed = r.status === 'confirmed';
+                if(!isConfirmed) hasPending = true;
 
-                if((currentReviewFilterTab === 'pending' && !isApproved) || (currentReviewFilterTab === 'confirmed' && isApproved)) {
+                if((currentReviewFilterTab === 'pending' && !isConfirmed) || (currentReviewFilterTab === 'confirmed' && isConfirmed)) {
                     count++;
-                    const prodName = globalProductsCache[rev.productId]?.name || 'Unknown Product';
-                    let starIcons = '';
-                    for(let i=1; i<=5; i++) {
-                        starIcons += `<i class="fa-solid fa-star ${i <= (rev.rating || 5) ? 'text-amber-400' : 'text-slate-700'} text-xs"></i>`;
-                    }
-
-                    let imgGalleryHTML = '';
-                    if(rev.images && Array.isArray(rev.images) && rev.images.length > 0) {
-                        const jsonImagesStr = JSON.stringify(rev.images).replace(/"/g, '&quot;');
-                        imgGalleryHTML = `<div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-800/60">`;
-                        rev.images.forEach((imgUrl, imgIdx) => {
-                            imgGalleryHTML += `
-                                <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-700/60 bg-slate-950 w-16 h-16" onclick="openImageLightbox(${jsonImagesStr}, ${imgIdx})">
-                                    <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300">
-                                </div>`;
+                    const ratingStars = '<i class="fa-solid fa-star text-amber-400"></i>'.repeat(r.rating || 5);
+                    const prodName = (globalProductsCache[r.productId] && globalProductsCache[r.productId].name) ? globalProductsCache[r.productId].name : "General Product Review";
+                    
+                    let imagesHtml = "";
+                    if(r.images && r.images.length > 0) {
+                        imagesHtml = '<div class="flex gap-2 mt-3 overflow-x-auto pb-1">';
+                        r.images.forEach(imgUrl => {
+                            imagesHtml += `<img src="${imgUrl}" class="w-16 h-16 object-cover rounded-lg border border-slate-700 cursor-pointer" onclick="openImageLightbox('${imgUrl}')">`;
                         });
-                        imgGalleryHTML += `</div>`;
+                        imagesHtml += '</div>';
                     }
 
                     list.innerHTML += `
-                        <div class="glass-card p-5 review-card relative flex flex-col justify-between border border-slate-800/80">
+                        <div class="glass-card p-5 border border-slate-800/80 flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                                    <span class="text-xs font-bold text-blue-400 truncate max-w-[200px]"><i class="fa-solid fa-box mr-1 text-slate-500"></i>${prodName}</span>
-                                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
-                                        ${starIcons}
-                                    </div>
+                                    <span class="text-xs font-bold text-blue-400">${prodName}</span>
+                                    <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${isConfirmed ? 'bg-green-500/10 text-green-400 border border-green-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
+                                        ${isConfirmed ? 'Confirmed' : 'Pending'}
+                                    </span>
                                 </div>
                                 <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-bold text-sm text-white">${rev.userName || 'Anonymous Client'}</h4>
-                                    <span class="text-[10px] text-slate-500">${rev.date || 'Recent'}</span>
+                                    <h3 class="font-bold text-sm text-white">${r.userName || 'Anonymous'}</h3>
+                                    <div class="text-xs">${ratingStars}</div>
                                 </div>
-                                <p class="text-xs text-slate-300 leading-relaxed bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">${rev.comment || 'No textual feedback.'}</p>
-                                ${imgGalleryHTML}
+                                <p class="text-xs text-slate-300 leading-relaxed">${r.comment || ''}</p>
+                                ${imagesHtml}
                             </div>
-                            <div class="flex gap-2 pt-4 mt-3 border-t border-slate-800/60">
-                                ${!isApproved ? `<button onclick="approveReview('${key}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition">Approve</button>` : ''}
+                            <div class="flex gap-2 pt-4 mt-4 border-t border-slate-800/60">
+                                ${!isConfirmed ? `<button onclick="confirmReview('${key}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition">Confirm & Publish</button>` : ''}
                                 <button onclick="deleteReview('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-3 rounded-xl text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
                         </div>`;
                 }
             });
 
-            if(notifDot) notifDot.classList.toggle('hidden', !hasPending);
             if(count === 0) {
                 list.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs font-semibold">No ${currentReviewFilterTab} reviews found.</div>`;
             }
+            if(notifDot) notifDot.classList.toggle('hidden', !hasPending);
         }
 
-        async function approveReview(key) {
-            await database.ref('reviews/' + key).update({ status: 'approved' });
+        async function confirmReview(key) {
+            await database.ref('reviews/' + key).update({ status: 'confirmed' });
         }
 
         async function deleteReview(key) {
-            if(confirm("Permanently delete this customer review?")) {
+            if(confirm("Permanently delete this review?")) {
                 await database.ref('reviews/' + key).remove();
             }
         }
 
-        // --- TRAFFIC & STATS ANALYTICS ENGINE ---
-        database.ref('analytics/active_users').on('value', (snapshot) => {
-            const countEl = document.getElementById('liveTrafficCount');
-            const listEl = document.getElementById('livePagesList');
-            const val = snapshot.val() || {};
-            const count = Object.keys(val).length;
-            if(countEl) countEl.innerText = count;
-
-            if(listEl) {
-                listEl.innerHTML = "";
-                if(count === 0) {
-                    listEl.innerHTML = `<p class="text-slate-500 text-center py-8">No live users on site right now.</p>`;
-                } else {
-                    Object.keys(val).forEach(uKey => {
-                        const user = val[uKey];
-                        listEl.innerHTML += `
-                            <div class="flex items-center justify-between bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
-                                <span class="text-slate-300 font-semibold truncate max-w-[150px]"><i class="fa-solid fa-file-lines text-blue-500 mr-2"></i>${user.page || 'Home Page'}</span>
-                                <span class="text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full border border-red-500/20 font-bold animate-pulse">Live</span>
-                            </div>`;
-                    });
-                }
-            }
-        });
-
-        database.ref('analytics/page_views').on('value', (snapshot) => {
-            globalTrafficCache = snapshot.val() || {};
-            calculateMetrics();
-        });
-
-        function filterMetricsByTimeRange() { calculateMetrics(); }
-
-        function calculateMetrics() {
-            const daysScope = document.getElementById('statsTimeFilter')?.value || '30';
-            const now = Date.now();
-            const scopeMs = daysScope === 'all' ? Infinity : parseInt(daysScope) * 24 * 60 * 60 * 1000;
-
-            let totalRev = 0;
-            let todayRev = 0;
-            let totalOrdCount = 0;
-            let todayOrdCount = 0;
-
-            const todayStart = new Date().setHours(0,0,0,0);
-
-            Object.keys(globalOrdersCache).forEach(k => {
-                const ord = globalOrdersCache[k];
-                const ordTime = ord.timestamp || ord.createdAt || now;
-                
-                if(daysScope === 'all' || (now - ordTime <= scopeMs)) {
-                    const amt = parseFloat(ord.totalPrice || ord.price || 0);
-                    totalRev += amt;
-                    totalOrdCount++;
-
-                    if(ordTime >= todayStart) {
-                        todayRev += amt;
-                        todayOrdCount++;
-                    }
-                }
-            });
-
-            document.getElementById('statTotalRevenue').innerText = `£${totalRev.toFixed(2)}`;
-            document.getElementById('statTodayRevenue').innerText = `£${todayRev.toFixed(2)}`;
-            document.getElementById('statTotalOrders').innerText = totalOrdCount;
-            document.getElementById('statTodayOrders').innerText = `${todayOrdCount} Orders`;
-
-            toggleSaleCardDisplay();
-            toggleOrderCardDisplay();
-
-            // Parse Traffic History Timeline
-            let totalTrafficViews = 0;
-            const timelineEl = document.getElementById('trafficHistoryTimeline');
-            if(timelineEl) timelineEl.innerHTML = "";
-
-            let trafficArr = [];
-            Object.keys(globalTrafficCache).forEach(tKey => {
-                const item = globalTrafficCache[tKey];
-                const itemTime = item.timestamp || now;
-                if(daysScope === 'all' || (now - itemTime <= scopeMs)) {
-                    totalTrafficViews += (item.count || 1);
-                    trafficArr.push(item);
-                }
-            });
-
-            document.getElementById('statTotalTraffic').innerText = totalTrafficViews;
-
-            if(timelineEl) {
-                if(trafficArr.length === 0) {
-                    timelineEl.innerHTML = `<p class="text-slate-500 text-center py-8">No traffic events recorded in this scope.</p>`;
-                } else {
-                    trafficArr.slice(-15).reverse().forEach(t => {
-                        const dateStr = t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Recent';
-                        timelineEl.innerHTML += `
-                            <div class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
-                                <span class="text-slate-300"><i class="fa-solid fa-arrow-trend-up text-purple-400 mr-2"></i>${t.page || 'Page Visit'}</span>
-                                <span class="text-[10px] text-slate-500 font-bold">${dateStr}</span>
-                            </div>`;
-                    });
-                }
-            }
+        function openImageLightbox(url) {
+            const lb = document.getElementById('imageLightbox');
+            const img = document.getElementById('lightboxImage');
+            img.src = url;
+            lb.classList.add('active');
         }
 
-        function toggleSaleCardDisplay() {
-            const mode = document.getElementById('saleCardViewSelect')?.value || 'total';
-            const valDisplay = document.getElementById('saleCardValueDisplay');
-            const secLabel = document.getElementById('saleCardSecondaryLabel');
-            const secVal = document.getElementById('saleCardSecondaryValue');
-
-            if(mode === 'total') {
-                valDisplay.innerText = document.getElementById('statTotalRevenue').innerText;
-                secLabel.innerText = "Today's Cash:";
-                secVal.innerText = document.getElementById('statTodayRevenue').innerText;
-            } else {
-                valDisplay.innerText = document.getElementById('statTodayRevenue').innerText;
-                secLabel.innerText = "Total Lifetime:";
-                secVal.innerText = document.getElementById('statTotalRevenue').innerText;
-            }
+        function closeImageLightbox() {
+            document.getElementById('imageLightbox').classList.remove('active');
         }
 
-        function toggleOrderCardDisplay() {
-            const mode = document.getElementById('orderCardViewSelect')?.value || 'total';
-            const valDisplay = document.getElementById('orderCardValueDisplay');
-            const secLabel = document.getElementById('orderCardSecondaryLabel');
-            const secVal = document.getElementById('orderCardSecondaryValue');
-
-            if(mode === 'total') {
-                valDisplay.innerText = document.getElementById('statTotalOrders').innerText;
-                secLabel.innerText = "Today's Order:";
-                secVal.innerText = document.getElementById('statTodayOrders').innerText;
-            } else {
-                valDisplay.innerText = document.getElementById('statTodayOrders').innerText.split(' ')[0];
-                secLabel.innerText = "Total Orders:";
-                secVal.innerText = document.getElementById('statTotalOrders').innerText + " Orders";
-            }
-        }
-
-        // --- MASTER DATA WIPEOUT ROUTINE ---
         async function triggerMasterStoreWipeout() {
-            const code = prompt("DANGER! This action will delete ALL store products, orders, traffic, and chat data.\n\nType 'DELETE ALL' to confirm:");
-            if(code === "DELETE ALL") {
-                await database.ref('products').remove();
-                await database.ref('orders').remove();
-                await database.ref('reviews').remove();
-                await database.ref('user_chats').remove();
-                await database.ref('chat_history').remove();
-                await database.ref('analytics').remove();
-                alert("Master Store Wipeout Complete.");
+            if(confirm("DANGER: This will wipe out all store products, orders, reviews, and traffic logs permanently! Are you absolutely sure?")) {
+                const passConfirm = prompt("Type 'WIPE' to confirm full reset:");
+                if(passConfirm === "WIPE") {
+                    await database.ref('products').remove();
+                    await database.ref('orders').remove();
+                    await database.ref('reviews').remove();
+                    await database.ref('traffic_logs').remove();
+                    alert("Store data successfully wiped out!");
+                    location.reload();
+                } else {
+                    alert("Operation cancelled.");
+                }
             }
         }
     </script>
