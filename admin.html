@@ -7,8 +7,11 @@
     <title>Brand Bazaar | Pro Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <!-- FIREBASE COMPAT SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background: #0a0f1c; color: #e2e8f0; }
@@ -514,21 +517,21 @@
         }
         // =================== END SECURITY LAYER ENGINE ===================
 
-        // UPDATED FIREBASE CONFIGURATION
+        // UPDATED NEW FIREBASE CONFIGURATION
         const firebaseConfig = {
-            apiKey: "AIzaSyBZQ__x-D12c1hnuSRFDIJlFJpCLhtzCN4",
-            authDomain: "snaxu-rsm.firebaseapp.com",
-            databaseURL: "https://snaxu-rsm-default-rtdb.firebaseio.com",
-            projectId: "snaxu-rsm",
-            storageBucket: "snaxu-rsm.firebasestorage.app",
-            messagingSenderId: "126279163854",
-            appId: "1:126279163854:web:7865148bea4a59912f159f",
-            measurementId: "G-2QBHEZ5B4Z"
+            apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
+            authDomain: "snaxu-rsm-21cc9.firebaseapp.com",
+            databaseURL: "https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com",
+            projectId: "snaxu-rsm-21cc9",
+            storageBucket: "snaxu-rsm-21cc9.firebasestorage.app",
+            messagingSenderId: "310366807539",
+            appId: "1:310366807539:web:61beb0fecbd55632695e86",
+            measurementId: "G-LME2P5WZTK"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        // UPDATED IMGBB API KEY
+        // IMGBB API KEY
         const imgbbKey = "4405527d68f68414d2fe95dc732c97d0";
 
         let activeChatUserID = null;
@@ -778,7 +781,6 @@
                 const displayImg = p.images ? p.images[0] : 'https://placehold.co/100x100';
                 list.innerHTML += `<div class="glass-card p-4 flex gap-3 items-center" onclick="openEditProductByKey('${key}')"><img src="${displayImg}" class="w-12 h-12 object-cover rounded-lg"><div><h3 class="font-bold text-sm text-white">${p.name}</h3><p class="text-xs text-slate-400">£${p.price}</p></div></div>`;
             });
-            renderReviewsEngine();
         });
 
         function openEditProductByKey(key) {
@@ -1158,7 +1160,6 @@
                 });
             }
             renderOrdersEngine();
-            filterMetricsByTimeRange();
         });
 
         function renderOrdersEngine() {
@@ -1294,6 +1295,18 @@
                     ${orderActionButtonsHTML}
                 </div>`;
             document.getElementById('orderModal').classList.add('active');
+        }
+
+        async function markOrderAsConfirmed(key) {
+            await database.ref('orders/' + key).update({ status: 'confirmed' });
+            closeModal();
+        }
+
+        async function deleteOrder(key) {
+            if(confirm("Are you sure you want to delete this order?")) {
+                await database.ref('orders/' + key).remove();
+                closeModal();
+            }
         }
     </script>
 </body>
