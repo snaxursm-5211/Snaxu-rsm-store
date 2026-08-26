@@ -1250,23 +1250,19 @@
                     count++;
 
                     const cName = order.customerName || order.name || 'Anonymous Client';
-                    const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
-                    const cEmail = order.emailAddress || order.customerEmail || order.email || 'N/A';
-                    const cAddress = order.customerAddress || order.address || order.shippingAddress || 'No Address Provided';
-                    const cCity = order.customerCity || order.city || '';
+                    const cCity = order.customerCity || order.city || 'N/A';
                     const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
-
-                    const subtotalDisplay = formatMoney(order.subtotal);
-                    const deliveryDisplay = formatMoney(order.deliveryCharges);
                     const totalDisplay = formatMoney(order.price || order.totalPrice);
                     const paymentMethod = order.paymentMethod || 'Card / Stripe';
+                    
+                    // Clean Short Order ID format (e.g. #WODX instead of long random keys)
+                    const shortId = '#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
 
-                    // Card style matching screenshot 1000008493.jpg (with rounded border and clear summary)
                     list.innerHTML += `
                         <div onclick="openOrderDetails('${key}')" class="glass-card p-5 order-view-card relative flex flex-col justify-between border-2 ${isConfirmed ? 'border-green-500/30' : 'border-amber-500/40'} cursor-pointer hover:border-blue-500 transition">
                             <div>
                                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                                    <span class="text-xs font-bold text-blue-400">#${key.substring(0,8)}</span>
+                                    <span class="text-xs font-bold text-blue-400">${shortId}</span>
                                     <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${isConfirmed ? 'bg-green-500/10 text-green-400 border border-green-500/30' : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'}">
                                         ${isConfirmed ? 'Confirmed' : 'Pending'}
                                     </span>
@@ -1277,7 +1273,7 @@
                                 ${orderDate ? `<p class="text-[10px] text-slate-500 mb-3">${orderDate}</p>` : ''}
 
                                 <div class="flex justify-between items-center pt-2 border-t border-slate-800/60 mt-2">
-                                    <span class="text-xs font-bold text-amber-400">${paymentMethod}</span>
+                                    <span class="text-xs font-bold text-emerald-400">PAID</span>
                                     <span class="text-sm font-black text-blue-400">${totalDisplay}</span>
                                 </div>
                             </div>
@@ -1295,7 +1291,7 @@
             calculateMetrics();
         }
 
-        // Detailed popup modal matching screenshot 1000008494.jpg
+        // Detailed popup modal with separate address fields and PAID status
         function openOrderDetails(key) {
             const order = globalOrdersCache[key];
             if(!order) return;
@@ -1304,14 +1300,21 @@
             const cName = order.customerName || order.name || 'Anonymous Client';
             const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
             const cEmail = order.emailAddress || order.customerEmail || order.email || 'N/A';
-            const cAddress = order.customerAddress || order.address || order.shippingAddress || 'No Address Provided';
-            const cCity = order.customerCity || order.city || 'N/A';
-            const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
+            
+            // Extracting separate address fields safely
+            const address1 = order.customerAddress1 || order.address1 || order.customerAddress || 'N/A';
+            const address2 = order.customerAddress2 || order.address2 || '';
+            const city = order.customerCity || order.city || 'N/A';
+            const county = order.customerCounty || order.county || '';
+            const postcode = order.postcode || order.postalCode || 'N/A';
+            const country = order.customerCountry || order.country || 'United Kingdom';
 
+            const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
             const subtotalDisplay = formatMoney(order.subtotal);
             const deliveryDisplay = formatMoney(order.deliveryCharges);
             const totalDisplay = formatMoney(order.price || order.totalPrice);
             const paymentMethod = order.paymentMethod || 'Card / Stripe';
+            const shortId = '#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
 
             let itemsHTML = '';
             if (order.itemsDetailed) {
@@ -1323,7 +1326,7 @@
                 itemsHTML = `<div class="text-slate-200 font-medium">${(order.productName || 'Store Item').toString().replace(/</g, '&lt;')}</div>`;
             }
 
-            document.getElementById('modal-title').innerText = `Order #${key.substring(0,8)} Details`;
+            document.getElementById('modal-title').innerText = `Order ${shortId} Details`;
             const content = document.getElementById('modal-content');
 
             content.innerHTML = `
@@ -1336,8 +1339,12 @@
                         <p><strong class="text-slate-400">Name:</strong> <span class="text-white font-semibold">${cName}</span></p>
                         <p><strong class="text-slate-400">Phone:</strong> <span class="text-white font-semibold">${cPhone}</span></p>
                         <p><strong class="text-slate-400">Email Address:</strong> <span class="text-white font-semibold">${cEmail}</span></p>
-                        <p><strong class="text-slate-400">Address:</strong> <span class="text-white font-semibold">${cAddress}</span></p>
-                        <p><strong class="text-slate-400">City:</strong> <span class="text-white font-semibold">${cCity}</span></p>
+                        <p><strong class="text-slate-400">Address Line 1:</strong> <span class="text-white font-semibold">${address1}</span></p>
+                        ${address2 ? `<p><strong class="text-slate-400">Address Line 2:</strong> <span class="text-white font-semibold">${address2}</span></p>` : ''}
+                        <p><strong class="text-slate-400">Town / City:</strong> <span class="text-white font-semibold">${city}</span></p>
+                        ${county ? `<p><strong class="text-slate-400">County:</strong> <span class="text-white font-semibold">${county}</span></p>` : ''}
+                        <p><strong class="text-slate-400">Postcode:</strong> <span class="text-white font-semibold uppercase">${postcode}</span></p>
+                        <p><strong class="text-slate-400">Country:</strong> <span class="text-white font-semibold">${country}</span></p>
                         ${orderDate ? `<p><strong class="text-slate-400">Date:</strong> <span class="text-slate-300">${orderDate}</span></p>` : ''}
                     </div>
 
@@ -1354,11 +1361,11 @@
                         </div>
                     </div>
 
-                    <!-- Total Bill Section -->
-                    <div class="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/30 text-center space-y-1">
+                    <!-- Total Bill Section with PAID status -->
+                    <div class="bg-emerald-600/10 p-4 rounded-2xl border border-emerald-500/30 text-center space-y-1">
                         <span class="text-slate-400 uppercase tracking-wider font-bold text-[10px]">Total Bill</span>
-                        <div class="text-2xl font-black text-green-400">${totalDisplay}</div>
-                        <p class="text-[10px] text-red-400 font-extrabold uppercase mt-1">Collect from customer: ${totalDisplay}</p>
+                        <div class="text-2xl font-black text-emerald-400">${totalDisplay}</div>
+                        <p class="text-[11px] text-emerald-500 font-extrabold uppercase tracking-widest mt-1"><i class="fa-solid fa-circle-check mr-1"></i> PAID (${paymentMethod})</p>
                     </div>
 
                     <!-- Action Buttons -->
