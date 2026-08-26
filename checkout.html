@@ -204,18 +204,36 @@
         let userUUID = localStorage.getItem('user_chat_id');
         if (!userUUID) { userUUID = 'USER-' + Math.random().toString(36).substr(2, 9); localStorage.setItem('user_chat_id', userUUID); }
 
+        function getCheckoutPageLabel() {
+            if (cart.length > 0) {
+                const itemNames = cart.map(i => i.name).join(', ');
+                return `Checkout: ${itemNames}`;
+            }
+            return "Checkout";
+        }
+
         function sendLiveSignal(statusMessage) {
             database.ref(`live_status/${userUUID}`).set({ currentPage: statusMessage, lastActive: Date.now() });
             database.ref(`traffic_history/${userUUID}/logs`).push({ page: statusMessage, timestamp: Date.now() });
         }
+
+        function logPageTraffic(pageName) {
+            database.ref('site_traffic').push({
+                page: pageName,
+                timestamp: Date.now(),
+                count: 1
+            });
+        }
+
         window.addEventListener('beforeunload', function () { database.ref(`live_status/${userUUID}`).remove(); });
 
         function loadCheckout() {
             const container = document.getElementById('checkout-items');
             baseSubtotal = 0; baseDelivery = 0;
             container.innerHTML = '';
-            if(cart.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-4">Your cart is empty</p>'; updateTotals(); sendLiveSignal("Checkout"); return; }
-            sendLiveSignal("Checkout");
+            if(cart.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-4">Your cart is empty</p>'; updateTotals(); sendLiveSignal(getCheckoutPageLabel()); return; }
+            sendLiveSignal(getCheckoutPageLabel());
+            logPageTraffic(getCheckoutPageLabel());
 
             cart.forEach((item, index) => {
                 const priceNum = parseFloat(item.price.toString().replace(/[^\d.]/g, '')) || 0;
@@ -387,7 +405,7 @@
         }
 
         loadCheckout();
-        setInterval(() => { if(cart.length > 0) { sendLiveSignal("Checkout"); } }, 25000);
+        setInterval(() => { if(cart.length > 0) { sendLiveSignal(getCheckoutPageLabel()); } }, 25000);
     </script>
 </body>
 </html>
