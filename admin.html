@@ -1255,8 +1255,8 @@
                     const totalDisplay = formatMoney(order.price || order.totalPrice);
                     const paymentMethod = order.paymentMethod || 'Card / Stripe';
                     
-                    // Clean Short Order ID format
-                    const shortId = '#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
+                    // Real Order ID (matches the ID sent to customer via Email & WhatsApp)
+                    const shortId = order.orderId || ('#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase());
 
                     list.innerHTML += `
                         <div onclick="openOrderDetails('${key}')" class="glass-card p-5 order-view-card relative flex flex-col justify-between border-2 ${isConfirmed ? 'border-green-500/30' : 'border-amber-500/40'} cursor-pointer hover:border-blue-500 transition">
@@ -1322,7 +1322,8 @@
             const calcSubtotalDisplay = formatMoney(prodPriceValue + deliveryValue); // Usually equals totalBill
 
             const paymentMethod = order.paymentMethod || 'Card / Stripe';
-            const shortId = '#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
+            // Real Order ID (matches the ID sent to customer via Email & WhatsApp)
+            const shortId = order.orderId || ('#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase());
 
             let itemsHTML = '';
             if (order.itemsDetailed) {
