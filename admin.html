@@ -1255,7 +1255,7 @@
                     const totalDisplay = formatMoney(order.price || order.totalPrice);
                     const paymentMethod = order.paymentMethod || 'Card / Stripe';
                     
-                    // Clean Short Order ID format (e.g. #WODX instead of long random keys)
+                    // Clean Short Order ID format
                     const shortId = '#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
 
                     list.innerHTML += `
@@ -1291,7 +1291,7 @@
             calculateMetrics();
         }
 
-        // Detailed popup modal with separate address fields and PAID status
+        // Detailed popup modal with separate dynamic address fields and updated pricing sequence
         function openOrderDetails(key) {
             const order = globalOrdersCache[key];
             if(!order) return;
@@ -1301,18 +1301,26 @@
             const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
             const cEmail = order.emailAddress || order.customerEmail || order.email || 'N/A';
             
-            // Extracting separate address fields safely
-            const address1 = order.customerAddress1 || order.address1 || order.customerAddress || 'N/A';
+            // Checking individual fields to ensure conditional rendering
+            const address1 = order.customerAddress1 || order.address1 || order.customerAddress || order.address || '';
             const address2 = order.customerAddress2 || order.address2 || '';
-            const city = order.customerCity || order.city || 'N/A';
-            const county = order.customerCounty || order.county || '';
-            const postcode = order.postcode || order.postalCode || 'N/A';
-            const country = order.customerCountry || order.country || 'United Kingdom';
+            const city = order.customerCity || order.city || order.town || '';
+            const county = order.customerCounty || order.county || order.region || '';
+            const postcode = order.postcode || order.postalCode || order.zip || '';
+            const country = order.customerCountry || order.country || '';
 
             const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
-            const subtotalDisplay = formatMoney(order.subtotal);
-            const deliveryDisplay = formatMoney(order.deliveryCharges);
-            const totalDisplay = formatMoney(order.price || order.totalPrice);
+            
+            // Pricing Calculations
+            const prodPriceValue = parseMoney(order.subtotal) || parseMoney(order.productPrice) || (parseMoney(order.totalPrice || order.price) - parseMoney(order.deliveryCharges));
+            const deliveryValue = parseMoney(order.deliveryCharges);
+            const totalValue = parseMoney(order.totalPrice || order.price);
+            
+            const prodPriceDisplay = formatMoney(prodPriceValue);
+            const deliveryDisplay = formatMoney(deliveryValue);
+            const totalDisplay = formatMoney(totalValue);
+            const calcSubtotalDisplay = formatMoney(prodPriceValue + deliveryValue); // Usually equals totalBill
+
             const paymentMethod = order.paymentMethod || 'Card / Stripe';
             const shortId = '#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
 
@@ -1324,6 +1332,19 @@
                     .join('');
             } else {
                 itemsHTML = `<div class="text-slate-200 font-medium">${(order.productName || 'Store Item').toString().replace(/</g, '&lt;')}</div>`;
+            }
+
+            // Build Address HTML Dynamically (sirf wohi show hoga jo maujood ho)
+            let addressHTML = '';
+            if(address1 && address1 !== 'N/A') addressHTML += `<p><strong class="text-slate-400">Address Line 1:</strong> <span class="text-white font-semibold">${address1}</span></p>`;
+            if(address2 && address2 !== 'N/A') addressHTML += `<p><strong class="text-slate-400">Address Line 2:</strong> <span class="text-white font-semibold">${address2}</span></p>`;
+            if(city && city !== 'N/A') addressHTML += `<p><strong class="text-slate-400">Town / City:</strong> <span class="text-white font-semibold">${city}</span></p>`;
+            if(county && county !== 'N/A') addressHTML += `<p><strong class="text-slate-400">County:</strong> <span class="text-white font-semibold">${county}</span></p>`;
+            if(postcode && postcode !== 'N/A') addressHTML += `<p><strong class="text-slate-400">Postcode:</strong> <span class="text-white font-semibold uppercase">${postcode}</span></p>`;
+            if(country && country !== 'N/A') addressHTML += `<p><strong class="text-slate-400">Country:</strong> <span class="text-white font-semibold">${country}</span></p>`;
+
+            if(addressHTML === '') {
+                addressHTML = `<p class="text-slate-500 italic text-[11px]">No valid address provided.</p>`;
             }
 
             document.getElementById('modal-title').innerText = `Order ${shortId} Details`;
@@ -1339,12 +1360,7 @@
                         <p><strong class="text-slate-400">Name:</strong> <span class="text-white font-semibold">${cName}</span></p>
                         <p><strong class="text-slate-400">Phone:</strong> <span class="text-white font-semibold">${cPhone}</span></p>
                         <p><strong class="text-slate-400">Email Address:</strong> <span class="text-white font-semibold">${cEmail}</span></p>
-                        <p><strong class="text-slate-400">Address Line 1:</strong> <span class="text-white font-semibold">${address1}</span></p>
-                        ${address2 ? `<p><strong class="text-slate-400">Address Line 2:</strong> <span class="text-white font-semibold">${address2}</span></p>` : ''}
-                        <p><strong class="text-slate-400">Town / City:</strong> <span class="text-white font-semibold">${city}</span></p>
-                        ${county ? `<p><strong class="text-slate-400">County:</strong> <span class="text-white font-semibold">${county}</span></p>` : ''}
-                        <p><strong class="text-slate-400">Postcode:</strong> <span class="text-white font-semibold uppercase">${postcode}</span></p>
-                        <p><strong class="text-slate-400">Country:</strong> <span class="text-white font-semibold">${country}</span></p>
+                        ${addressHTML}
                         ${orderDate ? `<p><strong class="text-slate-400">Date:</strong> <span class="text-slate-300">${orderDate}</span></p>` : ''}
                     </div>
 
@@ -1355,13 +1371,14 @@
                         </h3>
                         <div class="space-y-1 mb-3">${itemsHTML}</div>
                         <div class="pt-2 border-t border-slate-800 space-y-1.5 text-slate-300">
-                            <div class="flex justify-between"><span>Subtotal:</span> <span class="font-bold text-white">${subtotalDisplay}</span></div>
+                            <!-- Sequenced Price Calculation -->
+                            <div class="flex justify-between"><span>Product Price:</span> <span class="font-bold text-white">${prodPriceDisplay}</span></div>
                             <div class="flex justify-between"><span>Delivery Charges:</span> <span class="font-bold text-white">${deliveryDisplay}</span></div>
-                            <div class="flex justify-between"><span>Payment Method:</span> <span class="font-bold text-amber-400">${paymentMethod}</span></div>
+                            <div class="flex justify-between"><span>Subtotal:</span> <span class="font-bold text-white">${calcSubtotalDisplay}</span></div>
                         </div>
                     </div>
 
-                    <!-- Total Bill Section with PAID status -->
+                    <!-- Total Bill Section -->
                     <div class="bg-emerald-600/10 p-4 rounded-2xl border border-emerald-500/30 text-center space-y-1">
                         <span class="text-slate-400 uppercase tracking-wider font-bold text-[10px]">Total Bill</span>
                         <div class="text-2xl font-black text-emerald-400">${totalDisplay}</div>
