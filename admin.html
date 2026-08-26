@@ -18,9 +18,9 @@
         .sidebar { transition: 0.3s; width: 260px; background: #111827; height: 100vh; position: fixed; left: -260px; z-index: 100; }
         .sidebar.active { left: 0; }
         .main-content { transition: 0.3s; padding: 20px; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; transition: 0.2s; }
         .glass-card:hover { transform: translateY(-3px); background: rgba(30, 41, 59, 0.9); }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
         .upload-box { border: 2px dashed #334155; transition: 0.3s; cursor: pointer; }
         .upload-box:hover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
@@ -183,7 +183,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="glass-card p-5 border-l-4 border-red-500 bg-gradient-to-br from-red-500/5 to-transparent cursor-default hover:transform-none">
+                    <div class="glass-card p-5 border-l-4 border-red-500 bg-gradient-to-br from-red-500/5 to-transparent cursor-default">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Live Traffic Now</p>
@@ -197,7 +197,7 @@
                         <p class="text-[10px] text-slate-500 mt-3"><i class="fa-solid fa-users mr-1"></i> Browsing website in real-time</p>
                     </div>
 
-                    <div class="glass-card p-5 border-l-4 border-green-500 bg-gradient-to-br from-green-500/5 to-transparent cursor-default hover:transform-none">
+                    <div class="glass-card p-5 border-l-4 border-green-500 bg-gradient-to-br from-green-500/5 to-transparent cursor-default">
                         <div class="flex justify-between items-start items-center">
                             <div>
                                 <select id="saleCardViewSelect" onchange="toggleSaleCardDisplay()" class="bg-transparent text-xs font-bold text-slate-400 uppercase tracking-wider outline-none cursor-pointer border border-slate-700/50 rounded px-1 py-0.5 bg-slate-900">
@@ -216,7 +216,7 @@
                         <span id="statTodayRevenue" class="hidden">£0.00</span>
                     </div>
 
-                    <div class="glass-card p-5 border-l-4 border-blue-500 bg-gradient-to-br from-blue-500/5 to-transparent cursor-default hover:transform-none">
+                    <div class="glass-card p-5 border-l-4 border-blue-500 bg-gradient-to-br from-blue-500/5 to-transparent cursor-default">
                         <div class="flex justify-between items-start items-center">
                             <div>
                                 <select id="orderCardViewSelect" onchange="toggleOrderCardDisplay()" class="bg-transparent text-xs font-bold text-slate-400 uppercase tracking-wider outline-none cursor-pointer border border-slate-700/50 rounded px-1 py-0.5 bg-slate-900">
@@ -235,7 +235,7 @@
                         <span id="statTodayOrders" class="hidden">0 Orders</span>
                     </div>
 
-                    <div class="glass-card p-5 border-l-4 border-purple-500 bg-gradient-to-br from-purple-500/5 to-transparent cursor-default hover:transform-none">
+                    <div class="glass-card p-5 border-l-4 border-purple-500 bg-gradient-to-br from-purple-500/5 to-transparent cursor-default">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Page Traffic</p>
@@ -248,14 +248,14 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 glass-card p-5 cursor-default hover:transform-none space-y-4">
+                    <div class="lg:col-span-2 glass-card p-5 cursor-default space-y-4">
                         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 pb-2"><i class="fa-solid fa-history mr-1 text-blue-500"></i> Traffic History Trend</h3>
                         <div id="trafficHistoryTimeline" class="space-y-2 max-h-[250px] overflow-y-auto pr-1 text-xs">
                             <p class="text-slate-500 text-center py-10">Select timeline filter scope to parse trends.</p>
                         </div>
                     </div>
                     
-                    <div class="glass-card p-5 cursor-default hover:transform-none space-y-4">
+                    <div class="glass-card p-5 cursor-default space-y-4">
                         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 pb-2"><i class="fa-solid fa-circle-dot text-red-500 animate-pulse mr-1"></i> Who is browsing Now?</h3>
                         <div id="livePagesList" class="space-y-3 max-h-[250px] overflow-y-auto text-xs">
                             <p class="text-slate-500 text-center py-10">Waiting for live signals...</p>
@@ -265,7 +265,7 @@
             </div>
 
             <div id="manage-slider" class="hidden-section">
-                <div class="glass-card p-6 max-w-xl mx-auto shadow-2xl cursor-default hover:transform-none">
+                <div class="glass-card p-6 max-w-xl mx-auto shadow-2xl cursor-default">
                     <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-2xl border border-slate-700 mb-8">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center">
@@ -307,7 +307,7 @@
             </div>
 
             <!-- ADD PRODUCT SECTION -->
-            <div id="add-product" class="hidden-section glass-card p-6 max-w-2xl mx-auto shadow-2xl cursor-default hover:transform-none">
+            <div id="add-product" class="hidden-section glass-card p-6 max-w-2xl mx-auto shadow-2xl cursor-default">
                 <div class="mb-4"><label>Product Name</label><input type="text" id="pName" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="Enter name"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div><label>Original Price (£)</label><input type="number" id="pOldPrice" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="e.g. 50.00"></div>
@@ -409,10 +409,11 @@
         </div>
     </div>
 
+    <!-- ORDER DETAIL POPUP MODAL -->
     <div id="orderModal" class="modal">
-        <div class="bg-slate-900 w-full max-w-md rounded-3xl p-6 border border-slate-700 max-h-[90vh] overflow-y-auto relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 text-xl"><i class="fa-solid fa-circle-xmark"></i></button>
-            <h2 id="modal-title" class="text-xl font-bold text-blue-400 mb-6 text-center uppercase tracking-wider">Details</h2>
+        <div class="bg-slate-900 w-full max-w-lg rounded-3xl p-6 border border-slate-700 max-h-[95vh] overflow-y-auto relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl z-10"><i class="fa-solid fa-circle-xmark"></i></button>
+            <h2 id="modal-title" class="text-xl font-bold text-blue-400 mb-6 text-center uppercase tracking-wider">Order Complete Details</h2>
             <div id="modal-content" class="space-y-4"></div>
         </div>
     </div>
@@ -1252,6 +1253,7 @@
                     const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
                     const cEmail = order.emailAddress || order.customerEmail || order.email || 'N/A';
                     const cAddress = order.customerAddress || order.address || order.shippingAddress || 'No Address Provided';
+                    const cCity = order.customerCity || order.city || '';
                     const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
 
                     const subtotalDisplay = formatMoney(order.subtotal);
@@ -1259,18 +1261,9 @@
                     const totalDisplay = formatMoney(order.price || order.totalPrice);
                     const paymentMethod = order.paymentMethod || 'Card / Stripe';
 
-                    let itemsHTML = '';
-                    if (order.itemsDetailed) {
-                        itemsHTML = order.itemsDetailed
-                            .split('\n')
-                            .map(line => `<div>${line.replace(/</g, '&lt;')}</div>`)
-                            .join('');
-                    } else {
-                        itemsHTML = `<div>${(order.productName || 'Store Item').toString().replace(/</g, '&lt;')}</div>`;
-                    }
-
+                    // Card style matching screenshot 1000008493.jpg (with rounded border and clear summary)
                     list.innerHTML += `
-                        <div class="glass-card p-5 order-view-card relative flex flex-col justify-between border border-slate-800/80">
+                        <div onclick="openOrderDetails('${key}')" class="glass-card p-5 order-view-card relative flex flex-col justify-between border-2 ${isConfirmed ? 'border-green-500/30' : 'border-amber-500/40'} cursor-pointer hover:border-blue-500 transition">
                             <div>
                                 <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
                                     <span class="text-xs font-bold text-blue-400">#${key.substring(0,8)}</span>
@@ -1279,34 +1272,18 @@
                                     </span>
                                 </div>
 
-                                <h3 class="font-bold text-base text-white mb-1">${cName}</h3>
+                                <h3 class="font-bold text-base text-white mb-0.5">${cName}</h3>
+                                <p class="text-xs text-slate-400 mb-2">${cCity}</p>
                                 ${orderDate ? `<p class="text-[10px] text-slate-500 mb-3">${orderDate}</p>` : ''}
 
-                                <div class="text-xs text-slate-300 bg-slate-950/50 p-3 rounded-xl border border-slate-800/50 mb-3 space-y-2">
-                                    <p><strong class="text-slate-400">Email:</strong> ${cEmail}</p>
-                                    <p><strong class="text-slate-400">Phone:</strong> ${cPhone}</p>
-                                    <p><strong class="text-slate-400">Address:</strong> ${cAddress}</p>
-                                </div>
-
-                                <div class="text-xs text-slate-300 bg-slate-950/40 p-3 rounded-xl border border-slate-800/40 mb-3">
-                                    <p class="text-blue-400 font-bold mb-1.5"><i class="fa-solid fa-box mr-1"></i> Ordered Items</p>
-                                    <div class="space-y-1 text-slate-300">${itemsHTML}</div>
-                                </div>
-
-                                <div class="text-[11px] text-slate-400 space-y-1.5 mb-3 bg-slate-950/30 p-3 rounded-xl border border-slate-800/30">
-                                    <div class="flex justify-between"><span>Subtotal</span><span class="text-slate-200 font-semibold">${subtotalDisplay}</span></div>
-                                    <div class="flex justify-between"><span>Delivery Charges</span><span class="text-slate-200 font-semibold">${deliveryDisplay}</span></div>
-                                    <div class="flex justify-between"><span>Payment Method</span><span class="text-slate-200 font-semibold">${paymentMethod}</span></div>
-                                </div>
-
-                                <div class="text-xs font-bold text-slate-200 mb-4 flex justify-between items-center bg-blue-600/10 p-3 rounded-xl border border-blue-500/20">
-                                    <span>Grand Total:</span>
-                                    <span class="text-green-400 text-sm font-black">${totalDisplay}</span>
+                                <div class="flex justify-between items-center pt-2 border-t border-slate-800/60 mt-2">
+                                    <span class="text-xs font-bold text-amber-400">${paymentMethod}</span>
+                                    <span class="text-sm font-black text-blue-400">${totalDisplay}</span>
                                 </div>
                             </div>
-                            <div class="flex gap-2 pt-2 border-t border-slate-800/60">
-                                ${!isConfirmed ? `<button onclick="confirmOrder('${key}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">Confirm Order</button>` : ''}
-                                <button onclick="deleteOrder('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-lg"><i class="fa-solid fa-trash-can mr-1"></i> Delete</button>
+                            <div class="flex gap-2 pt-3 mt-3 border-t border-slate-800/60" onclick="event.stopPropagation()">
+                                ${!isConfirmed ? `<button onclick="confirmOrder('${key}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">Confirm</button>` : ''}
+                                <button onclick="deleteOrder('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-lg"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
                         </div>`;
                 }
@@ -1316,6 +1293,83 @@
                 list.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs font-semibold">No ${currentOrderFilterTab} orders found.</div>`;
             }
             calculateMetrics();
+        }
+
+        // Detailed popup modal matching screenshot 1000008494.jpg
+        function openOrderDetails(key) {
+            const order = globalOrdersCache[key];
+            if(!order) return;
+
+            const isConfirmed = order.status === 'confirmed';
+            const cName = order.customerName || order.name || 'Anonymous Client';
+            const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
+            const cEmail = order.emailAddress || order.customerEmail || order.email || 'N/A';
+            const cAddress = order.customerAddress || order.address || order.shippingAddress || 'No Address Provided';
+            const cCity = order.customerCity || order.city || 'N/A';
+            const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
+
+            const subtotalDisplay = formatMoney(order.subtotal);
+            const deliveryDisplay = formatMoney(order.deliveryCharges);
+            const totalDisplay = formatMoney(order.price || order.totalPrice);
+            const paymentMethod = order.paymentMethod || 'Card / Stripe';
+
+            let itemsHTML = '';
+            if (order.itemsDetailed) {
+                itemsHTML = order.itemsDetailed
+                    .split('\n')
+                    .map(line => `<div class="text-slate-200 font-medium">${line.replace(/</g, '&lt;')}</div>`)
+                    .join('');
+            } else {
+                itemsHTML = `<div class="text-slate-200 font-medium">${(order.productName || 'Store Item').toString().replace(/</g, '&lt;')}</div>`;
+            }
+
+            document.getElementById('modal-title').innerText = `Order #${key.substring(0,8)} Details`;
+            const content = document.getElementById('modal-content');
+
+            content.innerHTML = `
+                <div class="space-y-4 text-xs">
+                    <!-- Customer Billing Info Section -->
+                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <h3 class="text-blue-400 font-extrabold uppercase tracking-wider mb-3 text-[11px] border-b border-slate-800 pb-1.5 flex items-center gap-2">
+                            <i class="fa-solid fa-user-shield"></i> Customer Billing Info
+                        </h3>
+                        <p><strong class="text-slate-400">Name:</strong> <span class="text-white font-semibold">${cName}</span></p>
+                        <p><strong class="text-slate-400">Phone:</strong> <span class="text-white font-semibold">${cPhone}</span></p>
+                        <p><strong class="text-slate-400">Email Address:</strong> <span class="text-white font-semibold">${cEmail}</span></p>
+                        <p><strong class="text-slate-400">Address:</strong> <span class="text-white font-semibold">${cAddress}</span></p>
+                        <p><strong class="text-slate-400">City:</strong> <span class="text-white font-semibold">${cCity}</span></p>
+                        ${orderDate ? `<p><strong class="text-slate-400">Date:</strong> <span class="text-slate-300">${orderDate}</span></p>` : ''}
+                    </div>
+
+                    <!-- Items Ordered Section -->
+                    <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <h3 class="text-blue-400 font-extrabold uppercase tracking-wider mb-3 text-[11px] border-b border-slate-800 pb-1.5 flex items-center gap-2">
+                            <i class="fa-solid fa-box-open"></i> Items Ordered
+                        </h3>
+                        <div class="space-y-1 mb-3">${itemsHTML}</div>
+                        <div class="pt-2 border-t border-slate-800 space-y-1.5 text-slate-300">
+                            <div class="flex justify-between"><span>Subtotal:</span> <span class="font-bold text-white">${subtotalDisplay}</span></div>
+                            <div class="flex justify-between"><span>Delivery Charges:</span> <span class="font-bold text-white">${deliveryDisplay}</span></div>
+                            <div class="flex justify-between"><span>Payment Method:</span> <span class="font-bold text-amber-400">${paymentMethod}</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Total Bill Section -->
+                    <div class="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/30 text-center space-y-1">
+                        <span class="text-slate-400 uppercase tracking-wider font-bold text-[10px]">Total Bill</span>
+                        <div class="text-2xl font-black text-green-400">${totalDisplay}</div>
+                        <p class="text-[10px] text-red-400 font-extrabold uppercase mt-1">Collect from customer: ${totalDisplay}</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 pt-2">
+                        ${!isConfirmed ? `<button onclick="confirmOrder('${key}'); closeModal();" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-check"></i> Done / Confirm</button>` : ''}
+                        <button onclick="deleteOrder('${key}'); closeModal();" class="flex-1 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can"></i> Delete Order</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('orderModal').classList.add('active');
         }
 
         async function confirmOrder(key) {
