@@ -172,7 +172,7 @@
     </div>
 
     <script>
-        (function(){ emailjs.init({ publicKey: "hUB2Fd1u6Uxou_Na0" }); })();
+        (function(){ emailjs.init({ publicKey: "aYayezWpufVsy9LWI" }); })();
         
         const firebaseConfig = {
           apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
@@ -322,6 +322,8 @@
 
             btn.disabled = true; btn.innerHTML = '<div class="loader"></div> Processing...';
 
+            const uniqueOrderId = '#' + Math.random().toString(36).substring(2, 7).toUpperCase();
+
             const sub = document.getElementById('subtotal').innerText;
             const del = document.getElementById('delivery-total').innerText;
             const grand = document.getElementById('grand-total').innerText;
@@ -344,26 +346,35 @@
                 const statusSnap = await database.ref('settings/emailStatus').get();
                 const isEmailEnabled = statusSnap.val() === 'on';
                 
+                // EmailJS parameters with exact individual variables matching your template
                 const emailParams = { 
-                    customer_name: (fName + " " + lName), 
-                    customer_email: cEmail, 
-                    customer_phone: phone, 
-                    customer_city: city, 
-                    customer_address: fullAddress, 
-                    order_items: itemSummary, 
-                    subtotal: sub, 
-                    delivery_charges: del, 
-                    total_bill: grand, 
-                    payment_method: "Credit / Debit Card (Stripe)" 
+                    order_id: uniqueOrderId,
+                    customer_email: cEmail,
+                    first_name: fName,
+                    last_name: lName,
+                    email_address: cEmail,
+                    phone_number: phone,
+                    country: country,
+                    address_1: addr1,
+                    address_2: addr2 ? addr2 : "N/A",
+                    city: city,
+                    county: county ? county : "N/A",
+                    postcode: postcode,
+                    order_items: itemsString,
+                    product_price: sub,
+                    delivery_charges: del,
+                    grand_total: grand,
+                    payment_method: "Credit / Debit Card (Stripe)"
                 };
 
                 const promises = [];
                 if (isEmailEnabled) { 
-                    promises.push(emailjs.send("service_qk7vqye", "template_dznvwme", emailParams)); 
-                    promises.push(emailjs.send("service_qk7vqye", "template_r5r1vkr", emailParams)); 
+                    promises.push(emailjs.send("service_uk3f5lm", "template_enb5mx8", emailParams)); 
+                    promises.push(emailjs.send("service_uk3f5lm", "template_cc3xonz", emailParams)); 
                 }
                 
                 promises.push(database.ref('orders').push({ 
+                    orderId: uniqueOrderId,
                     customerName: `${fName} ${lName}`, 
                     customerPhone: phone, 
                     emailAddress: cEmail, 
@@ -376,14 +387,14 @@
                     subtotal: sub,
                     price: grand, 
                     paymentMethod: "Card / Stripe", 
-                    status: 'pending',
+                    status: 'paid',
                     timestamp: Date.now(),
                     date: new Date().toLocaleString() 
                 }));
                 
                 await Promise.all(promises);
                 
-                let fullWaMessage = `*🚀 NEW ORDER - SNAXU RSM 🚀*\n\n👤 *Name:* ${fName} ${lName}\n📧 *Email:* ${cEmail}\n📞 *Phone:* ${phone}\n📍 *Address:* ${fullAddress}\n\n*--- ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Subtotal:* ${sub}\n🚚 *Delivery:* ${del}\n💵 *Total Bill:* ${grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)`;
+                let fullWaMessage = `*🚀 NEW ORDER - ${uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${fName}\n• Last Name: ${lName}\n• Email: ${cEmail}\n• Phone: ${phone}\n• Country: ${country}\n• Address 1: ${addr1}${addr2 ? '\n• Address 2: ' + addr2 : ''}\n• City: ${city}${county ? '\n• County: ' + county : ''}\n• Postcode: ${postcode}\n\n*--- ORDER ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${sub}\n🚚 *Delivery Charges:* ${del}\n💵 *Grand Total:* ${grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
                 
                 sendLiveSignal("Order Placed");
                 triggerSuccessEffects();
