@@ -1,7 +1,20 @@
-
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 module.exports = async (req, res) => {
+    // CORS Headers allow karne ke liye taaki GitHub se request block na ho
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    );
+
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -42,8 +55,8 @@ module.exports = async (req, res) => {
             line_items: lineItems,
             mode: 'payment',
             customer_email: orderData.cEmail,
-            success_url: `${req.headers.origin}/checkout.html?payment=success`,
-            cancel_url: `${req.headers.origin}/checkout.html?payment=cancel`,
+            success_url: `${req.headers.origin || 'https://snaxu-rsm-store.github.io'}/checkout.html?payment=success`,
+            cancel_url: `${req.headers.origin || 'https://snaxu-rsm-store.github.io'}/checkout.html?payment=cancel`,
             metadata: {
                 orderId: orderData.uniqueOrderId,
             }
