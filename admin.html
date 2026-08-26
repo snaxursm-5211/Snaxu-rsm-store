@@ -1224,7 +1224,6 @@
             renderOrdersEngine();
         }
 
-        // Helper: turns any price value (with or without a £ sign) into a clean number
         function parseMoney(val) {
             if (val === undefined || val === null) return 0;
             const n = parseFloat(val.toString().replace(/[^\d.]/g, ''));
@@ -1249,20 +1248,17 @@
                 if((currentOrderFilterTab === 'pending' && !isConfirmed) || (currentOrderFilterTab === 'confirmed' && isConfirmed)) {
                     count++;
 
-                    // Match the actual field names saved by checkout.html
                     const cName = order.customerName || order.name || 'Anonymous Client';
                     const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
-                    const cEmail = order.emailAddress || order.customerEmail || order.email || '';
+                    const cEmail = order.emailAddress || order.customerEmail || order.email || 'N/A';
                     const cAddress = order.customerAddress || order.address || order.shippingAddress || 'No Address Provided';
-                    const cCity = order.customerCity || order.city || '';
                     const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
 
                     const subtotalDisplay = formatMoney(order.subtotal);
                     const deliveryDisplay = formatMoney(order.deliveryCharges);
                     const totalDisplay = formatMoney(order.price || order.totalPrice);
-                    const paymentMethod = order.paymentMethod || 'N/A';
+                    const paymentMethod = order.paymentMethod || 'Card / Stripe';
 
-                    // Full itemized list (product names, quantities, chosen options)
                     let itemsHTML = '';
                     if (order.itemsDetailed) {
                         itemsHTML = order.itemsDetailed
@@ -1286,31 +1282,31 @@
                                 <h3 class="font-bold text-base text-white mb-1">${cName}</h3>
                                 ${orderDate ? `<p class="text-[10px] text-slate-500 mb-3">${orderDate}</p>` : ''}
 
-                                <div class="text-xs text-slate-300 bg-slate-950/50 p-2.5 rounded-xl border border-slate-800/50 mb-3 space-y-1.5">
-                                    ${cEmail ? `<p><i class="fa-solid fa-envelope mr-1.5 text-slate-500 w-3 inline-block"></i>${cEmail}</p>` : ''}
-                                    <p><i class="fa-solid fa-phone mr-1.5 text-slate-500 w-3 inline-block"></i>${cPhone}</p>
-                                    <p><i class="fa-solid fa-location-dot mr-1.5 text-slate-500 w-3 inline-block"></i>${cAddress}${cCity ? ', ' + cCity : ''}</p>
+                                <div class="text-xs text-slate-300 bg-slate-950/50 p-3 rounded-xl border border-slate-800/50 mb-3 space-y-2">
+                                    <p><strong class="text-slate-400">Email:</strong> ${cEmail}</p>
+                                    <p><strong class="text-slate-400">Phone:</strong> ${cPhone}</p>
+                                    <p><strong class="text-slate-400">Address:</strong> ${cAddress}</p>
                                 </div>
 
-                                <div class="text-xs text-slate-300 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/40 mb-3">
-                                    <p class="text-blue-400 font-bold mb-1.5"><i class="fa-solid fa-box mr-1"></i> Items Ordered</p>
-                                    <div class="space-y-0.5 text-slate-300">${itemsHTML}</div>
+                                <div class="text-xs text-slate-300 bg-slate-950/40 p-3 rounded-xl border border-slate-800/40 mb-3">
+                                    <p class="text-blue-400 font-bold mb-1.5"><i class="fa-solid fa-box mr-1"></i> Ordered Items</p>
+                                    <div class="space-y-1 text-slate-300">${itemsHTML}</div>
                                 </div>
 
                                 <div class="text-[11px] text-slate-400 space-y-1.5 mb-3 bg-slate-950/30 p-3 rounded-xl border border-slate-800/30">
                                     <div class="flex justify-between"><span>Subtotal</span><span class="text-slate-200 font-semibold">${subtotalDisplay}</span></div>
-                                    <div class="flex justify-between"><span>Delivery</span><span class="text-slate-200 font-semibold">${deliveryDisplay}</span></div>
+                                    <div class="flex justify-between"><span>Delivery Charges</span><span class="text-slate-200 font-semibold">${deliveryDisplay}</span></div>
                                     <div class="flex justify-between"><span>Payment Method</span><span class="text-slate-200 font-semibold">${paymentMethod}</span></div>
                                 </div>
 
-                                <div class="text-xs font-bold text-slate-200 mb-4 flex justify-between items-center bg-blue-600/10 p-2.5 rounded-xl border border-blue-500/20">
-                                    <span>Total Payable:</span>
+                                <div class="text-xs font-bold text-slate-200 mb-4 flex justify-between items-center bg-blue-600/10 p-3 rounded-xl border border-blue-500/20">
+                                    <span>Grand Total:</span>
                                     <span class="text-green-400 text-sm font-black">${totalDisplay}</span>
                                 </div>
                             </div>
                             <div class="flex gap-2 pt-2 border-t border-slate-800/60">
-                                ${!isConfirmed ? `<button onclick="confirmOrder('${key}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition">Confirm</button>` : ''}
-                                <button onclick="deleteOrder('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-3 rounded-xl text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
+                                ${!isConfirmed ? `<button onclick="confirmOrder('${key}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg">Confirm Order</button>` : ''}
+                                <button onclick="deleteOrder('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-lg"><i class="fa-solid fa-trash-can mr-1"></i> Delete</button>
                             </div>
                         </div>`;
                 }
@@ -1332,7 +1328,7 @@
             }
         }
 
-        /* --- REVIEWS ENGINE (now unified on product_reviews / rating / feedback / userName->name) --- */
+        /* --- REVIEWS ENGINE --- */
         database.ref('product_reviews').on('value', (snapshot) => {
             globalReviewsCache = snapshot.val() || {};
             renderReviewsEngine();
@@ -1402,7 +1398,6 @@
 
             keys.forEach(key => {
                 const rev = globalReviewsCache[key];
-                // product.html reviews use status implicitly absent = pending; keep same semantics as before
                 const isApproved = rev.status === 'approved';
                 if(!isApproved) hasPending = true;
 
@@ -1471,13 +1466,13 @@
             }
         }
 
-        /* --- FIXED REALTIME TRAFFIC & METRICS ENGINE (now unified on live_status / site_traffic) --- */
+        /* --- REALTIME TRAFFIC & METRICS ENGINE --- */
         database.ref('live_status').on('value', (snapshot) => {
             const countEl = document.getElementById('liveTrafficCount');
             const listEl = document.getElementById('livePagesList');
             const val = snapshot.val() || {};
             const now = Date.now();
-            const STALE_MS = 60000; // consider a visitor offline if no signal in 60s
+            const STALE_MS = 60000;
 
             const activeKeys = Object.keys(val).filter(uKey => {
                 const lastActive = val[uKey].lastActive || 0;
@@ -1528,7 +1523,7 @@
                 const ordTime = ord.timestamp || ord.createdAt || now;
                 
                 if(daysScope === 'all' || (now - ordTime <= scopeMs)) {
-                    const amt = parseMoney(ord.totalPrice || ord.price || 0);
+                    const amt = parseMoney(ord.price || ord.totalPrice || 0);
                     totalRev += amt;
                     totalOrdCount++;
 
