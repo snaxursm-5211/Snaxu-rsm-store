@@ -288,18 +288,29 @@
         }
 
         // ==========================================
-        // STRIPE PAYMENT INTEGRATION LOGIC
+        // DOUBLE ORDER & 404 FIX LOGIC
         // ==========================================
 
         window.addEventListener('load', async function() {
             const urlParams = new URLSearchParams(window.location.search);
+            
             if (urlParams.get('payment') === 'success') {
-                const pendingOrder = JSON.parse(localStorage.getItem('pending_stripe_order'));
-                if (pendingOrder) {
+                const pendingOrderStr = localStorage.getItem('pending_stripe_order');
+                
+                // URL CLEANER: Taake koi refresh kare toh dobara order process na ho
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                // DOUBLE CHECK: Agar pending order pra hai sirf tabhi process karo
+                if (pendingOrderStr) {
+                    // Foran delete kar do taake double fire na ho sakay
+                    localStorage.removeItem('pending_stripe_order');
+                    
+                    const pendingOrder = JSON.parse(pendingOrderStr);
                     await finalizeSuccessfulOrder(pendingOrder);
                 }
             } else if (urlParams.get('payment') === 'cancel') {
                 alert("Payment was cancelled or failed. Please try again.");
+                // Error ke baad bhi URL saaf kar do
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         });
@@ -345,14 +356,19 @@
                 uniqueOrderId, fName, lName, cEmail, phone, country, addr1, addr2, city, county, postcode,
                 fullAddress, itemsString, itemSummary, sub, del, grand
             };
+            
             localStorage.setItem('pending_stripe_order', JSON.stringify(orderPayload));
 
             try {
-                // FIXED: Direct Vercel API Link Connected
                 const response = await fetch('https://snaxu-rsm-store.vercel.app/api/create-checkout-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: cart, orderData: orderPayload })
+                    // Yahan returnUrl lazmi pass kar diya taake 404 error hamesha ke liye theek rahe
+                    body: JSON.stringify({ 
+                        items: cart, 
+                        orderData: orderPayload,
+                        returnUrl: window.location.href.split('?')[0] 
+                    })
                 });
 
                 const data = await response.json();
@@ -425,14 +441,15 @@
                 let fullWaMessage = `*🚀 NEW ORDER - ${data.uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${data.fName}\n• Last Name: ${data.lName}\n• Email: ${data.cEmail}\n• Phone: ${data.phone}\n• Country: ${data.country}\n• Address 1: ${data.addr1}${data.addr2 ? '\n• Address 2: ' + data.addr2 : ''}\n• City: ${data.city}${data.county ? '\n• County: ' + data.county : ''}\n• Postcode: ${data.postcode}\n\n*--- ORDER ITEMS ---*\n${data.itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${data.sub}\n🚚 *Delivery Charges:* ${data.del}\n💵 *Grand Total:* ${data.grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
                 
                 sendLiveSignal("Order Placed Successfully");
+                
+                // Fireworks chal gaye
                 triggerSuccessEffects();
                 
                 if (isBuyNowFlow) { localStorage.removeItem('buyNowCart'); } 
                 else { localStorage.removeItem('cart'); }
                 
-                localStorage.removeItem('pending_stripe_order');
-                
-                setTimeout(() => { window.location.href = `whatsapp://send?phone=447508097607&text=${encodeURIComponent(fullWaMessage)}`; }, 2500);
+                // Time 2.5 seconds se kam kar ke 1.5 seconds kar diya hai WhatsApp redirect ke liye
+                setTimeout(() => { window.location.href = `whatsapp://send?phone=447508097607&text=${encodeURIComponent(fullWaMessage)}`; }, 1500);
             } catch(e) {
                 console.error("Error finalizing order:", e);
                 alert("Payment was successful, but there was an issue saving your order. Please contact support.");
