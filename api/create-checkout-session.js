@@ -1,7 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 module.exports = async (req, res) => {
-    // CORS Headers allow karne ke liye taaki GitHub se request block na ho
+    // CORS Headers allow karne ke liye
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -20,7 +20,8 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const { items, orderData } = req.body;
+        // Yahan maine returnUrl add kar diya hai
+        const { items, orderData, returnUrl } = req.body;
 
         const lineItems = items.map(item => {
             const priceNum = parseFloat(item.price.toString().replace(/[^\d.]/g, '')) || 0;
@@ -50,13 +51,16 @@ module.exports = async (req, res) => {
             });
         }
 
+        // Checkout se exact link aayega, warna origin use hoga (404 se bachne ke liye)
+        const safeReturnUrl = returnUrl || `${req.headers.origin || 'https://snaxu-rsm-store.github.io'}/checkout.html`;
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
             customer_email: orderData.cEmail,
-            success_url: `${req.headers.origin || 'https://snaxu-rsm-store.github.io'}/checkout.html?payment=success`,
-            cancel_url: `${req.headers.origin || 'https://snaxu-rsm-store.github.io'}/checkout.html?payment=cancel`,
+            success_url: `${safeReturnUrl}?payment=success`,
+            cancel_url: `${safeReturnUrl}?payment=cancel`,
             metadata: {
                 orderId: orderData.uniqueOrderId,
             }
