@@ -328,6 +328,14 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             });
         }
 
+        function logPageTraffic(pageName) {
+            database.ref('site_traffic').push({
+                page: pageName,
+                timestamp: Date.now(),
+                count: 1
+            });
+        }
+
         window.addEventListener('beforeunload', function () {
             database.ref(`live_status/${userUUID}`).remove();
         });
@@ -391,6 +399,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                     
                     sendLiveSignal(`Viewing: ${p.name}`);
                     setInterval(() => { sendLiveSignal(`Viewing: ${p.name}`); }, 25000);
+
+                    logPageTraffic(`Viewing: ${p.name}`);
 
                     loadProductReviews(productId);
 
