@@ -1641,7 +1641,7 @@
                     timelineEl.innerHTML = `<p class="text-slate-500 text-center py-8">No traffic events recorded in this scope.</p>`;
                 } else {
                     trafficArr.slice(-15).reverse().forEach(t => {
-                        const dateStr = t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : 'Recent';
+                        const dateStr = t.timestamp ? new Date(t.timestamp).toLocaleString([], {day: '2-digit', month: 'short', hour:'2-digit', minute:'2-digit'}) : 'Recent';
                         timelineEl.innerHTML += `
                             <div class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
                                 <span class="text-slate-300"><i class="fa-solid fa-arrow-trend-up text-purple-400 mr-2"></i>${t.page || 'Page Visit'}</span>
