@@ -5,6 +5,8 @@
     <script src="https://js.sentry-cdn.com/e8b693c77ef64ddf7ea2d61e0cfcc1bd.min.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Stripe SDK Added Here -->
+    <script src="https://js.stripe.com/v3/"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout | Snaxu rsm</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -166,14 +168,18 @@
         </div>
     </div>
 
-    <!-- Fixed Confirm Order Button -->
+    <!-- Fixed Confirm Order Button Updated for Stripe -->
     <div class="fixed bottom-0 left-0 w-full p-4 bg-white/90 border-t border-slate-100 z-50">
-        <button id="orderBtn" onclick="placeOrder()" class="w-full bg-[#1d6bf3] text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition flex items-center justify-center gap-2">Confirm Order</button>
+        <button id="orderBtn" onclick="placeOrder()" class="w-full bg-[#1d6bf3] text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition flex items-center justify-center gap-2">Proceed to Secure Payment</button>
     </div>
 
     <script>
+        // EmailJS Initialization
         (function(){ emailjs.init({ publicKey: "aYayezWpufVsy9LWI" }); })();
         
+        // Stripe Initialization with Live Publishable Key
+        const stripe = Stripe('pk_live_51U7zDm08nfozTPxFK0WAzNjpWPY4RHCJKdDM7fiTZaQ92vVRRrPrwcqnbAw2wpKxdXstH4hostYZmO1WUefLFuLs00FX0gyrhY');
+
         const firebaseConfig = {
           apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
           authDomain: "snaxu-rsm-21cc9.firebaseapp.com",
@@ -252,23 +258,15 @@
         function updateQty(index, change) { 
             cart[index].quantity = (cart[index].quantity || 1) + change; 
             if(cart[index].quantity < 1) cart[index].quantity = 1; 
-            
-            if(isBuyNowFlow) {
-                localStorage.setItem('buyNowCart', JSON.stringify(cart));
-            } else {
-                localStorage.setItem('cart', JSON.stringify(cart));
-            }
-
+            if(isBuyNowFlow) { localStorage.setItem('buyNowCart', JSON.stringify(cart)); } 
+            else { localStorage.setItem('cart', JSON.stringify(cart)); }
             loadCheckout(); 
         }
         
         function removeItem(index) { 
             cart.splice(index, 1); 
-            if(isBuyNowFlow) {
-                localStorage.setItem('buyNowCart', JSON.stringify(cart));
-            } else {
-                localStorage.setItem('cart', JSON.stringify(cart));
-            }
+            if(isBuyNowFlow) { localStorage.setItem('buyNowCart', JSON.stringify(cart)); } 
+            else { localStorage.setItem('cart', JSON.stringify(cart)); }
             loadCheckout(); 
         }
 
@@ -283,25 +281,29 @@
             grandTotalDisplay.innerText = '£' + grandTotalClean;
         }
 
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-                const checkBuyNow = localStorage.getItem('buyNowCart');
-                if (checkBuyNow) {
-                    cart = JSON.parse(checkBuyNow) || [];
-                    isBuyNowFlow = true;
-                } else {
-                    cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    isBuyNowFlow = false;
-                }
-                loadCheckout();
-            }
-        });
-
         function triggerSuccessEffects() {
             document.getElementById('successOverlay').classList.remove('hidden');
             var duration = 4 * 1000; var end = Date.now() + duration;
             (function frame() { confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#1d4ed8', '#0f172a'] }); confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#22c55e', '#ffffff'] }); if (Date.now() < end) { requestAnimationFrame(frame); } }());
         }
+
+        // ==========================================
+        // STRIPE PAYMENT INTEGRATION LOGIC
+        // ==========================================
+
+        window.addEventListener('load', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('payment') === 'success') {
+                const pendingOrder = JSON.parse(localStorage.getItem('pending_stripe_order'));
+                if (pendingOrder) {
+                    await finalizeSuccessfulOrder(pendingOrder);
+                }
+            } else if (urlParams.get('payment') === 'cancel') {
+                alert("Payment was cancelled or failed. Please try again.");
+                // Remove success parameter to clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
 
         async function placeOrder() {
             const fName = document.getElementById('firstName').value.trim();
@@ -320,14 +322,12 @@
                 return alert("Please fill in all required shipping fields!");
             }
 
-            btn.disabled = true; btn.innerHTML = '<div class="loader"></div> Processing...';
+            btn.disabled = true; btn.innerHTML = '<div class="loader"></div> Redirecting to Secure Payment...';
 
             const uniqueOrderId = '#' + Math.random().toString(36).substring(2, 7).toUpperCase();
-
             const sub = document.getElementById('subtotal').innerText;
             const del = document.getElementById('delivery-total').innerText;
             const grand = document.getElementById('grand-total').innerText;
-            
             const fullAddress = `${addr1}${addr2 ? ', ' + addr2 : ''}, ${city}${county ? ', ' + county : ''}, ${postcode}, ${country}`;
 
             const itemsString = cart.map(i => { 
@@ -342,28 +342,59 @@
                 return `${nameStr} (x${i.quantity || 1})`; 
             }).join(', ');
 
+            // Store order details temporarily before redirecting to Stripe
+            const orderPayload = {
+                uniqueOrderId, fName, lName, cEmail, phone, country, addr1, addr2, city, county, postcode,
+                fullAddress, itemsString, itemSummary, sub, del, grand
+            };
+            localStorage.setItem('pending_stripe_order', JSON.stringify(orderPayload));
+
+            try {
+                // Backend Vercel API Call (This uses our new create-checkout-session.js)
+                const response = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: cart, orderData: orderPayload })
+                });
+
+                const data = await response.json();
+                
+                if (data.url) {
+                    window.location.href = data.url; // Redirecting to Stripe Gateway
+                } else {
+                    alert("Error: " + data.error);
+                    btn.disabled = false; btn.innerHTML = 'Proceed to Secure Payment';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Could not connect to payment gateway. Please try again later.");
+                btn.disabled = false; btn.innerHTML = 'Proceed to Secure Payment';
+            }
+        }
+
+        async function finalizeSuccessfulOrder(data) {
             try {
                 const statusSnap = await database.ref('settings/emailStatus').get();
                 const isEmailEnabled = statusSnap.val() === 'on';
                 
-                // EmailJS parameters with exact individual variables matching your template
+                // Prepare exactly as it was originally designed
                 const emailParams = { 
-                    order_id: uniqueOrderId,
-                    customer_email: cEmail,
-                    first_name: fName,
-                    last_name: lName,
-                    email_address: cEmail,
-                    phone_number: phone,
-                    country: country,
-                    address_1: addr1,
-                    address_2: addr2 ? addr2 : "N/A",
-                    city: city,
-                    county: county ? county : "N/A",
-                    postcode: postcode,
-                    order_items: itemsString,
-                    product_price: sub,
-                    delivery_charges: del,
-                    grand_total: grand,
+                    order_id: data.uniqueOrderId,
+                    customer_email: data.cEmail,
+                    first_name: data.fName,
+                    last_name: data.lName,
+                    email_address: data.cEmail,
+                    phone_number: data.phone,
+                    country: data.country,
+                    address_1: data.addr1,
+                    address_2: data.addr2 ? data.addr2 : "N/A",
+                    city: data.city,
+                    county: data.county ? data.county : "N/A",
+                    postcode: data.postcode,
+                    order_items: data.itemsString,
+                    product_price: data.sub,
+                    delivery_charges: data.del,
+                    grand_total: data.grand,
                     payment_method: "Credit / Debit Card (Stripe)"
                 };
 
@@ -374,18 +405,18 @@
                 }
                 
                 promises.push(database.ref('orders').push({ 
-                    orderId: uniqueOrderId,
-                    customerName: `${fName} ${lName}`, 
-                    customerPhone: phone, 
-                    emailAddress: cEmail, 
-                    deliveryCharges: del, 
-                    customerCity: city, 
-                    customerAddress: fullAddress, 
-                    postcode: postcode,
-                    itemsDetailed: itemsString,
-                    productName: itemSummary, 
-                    subtotal: sub,
-                    price: grand, 
+                    orderId: data.uniqueOrderId,
+                    customerName: `${data.fName} ${data.lName}`, 
+                    customerPhone: data.phone, 
+                    emailAddress: data.cEmail, 
+                    deliveryCharges: data.del, 
+                    customerCity: data.city, 
+                    customerAddress: data.fullAddress, 
+                    postcode: data.postcode,
+                    itemsDetailed: data.itemsString,
+                    productName: data.itemSummary, 
+                    subtotal: data.sub,
+                    price: data.grand, 
                     paymentMethod: "Card / Stripe", 
                     status: 'paid',
                     timestamp: Date.now(),
@@ -394,26 +425,37 @@
                 
                 await Promise.all(promises);
                 
-                let fullWaMessage = `*🚀 NEW ORDER - ${uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${fName}\n• Last Name: ${lName}\n• Email: ${cEmail}\n• Phone: ${phone}\n• Country: ${country}\n• Address 1: ${addr1}${addr2 ? '\n• Address 2: ' + addr2 : ''}\n• City: ${city}${county ? '\n• County: ' + county : ''}\n• Postcode: ${postcode}\n\n*--- ORDER ITEMS ---*\n${itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${sub}\n🚚 *Delivery Charges:* ${del}\n💵 *Grand Total:* ${grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
+                let fullWaMessage = `*🚀 NEW ORDER - ${data.uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${data.fName}\n• Last Name: ${data.lName}\n• Email: ${data.cEmail}\n• Phone: ${data.phone}\n• Country: ${data.country}\n• Address 1: ${data.addr1}${data.addr2 ? '\n• Address 2: ' + data.addr2 : ''}\n• City: ${data.city}${data.county ? '\n• County: ' + data.county : ''}\n• Postcode: ${data.postcode}\n\n*--- ORDER ITEMS ---*\n${data.itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${data.sub}\n🚚 *Delivery Charges:* ${data.del}\n💵 *Grand Total:* ${data.grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
                 
-                sendLiveSignal("Order Placed");
+                sendLiveSignal("Order Placed Successfully");
                 triggerSuccessEffects();
                 
-                if (isBuyNowFlow) {
-                    localStorage.removeItem('buyNowCart');
-                } else {
-                    localStorage.removeItem('cart');
-                }
+                if (isBuyNowFlow) { localStorage.removeItem('buyNowCart'); } 
+                else { localStorage.removeItem('cart'); }
+                
+                // Clear the pending stripe order so it doesn't trigger again on refresh
+                localStorage.removeItem('pending_stripe_order');
                 
                 setTimeout(() => { window.location.href = `whatsapp://send?phone=447508097607&text=${encodeURIComponent(fullWaMessage)}`; }, 2500);
-            } catch(e) { 
-                console.error(e); 
-                Sentry.captureException(e); 
-                alert("Error placing order."); 
-                btn.disabled = false; 
-                btn.innerHTML = 'Confirm Order'; 
+            } catch(e) {
+                console.error("Error finalizing order:", e);
+                alert("Payment was successful, but there was an issue saving your order. Please contact support.");
             }
         }
+
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                const checkBuyNow = localStorage.getItem('buyNowCart');
+                if (checkBuyNow) {
+                    cart = JSON.parse(checkBuyNow) || [];
+                    isBuyNowFlow = true;
+                } else {
+                    cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    isBuyNowFlow = false;
+                }
+                loadCheckout();
+            }
+        });
 
         loadCheckout();
         setInterval(() => { if(cart.length > 0) { sendLiveSignal(getCheckoutPageLabel()); } }, 25000);
