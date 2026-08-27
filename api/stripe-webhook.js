@@ -35,11 +35,6 @@ async function sendEmailViaAPI(templateId, params) {
     }
 }
 
-// ==========================================
-// YAHAN FIX HAI: function pehle bana ke, phir
-// USI function ke upar .config set kiya hai,
-// taake baad mein overwrite na ho
-// ==========================================
 async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).send('Method not allowed');
@@ -59,9 +54,10 @@ async function handler(req, res) {
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
         const orderId = session.metadata.orderId;
+        const cleanOrderId = orderId.replace('#', '');
 
         try {
-            const pendingRes = await fetch(`${FIREBASE_DB_URL}/pending_orders/${orderId.replace('#', '')}.json`);
+            const pendingRes = await fetch(`${FIREBASE_DB_URL}/pending_orders/${cleanOrderId}.json`);
             const data = await pendingRes.json();
 
             if (!data) {
@@ -69,9 +65,20 @@ async function handler(req, res) {
                 return res.status(200).json({ received: true });
             }
 
-            const existingCheck = await fetch(`${FIREBASE_DB_URL}/orders.json?orderBy="orderId"&equalTo="${data.uniqueOrderId}"`);
+            // ==========================================
+            // FIX: uniqueOrderId mein "#" hota hai, jo URL mein
+            // fragment (#) ki tarah break ho jata hai agar encode na kiya jaye.
+            // Isliye encodeURIComponent() lagana zaroori hai.
+            // ==========================================
+            const existingCheck = await fetch(
+                `${FIREBASE_DB_URL}/orders.json?orderBy="orderId"&equalTo=${encodeURIComponent(`"${data.uniqueOrderId}"`)}`
+            );
             const existing = await existingCheck.json();
-            if (existing && Object.keys(existing).length > 0) {
+
+            // Agar Firebase ne koi error diya (jaise missing index), usko duplicate mat samjho
+            if (existing && existing.error) {
+                console.error('Firebase duplicate-check query error:', existing.error);
+            } else if (existing && Object.keys(existing).length > 0) {
                 console.log('Order already saved, skipping duplicate:', orderId);
                 return res.status(200).json({ received: true });
             }
@@ -132,7 +139,7 @@ async function handler(req, res) {
                 await sendEmailViaAPI('template_cc3xonz', emailParams);
             }
 
-            await fetch(`${FIREBASE_DB_URL}/pending_orders/${orderId.replace('#', '')}.json`, { method: 'DELETE' });
+            await fetch(`${FIREBASE_DB_URL}/pending_orders/${cleanOrderId}.json`, { method: 'DELETE' });
 
         } catch (err) {
             console.error('Webhook processing error:', err);
@@ -142,7 +149,6 @@ async function handler(req, res) {
     res.status(200).json({ received: true });
 }
 
-// Config ab function ke UPAR set ho raha hai, isliye overwrite nahi hoga
 handler.config = {
     api: {
         bodyParser: false,
