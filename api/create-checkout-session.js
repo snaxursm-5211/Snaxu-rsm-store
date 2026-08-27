@@ -1,5 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+const FIREBASE_DB_URL = "https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com";
+
 module.exports = async (req, res) => {
     // CORS Headers allow karne ke liye
     res.setHeader('Access-Control-Allow-Credentials', true);
@@ -20,7 +22,6 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Yahan maine returnUrl add kar diya hai
         const { items, orderData, returnUrl } = req.body;
 
         const lineItems = items.map(item => {
@@ -51,8 +52,18 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Checkout se exact link aayega, warna origin use hoga (404 se bachne ke liye)
         const safeReturnUrl = returnUrl || `${req.headers.origin || 'https://snaxu-rsm-store.github.io'}/checkout.html`;
+
+        // ==========================================
+        // NAYA STEP: Order ko "pending" state mein Firebase pe save karo
+        // Isse webhook ko baad mein pura data mil jayega, chahe browser wapas aaye ya na aaye
+        // ==========================================
+        const orderId = orderData.uniqueOrderId;
+        await fetch(`${FIREBASE_DB_URL}/pending_orders/${orderId.replace('#', '')}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -62,7 +73,7 @@ module.exports = async (req, res) => {
             success_url: `${safeReturnUrl}?payment=success`,
             cancel_url: `${safeReturnUrl}?payment=cancel`,
             metadata: {
-                orderId: orderData.uniqueOrderId,
+                orderId: orderId,
             }
         });
 
