@@ -386,73 +386,34 @@
             }
         }
 
+        // ==========================================
+        // UPDATED FUNCTION: Ab ye sirf COSMETIC kaam karta hai
+        // (fireworks + WhatsApp redirect turant)
+        // Asal order save + email ab server-side webhook (/api/stripe-webhook)
+        // karta hai, jo seedha Stripe se call hota hai.
+        // Isliye customer beech mein page band bhi kar de, order phir bhi save ho jayega.
+        // ==========================================
         async function finalizeSuccessfulOrder(data) {
             try {
-                const statusSnap = await database.ref('settings/emailStatus').get();
-                const isEmailEnabled = statusSnap.val() === 'on';
-                
-                const emailParams = { 
-                    order_id: data.uniqueOrderId,
-                    customer_email: data.cEmail,
-                    first_name: data.fName,
-                    last_name: data.lName,
-                    email_address: data.cEmail,
-                    phone_number: data.phone,
-                    country: data.country,
-                    address_1: data.addr1,
-                    address_2: data.addr2 ? data.addr2 : "N/A",
-                    city: data.city,
-                    county: data.county ? data.county : "N/A",
-                    postcode: data.postcode,
-                    order_items: data.itemsString,
-                    product_price: data.sub,
-                    delivery_charges: data.del,
-                    grand_total: data.grand,
-                    payment_method: "Credit / Debit Card (Stripe)"
-                };
-
-                const promises = [];
-                if (isEmailEnabled) { 
-                    promises.push(emailjs.send("service_uk3f5lm", "template_enb5mx8", emailParams)); 
-                    promises.push(emailjs.send("service_uk3f5lm", "template_cc3xonz", emailParams)); 
-                }
-                
-                promises.push(database.ref('orders').push({ 
-                    orderId: data.uniqueOrderId,
-                    customerName: `${data.fName} ${data.lName}`, 
-                    customerPhone: data.phone, 
-                    emailAddress: data.cEmail, 
-                    deliveryCharges: data.del, 
-                    customerCity: data.city, 
-                    customerAddress: data.fullAddress, 
-                    postcode: data.postcode,
-                    itemsDetailed: data.itemsString,
-                    productName: data.itemSummary, 
-                    subtotal: data.sub,
-                    price: data.grand, 
-                    paymentMethod: "Card / Stripe", 
-                    status: 'paid',
-                    timestamp: Date.now(),
-                    date: new Date().toLocaleString() 
-                }));
-                
-                await Promise.all(promises);
-                
-                let fullWaMessage = `*🚀 NEW ORDER - ${data.uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${data.fName}\n• Last Name: ${data.lName}\n• Email: ${data.cEmail}\n• Phone: ${data.phone}\n• Country: ${data.country}\n• Address 1: ${data.addr1}${data.addr2 ? '\n• Address 2: ' + data.addr2 : ''}\n• City: ${data.city}${data.county ? '\n• County: ' + data.county : ''}\n• Postcode: ${data.postcode}\n\n*--- ORDER ITEMS ---*\n${data.itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${data.sub}\n🚚 *Delivery Charges:* ${data.del}\n💵 *Grand Total:* ${data.grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
-                
-                sendLiveSignal("Order Placed Successfully");
-                
-                // Fireworks chal gaye
+                // FORAN fireworks chalao - koi network call ka wait nahi
                 triggerSuccessEffects();
-                
-                if (isBuyNowFlow) { localStorage.removeItem('buyNowCart'); } 
+
+                let fullWaMessage = `*🚀 NEW ORDER - ${data.uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${data.fName}\n• Last Name: ${data.lName}\n• Email: ${data.cEmail}\n• Phone: ${data.phone}\n• Country: ${data.country}\n• Address 1: ${data.addr1}${data.addr2 ? '\n• Address 2: ' + data.addr2 : ''}\n• City: ${data.city}${data.county ? '\n• County: ' + data.county : ''}\n• Postcode: ${data.postcode}\n\n*--- ORDER ITEMS ---*\n${data.itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${data.sub}\n🚚 *Delivery Charges:* ${data.del}\n💵 *Grand Total:* ${data.grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
+
+                sendLiveSignal("Order Placed Successfully");
+
+                if (isBuyNowFlow) { localStorage.removeItem('buyNowCart'); }
                 else { localStorage.removeItem('cart'); }
-                
-                // Time 2.5 seconds se kam kar ke 1.5 seconds kar diya hai WhatsApp redirect ke liye
-                setTimeout(() => { window.location.href = `whatsapp://send?phone=447508097607&text=${encodeURIComponent(fullWaMessage)}`; }, 1500);
-            } catch(e) {
-                console.error("Error finalizing order:", e);
-                alert("Payment was successful, but there was an issue saving your order. Please contact support.");
+
+                // Foran WhatsApp pe redirect - koi wait nahi
+                setTimeout(() => {
+                    window.location.href = `whatsapp://send?phone=447508097607&text=${encodeURIComponent(fullWaMessage)}`;
+                }, 1000);
+
+            } catch (e) {
+                console.error("Error finalizing order display:", e);
+                // Yahan bhi fireworks dikha do - order to webhook ne save kar diya hoga
+                triggerSuccessEffects();
             }
         }
 
