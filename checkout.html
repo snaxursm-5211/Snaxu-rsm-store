@@ -359,11 +359,26 @@
             
             localStorage.setItem('pending_stripe_order', JSON.stringify(orderPayload));
 
+            // ==========================================================
+            // NEW ADDITION: Stripe par bhejne se pehle data Firebase 
+            // ke pending_orders mein lazmi save karo taake Webhook ko mil sakay!
+            // ==========================================================
+            try {
+                const cleanOrderId = uniqueOrderId.replace('#', '');
+                await fetch(`https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com/pending_orders/${cleanOrderId}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderPayload)
+                });
+                console.log("Order saved to pending_orders for Webhook to catch.");
+            } catch (err) {
+                console.error("Failed to save pending order to Firebase:", err);
+            }
+
             try {
                 const response = await fetch('https://snaxu-rsm-store.vercel.app/api/create-checkout-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // Yahan returnUrl lazmi pass kar diya taake 404 error hamesha ke liye theek rahe
                     body: JSON.stringify({ 
                         items: cart, 
                         orderData: orderPayload,
@@ -386,13 +401,6 @@
             }
         }
 
-        // ==========================================
-        // UPDATED FUNCTION: Ab ye sirf COSMETIC kaam karta hai
-        // (fireworks + WhatsApp redirect turant)
-        // Asal order save + email ab server-side webhook (/api/stripe-webhook)
-        // karta hai, jo seedha Stripe se call hota hai.
-        // Isliye customer beech mein page band bhi kar de, order phir bhi save ho jayega.
-        // ==========================================
         async function finalizeSuccessfulOrder(data) {
             try {
                 // FORAN fireworks chalao - koi network call ka wait nahi
@@ -412,7 +420,6 @@
 
             } catch (e) {
                 console.error("Error finalizing order display:", e);
-                // Yahan bhi fireworks dikha do - order to webhook ne save kar diya hoga
                 triggerSuccessEffects();
             }
         }
