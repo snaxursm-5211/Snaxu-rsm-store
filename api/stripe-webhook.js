@@ -2,17 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const FIREBASE_DB_URL = "https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com";
 const EMAILJS_PUBLIC_KEY = "aYayezWpufVsy9LWI";
-// EmailJS Private Key: EmailJS dashboard -> Account -> API Keys se lo.
-// Server-side (non-browser) email bhejne ke liye ye lazmi hai, warna "strict origin check" error aayega.
 const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY;
-
-// Vercel ko bolna hai ke body ko auto-parse na kare,
-// kyunki Stripe ko raw (unparsed) body chahiye signature verify karne ke liye
-module.exports.config = {
-    api: {
-        bodyParser: false,
-    },
-};
 
 function getRawBody(req) {
     return new Promise((resolve, reject) => {
@@ -28,7 +18,7 @@ async function sendEmailViaAPI(templateId, params) {
         console.warn('EMAILJS_PRIVATE_KEY not set, skipping server-side email');
         return;
     }
-    await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -39,9 +29,18 @@ async function sendEmailViaAPI(templateId, params) {
             template_params: params
         })
     });
+    if (!res.ok) {
+        const errText = await res.text();
+        console.error('EmailJS send failed:', res.status, errText);
+    }
 }
 
-module.exports = async (req, res) => {
+// ==========================================
+// YAHAN FIX HAI: function pehle bana ke, phir
+// USI function ke upar .config set kiya hai,
+// taake baad mein overwrite na ho
+// ==========================================
+async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).send('Method not allowed');
     }
@@ -62,7 +61,6 @@ module.exports = async (req, res) => {
         const orderId = session.metadata.orderId;
 
         try {
-            // Pending order ka data Firebase se wapas nikalo
             const pendingRes = await fetch(`${FIREBASE_DB_URL}/pending_orders/${orderId.replace('#', '')}.json`);
             const data = await pendingRes.json();
 
@@ -71,7 +69,6 @@ module.exports = async (req, res) => {
                 return res.status(200).json({ received: true });
             }
 
-            // Duplicate check: agar ye order pehle se "orders" mein save ho chuka hai to dobara mat karo
             const existingCheck = await fetch(`${FIREBASE_DB_URL}/orders.json?orderBy="orderId"&equalTo="${data.uniqueOrderId}"`);
             const existing = await existingCheck.json();
             if (existing && Object.keys(existing).length > 0) {
@@ -79,8 +76,7 @@ module.exports = async (req, res) => {
                 return res.status(200).json({ received: true });
             }
 
-            // Final order Firebase mein save karo
-            await fetch(`${FIREBASE_DB_URL}/orders.json`, {
+            const orderSaveRes = await fetch(`${FIREBASE_DB_URL}/orders.json`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -103,7 +99,12 @@ module.exports = async (req, res) => {
                 })
             });
 
-            // Email bhejo (agar emailStatus 'on' hai)
+            if (!orderSaveRes.ok) {
+                console.error('Failed to save order to Firebase:', await orderSaveRes.text());
+            } else {
+                console.log('Order saved successfully:', data.uniqueOrderId);
+            }
+
             const statusRes = await fetch(`${FIREBASE_DB_URL}/settings/emailStatus.json`);
             const emailStatus = await statusRes.json();
 
@@ -131,7 +132,6 @@ module.exports = async (req, res) => {
                 await sendEmailViaAPI('template_cc3xonz', emailParams);
             }
 
-            // Pending order clean up
             await fetch(`${FIREBASE_DB_URL}/pending_orders/${orderId.replace('#', '')}.json`, { method: 'DELETE' });
 
         } catch (err) {
@@ -140,4 +140,13 @@ module.exports = async (req, res) => {
     }
 
     res.status(200).json({ received: true });
+}
+
+// Config ab function ke UPAR set ho raha hai, isliye overwrite nahi hoga
+handler.config = {
+    api: {
+        bodyParser: false,
+    },
 };
+
+module.exports = handler;
