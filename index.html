@@ -172,10 +172,15 @@
         .qty-btn { background: #f1f5f9; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 12px; font-weight: bold; }
         .qty-input { width: 25px; text-align: center; font-size: 12px; font-weight: 700; }
 
+        /* ===== SMOOTH MARQUEE ANNOUNCEMENT BAR FIX ===== */
         #announcement-bar { background: #000; color: white; text-align: center; padding: 10px 0; font-size: 11px; font-weight: 700; position: absolute; width: 100%; z-index: 5500; overflow: hidden; }
         .marquee-container { display: flex; width: 100%; overflow: hidden; white-space: nowrap; }
-        .scrolling-content { display: inline-block; white-space: nowrap; padding-right: 50px; animation: infinite-scroll 12s linear infinite; }
-        @keyframes infinite-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .scrolling-content { display: flex; align-items: center; white-space: nowrap; animation: infinite-scroll 18s linear infinite; }
+        .marquee-item { padding-right: 120vw; display: inline-block; flex-shrink: 0; }
+        @keyframes infinite-scroll { 
+            0% { transform: translateX(0); } 
+            100% { transform: translateX(-50%); } 
+        }
 
         #pwa-custom-banner { display: none; position: absolute; top: 0; width: 100%; background: #0f172a; color: white; z-index: 6000; border-bottom: 2px solid var(--primary-color); transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
 
@@ -468,12 +473,19 @@
         }, { threshold: 0.5 });
         if (titleLine) lineObserver.observe(titleLine);
 
+        /* UPDATED ANNOUNCEMENT BAR ENGINE */
         database.ref('announcement_bar').on('value', (snapshot) => {
             const bar = document.getElementById('announcement-bar');
             if(snapshot.exists() && snapshot.val().content.trim() !== "") {
                 const data = snapshot.val();
-                const content = data.content + "         ";
-                bar.innerHTML = `<div class="marquee-container"><div class="scrolling-content" style="color:${data.color||'#fff'} !important">${content.repeat(4)}</div></div>`;
+                const content = data.content.trim();
+                bar.innerHTML = `
+                    <div class="marquee-container">
+                        <div class="scrolling-content">
+                            <span class="marquee-item" style="color:${data.color||'#fff'} !important">${content}</span>
+                            <span class="marquee-item" style="color:${data.color||'#fff'} !important">${content}</span>
+                        </div>
+                    </div>`;
                 bar.classList.remove('hidden');
             } else { bar.classList.add('hidden'); }
             setTimeout(adjustNavPosition, 50);
