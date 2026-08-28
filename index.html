@@ -270,7 +270,6 @@
         <i class="fa-brands fa-whatsapp text-2xl"></i>
     </a>
 
-    <!-- Navbar height adjusted slightly to py-1.5 for perfect balance -->
     <nav id="main-nav" class="glass fixed w-full z-[5000] px-4 py-1.5 border-b border-slate-100/50">
         <div class="container mx-auto grid grid-cols-3 items-center">
             <div class="flex justify-start">
@@ -409,7 +408,6 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // ===== FIREBASE CONFIG REPLACED =====
         const firebaseConfig = {
             apiKey: "AIzaSyDdZcfBKbgvoNTC206BlVuf_248u9ir440",
             authDomain: "snaxu-rsm-21cc9.firebaseapp.com",
@@ -631,6 +629,7 @@
 
         updateCartCount();
 
+        // ===== MODIFIED: ADDED IN STOCK / OUT OF STOCK BADGE LOGIC =====
         database.ref('products').on('value', (snapshot) => {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
@@ -640,10 +639,20 @@
                 const firstImage = (p.images ? p.images[0] : p.image) || 'https://placehold.co/400x400';
                 const showOriginalPrice = p.originalPrice && p.originalPrice !== p.price;
                 const finalOriginalPrice = showOriginalPrice ? p.originalPrice : p.price;
+                
+                // Naya Badge Logic (Sirf status show karega, quantity nahi)
+                let stockBadgeHTML = '';
+                if (p.inStock === false) {
+                    stockBadgeHTML = `<div class="absolute top-2 right-2 bg-red-500/95 text-white text-[9px] font-extrabold px-2 py-1 rounded-md shadow-sm uppercase tracking-wider z-10 backdrop-blur-sm">Out of Stock</div>`;
+                } else {
+                    stockBadgeHTML = `<div class="absolute top-2 right-2 bg-green-500/95 text-white text-[9px] font-extrabold px-2 py-1 rounded-md shadow-sm uppercase tracking-wider z-10 backdrop-blur-sm">In Stock</div>`;
+                }
+
                 grid.innerHTML += `
                     <div class="product-card p-2" data-aos="fade-up" data-aos-delay="${delay}">
-                        <div class="rounded-xl overflow-hidden aspect-square mb-2 relative bg-slate-50" onclick="window.location.href='product.html?id=${id}'">
+                        <div class="rounded-xl overflow-hidden aspect-square mb-2 relative bg-slate-50 cursor-pointer" onclick="window.location.href='product.html?id=${id}'">
                             <img src="${firstImage}" class="w-full h-full object-cover">
+                            ${stockBadgeHTML}
                         </div>
                         <div class="px-1 flex flex-col justify-between flex-grow">
                             <h3 class="font-bold text-[11px] text-slate-800 truncate">${p.name}</h3>
