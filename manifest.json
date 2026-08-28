@@ -1,11 +1,11 @@
 {
-  "name": "Brand Bazaar",
-  "short_name": "Brand Bazaar",
-  "description": "Fast & Premium Tech Store",
+  "name": "snaxu rsm",
+  "short_name": "snaxu rsm",
+  "description": "Snackle Box & Trendy Storage Store",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0052cc",
+  "background_color": "#0a0f1c",
+  "theme_color": "#3b82f6",
   "orientation": "portrait",
   "icons": [
     {
