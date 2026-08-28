@@ -210,6 +210,42 @@
         let userUUID = localStorage.getItem('user_chat_id');
         if (!userUUID) { userUUID = 'USER-' + Math.random().toString(36).substr(2, 9); localStorage.setItem('user_chat_id', userUUID); }
 
+        // ==========================================
+        // NAYA: Payment success/cancel check ab yahan turant (script load
+        // hote hi) hota hai — window 'load' event ka wait nahi karta.
+        // 'load' event tab fire hota hai jab saari images/scripts/CDN files
+        // (Tailwind, FontAwesome, Firebase, Stripe) poori tarah load ho chuki
+        // hon — isi wajah se checkout form pehle 2-3 sec ke liye dikh raha tha
+        // phir fireworks aata tha. Ab overlay turant show hota hai, isliye
+        // customer ko checkout form ki jhalak bhi nahi milegi.
+        // ==========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPaymentSuccess = urlParams.get('payment') === 'success';
+        const isPaymentCancel = urlParams.get('payment') === 'cancel';
+
+        if (isPaymentSuccess) {
+            // Turant overlay dikha do — checkout form ki jhalak bhi na miley
+            document.getElementById('successOverlay').classList.remove('hidden');
+
+            const pendingOrderStr = localStorage.getItem('pending_stripe_order');
+
+            // URL CLEANER: Taake koi refresh kare toh dobara order process na ho
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            if (pendingOrderStr) {
+                // Foran delete kar do taake double fire na ho sakay
+                localStorage.removeItem('pending_stripe_order');
+                const pendingOrder = JSON.parse(pendingOrderStr);
+                finalizeSuccessfulOrder(pendingOrder);
+            } else {
+                // Fallback: agar pending order na mile tab bhi effect dikha do
+                triggerSuccessEffects();
+            }
+        } else if (isPaymentCancel) {
+            alert("Payment was cancelled or failed. Please try again.");
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         function getCheckoutPageLabel() {
             if (cart.length > 0) {
                 const itemNames = cart.map(i => i.name).join(', ');
@@ -289,31 +325,9 @@
 
         // ==========================================
         // DOUBLE ORDER & 404 FIX LOGIC
+        // (payment=success / cancel ka actual check ab upar turant hota hai —
+        // dekho "NAYA" comment userUUID ke fauran baad)
         // ==========================================
-
-        window.addEventListener('load', async function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            if (urlParams.get('payment') === 'success') {
-                const pendingOrderStr = localStorage.getItem('pending_stripe_order');
-                
-                // URL CLEANER: Taake koi refresh kare toh dobara order process na ho
-                window.history.replaceState({}, document.title, window.location.pathname);
-
-                // DOUBLE CHECK: Agar pending order pra hai sirf tabhi process karo
-                if (pendingOrderStr) {
-                    // Foran delete kar do taake double fire na ho sakay
-                    localStorage.removeItem('pending_stripe_order');
-                    
-                    const pendingOrder = JSON.parse(pendingOrderStr);
-                    await finalizeSuccessfulOrder(pendingOrder);
-                }
-            } else if (urlParams.get('payment') === 'cancel') {
-                alert("Payment was cancelled or failed. Please try again.");
-                // Error ke baad bhi URL saaf kar do
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        });
 
         async function placeOrder() {
             const fName = document.getElementById('firstName').value.trim();
@@ -445,8 +459,12 @@
             }
         });
 
-        loadCheckout();
-        setInterval(() => { if(cart.length > 0) { sendLiveSignal(getCheckoutPageLabel()); } }, 25000);
+        // Agar payment success flow chal raha hai to checkout form render
+        // hi nahi karna (overlay pehle hi upar dikha diya gaya hai)
+        if (!isPaymentSuccess) {
+            loadCheckout();
+            setInterval(() => { if(cart.length > 0) { sendLiveSignal(getCheckoutPageLabel()); } }, 25000);
+        }
     </script>
 </body>
 </html>
