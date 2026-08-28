@@ -172,7 +172,6 @@
         .qty-btn { background: #f1f5f9; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 12px; font-weight: bold; }
         .qty-input { width: 25px; text-align: center; font-size: 12px; font-weight: 700; }
 
-        /* ===== SMOOTH MARQUEE ANNOUNCEMENT BAR FIX ===== */
         #announcement-bar { background: #000; color: white; text-align: center; padding: 10px 0; font-size: 11px; font-weight: 700; position: absolute; width: 100%; z-index: 5500; overflow: hidden; }
         .marquee-container { display: flex; width: 100%; overflow: hidden; white-space: nowrap; }
         .scrolling-content { display: flex; align-items: center; white-space: nowrap; animation: infinite-scroll 18s linear infinite; }
@@ -355,9 +354,15 @@
         <div class="container mx-auto text-center">
             <h2 class="text-2xl font-bold mb-4" data-aos="fade-down">Contact us</h2>
             <div class="bg-white/5 p-6 rounded-2xl border border-white/10 mb-6 text-left" data-aos="fade-up" data-aos-delay="100">
+                
                 <input type="text" id="userName" placeholder="Your Full Name" class="contact-input-anim w-full bg-transparent border-b border-white/20 py-3 outline-none text-white text-sm mb-4">
+                
+                <!-- NEW EMAIL FIELD ADDED HERE -->
+                <input type="email" id="userEmail" placeholder="Your Email Address" class="contact-input-anim w-full bg-transparent border-b border-white/20 py-3 outline-none text-white text-sm mb-4">
+                
                 <textarea id="userMsg" placeholder="Type your order details here..." class="contact-input-anim w-full bg-transparent border-b border-white/20 py-3 outline-none h-20 text-white text-sm mb-6 resize-none"></textarea>
-                <button onclick="sendSupportMessage()" class="w-full text-white py-4 rounded-xl font-bold text-xs uppercase tracking-widest active:scale-95 transition" style="background:#1a56db">Send Message</button>
+                
+                <button id="sendMessageBtn" onclick="sendSupportMessage()" class="w-full text-white py-4 rounded-xl font-bold text-xs uppercase tracking-widest active:scale-95 transition" style="background:#1a56db">Send Message</button>
             </div>
             
             <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-6 border-b border-white/10 pb-6" data-aos="fade-up" data-aos-delay="150">
@@ -396,6 +401,7 @@
         </div>
     </section>
 
+    <!-- CUSTOM POPUP MODAL HTML ALREADY EXISTED -->
     <div id="customAlertModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[30000] flex items-center justify-center p-4 hidden">
         <div id="modalCard" class="bg-white rounded-3xl p-6 max-w-xs w-full text-center shadow-2xl transform scale-90 opacity-0 transition-all duration-200 flex flex-col items-center gap-4">
             <div id="modalIconContainer"></div>
@@ -473,7 +479,6 @@
         }, { threshold: 0.5 });
         if (titleLine) lineObserver.observe(titleLine);
 
-        /* UPDATED ANNOUNCEMENT BAR ENGINE */
         database.ref('announcement_bar').on('value', (snapshot) => {
             const bar = document.getElementById('announcement-bar');
             if(snapshot.exists() && snapshot.val().content.trim() !== "") {
@@ -514,16 +519,89 @@
         }
         function closeChat() { document.getElementById('chat-modal').classList.remove('active'); }
 
-        async function sendSupportMessage() {
-            const name = document.getElementById('userName').value;
-            const msg = document.getElementById('userMsg').value;
-            if(!name || !msg) return alert("Fill all fields");
-            const msgObj = { role: 'user', text: msg, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) };
-            await database.ref(`chat_history/${userUUID}`).push(msgObj);
-            await database.ref(`user_chats/${userUUID}`).update({ senderName: name, last_message: msg, admin_unread: true, last_update: Date.now() });
-            alert("Message sent!");
-            document.getElementById('userMsg').value = "";
+        // ====== CUSTOM POPUP ALERT FUNCTION ======
+        function showCustomAlert(title, message, iconHtml, btnText) {
+            const modal = document.getElementById('customAlertModal');
+            const card = document.getElementById('modalCard');
+            
+            document.getElementById('modalIconContainer').innerHTML = iconHtml;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerText = message;
+            
+            const actionBtn = document.getElementById('modalActionBtn');
+            actionBtn.innerText = btnText;
+            actionBtn.className = "mt-2 w-full bg-[#1a56db] hover:bg-blue-600 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest transition shadow-lg active:scale-95";
+            actionBtn.onclick = () => {
+                card.classList.remove('scale-100', 'opacity-100');
+                card.classList.add('scale-90', 'opacity-0');
+                setTimeout(() => { modal.classList.add('hidden'); }, 200);
+            };
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-90', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
         }
+
+        // ====== MODIFIED SEND MESSAGE FUNCTION WITH BACKGROUND EMAIL (WEB3FORMS) ======
+        async function sendSupportMessage() {
+            const name = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const msg = document.getElementById('userMsg').value.trim();
+            
+            if(!name || !email || !msg) {
+                return showCustomAlert("Empty Fields", "Please enter your name, email, and message to proceed.", '<i class="fa-solid fa-circle-exclamation text-amber-500 text-5xl mb-2"></i>', "Okay");
+            }
+
+            // Email format validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailRegex.test(email)) {
+                return showCustomAlert("Invalid Email", "Please enter a valid email address.", '<i class="fa-solid fa-envelope-circle-xmark text-red-500 text-5xl mb-2"></i>', "Okay");
+            }
+
+            const btn = document.getElementById('sendMessageBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "SENDING...";
+            btn.disabled = true;
+
+            try {
+                // 1. Send to Firebase Admin Panel Chats
+                const fullAdminMsg = `Email: ${email}\n\nMessage: ${msg}`;
+                const msgObj = { role: 'user', text: fullAdminMsg, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) };
+                await database.ref(`chat_history/${userUUID}`).push(msgObj);
+                await database.ref(`user_chats/${userUUID}`).update({ senderName: name, last_message: msg, admin_unread: true, last_update: Date.now() });
+
+                // 2. Send Background Email via Web3Forms API
+                await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Accept: "application/json" },
+                    body: JSON.stringify({
+                        access_key: "514b6612-e962-4506-a668-e611b0cb75fb", // <--- ADDED YOUR ACCESS KEY HERE
+                        subject: "New Store Support Message from " + name,
+                        from_name: name,
+                        email: email,
+                        message: msg
+                    })
+                });
+
+                // Show Success beautiful Popup
+                showCustomAlert("Message Sent!", "We have received your message. Our team will get back to you shortly.", '<i class="fa-solid fa-circle-check text-green-500 text-5xl mb-2"></i>', "Done");
+                
+                // Clear the form fields
+                document.getElementById('userName').value = "";
+                document.getElementById('userEmail').value = "";
+                document.getElementById('userMsg').value = "";
+
+            } catch(e) {
+                console.error(e);
+                showCustomAlert("Connection Error", "Something went wrong while sending your message. Please try again.", '<i class="fa-solid fa-triangle-exclamation text-red-500 text-5xl mb-2"></i>', "Close");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
         async function sendReplyBack() {
             const input = document.getElementById('userReplyInput');
             if(!input.value) return;
@@ -641,7 +719,6 @@
 
         updateCartCount();
 
-        // ===== MODIFIED: ADDED IN STOCK / OUT OF STOCK BADGE LOGIC =====
         database.ref('products').on('value', (snapshot) => {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
@@ -652,7 +729,6 @@
                 const showOriginalPrice = p.originalPrice && p.originalPrice !== p.price;
                 const finalOriginalPrice = showOriginalPrice ? p.originalPrice : p.price;
                 
-                // Naya Badge Logic (Sirf status show karega, quantity nahi)
                 let stockBadgeHTML = '';
                 if (p.inStock === false) {
                     stockBadgeHTML = `<div class="absolute top-2 right-2 bg-red-500/95 text-white text-[9px] font-extrabold px-2 py-1 rounded-md shadow-sm uppercase tracking-wider z-10 backdrop-blur-sm">Out of Stock</div>`;
