@@ -148,6 +148,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 <span id="pOldPrice" class="text-sm text-slate-400 line-through"></span>
                 <span id="pPrice" class="text-xl font-bold text-slate-900"></span>
             </div>
+            <div id="pStockBadge" class="mb-4"></div>
 
             <div id="variationsSection" class="mb-6 hidden">
                 <h3 class="text-[10px] font-bold text-slate-900 uppercase tracking-[0.2em] mb-2">Select Option</h3>
@@ -289,6 +290,18 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         </div>
     </div>
 
+    <!-- OUT OF STOCK NOTICE MODAL (professional replacement for browser alert()) -->
+    <div id="outOfStockModal" class="fixed inset-0 z-[7500] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="modal-wrapper modal-exit bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative text-center">
+            <div class="w-16 h-16 mx-auto rounded-full bg-red-50 flex items-center justify-center mb-4">
+                <i class="fa-solid fa-box-open text-red-500 text-2xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-2">Out of Stock</h3>
+            <p class="text-xs text-slate-500 mb-6 leading-relaxed">This product is currently out of stock. Please check back later.</p>
+            <button onclick="closeOutOfStockModal()" class="w-full bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">OK</button>
+        </div>
+    </div>
+
     <!-- UPDATED BOTTOM BAR WITH 3 BUTTONS -->
     <div class="fixed bottom-0 left-0 w-full p-3 bg-white/95 backdrop-blur-md border-t border-slate-100 flex gap-2 z-40">
         <button onclick="handleAddToCart()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1">
@@ -329,6 +342,9 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
         // Verified Purchase tracking ke liye flag
         let isPurchaseVerified = false;
+
+        // Stock tracking flag
+        window.isProductOutOfStock = false;
 
         let userUUID = localStorage.getItem('user_chat_id');
         if (!userUUID) {
@@ -420,6 +436,19 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                     document.getElementById('pPrice').innerText = '£' + p.price;
                     if(p.originalPrice) document.getElementById('pOldPrice').innerText = '£' + p.originalPrice;
                     document.getElementById('pDesc').innerText = p.desc;
+
+                    // Stock Management Logic
+                    const stockEnabled = (p.inStock !== undefined) ? p.inStock : true;
+                    const stockQty = (p.stockQty !== undefined && p.stockQty !== null && p.stockQty !== '') ? p.stockQty : null;
+                    window.isProductOutOfStock = !stockEnabled;
+                    const stockBadge = document.getElementById('pStockBadge');
+                    if (!stockEnabled) {
+                        stockBadge.innerHTML = `<span class="inline-flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full"><i class="fa-solid fa-circle-xmark"></i> Out of Stock</span>`;
+                    } else if (stockQty !== null) {
+                        stockBadge.innerHTML = `<span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full"><i class="fa-solid fa-circle-check"></i> Only ${stockQty} in stock</span>`;
+                    } else {
+                        stockBadge.innerHTML = '';
+                    }
                     
                     sendLiveSignal(`Viewing: ${p.name}`);
                     setInterval(() => { sendLiveSignal(`Viewing: ${p.name}`); }, 25000);
@@ -608,6 +637,17 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
         function closePurchaseRequiredModal() {
             hideModalWithAnim('purchaseRequiredModal');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // Professional "Out of Stock" popup (browser ka default alert() ki jagah)
+        function showOutOfStockModal() {
+            document.getElementById('overlay').classList.add('active');
+            showModalWithAnim('outOfStockModal');
+        }
+
+        function closeOutOfStockModal() {
+            hideModalWithAnim('outOfStockModal');
             document.getElementById('overlay').classList.remove('active');
         }
 
@@ -921,6 +961,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
         function handleAddToCart() {
             if(!currentProduct) return;
+            if(window.isProductOutOfStock) { showOutOfStockModal(); return; }
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? '£' + selectedVariationPrice : '£' + currentProduct.price;
 
@@ -966,6 +1007,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
         function handleBuyNow() {
             if(!currentProduct) return;
+            if(window.isProductOutOfStock) { showOutOfStockModal(); return; }
             
             let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? '£' + selectedVariationPrice : '£' + currentProduct.price;
             
