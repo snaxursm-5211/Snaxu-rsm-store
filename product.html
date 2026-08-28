@@ -315,6 +315,11 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         let reviewBase64Images = []; 
         let indexToReplaceImage = -1; 
 
+        // ==========================================
+        // NAYA: Verified Purchase tracking ke liye flag
+        // ==========================================
+        let isPurchaseVerified = false;
+
         let userUUID = localStorage.getItem('user_chat_id');
         if (!userUUID) {
             userUUID = 'USER-' + Math.random().toString(36).substr(2, 9);
@@ -387,7 +392,19 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
 
+        // ==========================================
+        // NAYA: Check karo is device (userUUID) ne ye
+        // product pehle khareeda hai ya nahi
+        // ==========================================
+        function checkPurchaseVerification(prodId) {
+            database.ref(`verified_purchases/${prodId}/${userUUID}`).once('value', (snap) => {
+                isPurchaseVerified = snap.val() === true;
+            });
+        }
+
         if (productId) {
+            checkPurchaseVerification(productId);
+
             database.ref('products/' + productId).once('value', (snapshot) => {
                 const p = snapshot.val();
                 if (p) {
@@ -576,7 +593,14 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             document.getElementById('overlay').classList.remove('active');
         }
 
+        // ==========================================
+        // NAYA: Review shuru karne se pehle purchase check
+        // ==========================================
         function startReviewFlow() {
+            if (!isPurchaseVerified) {
+                alert("You can only review a product after purchasing it. Please buy this product first, then come back to leave your review.");
+                return;
+            }
             setModal0Stars(5); 
             document.getElementById('overlay').classList.add('active');
             showModalWithAnim('reviewModal0');
@@ -605,7 +629,14 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             showModalWithAnim('reviewModal0');
         }
 
+        // ==========================================
+        // NAYA: Star click se pehle bhi purchase check
+        // ==========================================
         function directStarClick(rating) {
+            if (!isPurchaseVerified) {
+                alert("You can only review a product after purchasing it. Please buy this product first, then come back to leave your review.");
+                return;
+            }
             currentSelectedRating = rating;
             document.getElementById('overlay').classList.add('active');
             openReviewModalStep1(rating);
@@ -874,6 +905,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             }
         }
 
+        // ==========================================
+        // UPDATED: Cart mein productId (id field) bhi save ho raha hai
+        // taake checkout/webhook isko track kar sake
+        // ==========================================
         function handleAddToCart() {
             if(!currentProduct) return;
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -885,6 +920,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 existingItem.quantity = (existingItem.quantity || 1) + 1;
             } else {
                 cart.push({ 
+                    id: productId,
                     name: currentProduct.name, 
                     price: finalPrice, 
                     img: (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || ''),
@@ -918,12 +954,16 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             }
         }
 
+        // ==========================================
+        // UPDATED: Buy Now mein bhi productId (id field) save ho raha hai
+        // ==========================================
         function handleBuyNow() {
             if(!currentProduct) return;
             
             let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? '£' + selectedVariationPrice : '£' + currentProduct.price;
             
             let buyNowCart = [{ 
+                id: productId,
                 name: currentProduct.name, 
                 price: finalPrice, 
                 img: (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || ''),
