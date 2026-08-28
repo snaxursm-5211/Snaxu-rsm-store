@@ -1210,10 +1210,7 @@
             }
         }
 
-        // ==========================================
-        // MODIFIED: updateProduct and deleteProduct
-        // Added Loading Spinner so user doesn't multi-click
-        // ==========================================
+        // OPTIMIZED FAST PRODUCT UPDATE FUNCTION
         async function updateProduct(key, btn) {
             if (btn) {
                 btn.disabled = true;
@@ -1247,9 +1244,12 @@
             }
 
             try {
+                // Instantly update Firebase without heavy re-uploads
                 await database.ref('products/' + key).update(updates);
+                if (globalProductsCache[key]) {
+                    Object.assign(globalProductsCache[key], updates);
+                }
                 closeModal();
-                alert("Product Updated!");
             } catch (e) {
                 alert("Error updating product: " + e.message);
                 if (btn) {
@@ -1277,7 +1277,6 @@
                 }
             }
         }
-        // ==========================================
 
         /* --- FIXED ORDERS SYSTEM ENGINE --- */
         database.ref('orders').on('value', (snapshot) => {
@@ -1330,7 +1329,6 @@
                     const totalDisplay = formatMoney(order.price || order.totalPrice);
                     const paymentMethod = order.paymentMethod || 'Card / Stripe';
                     
-                    // Real Order ID (matches the ID sent to customer via Email & WhatsApp)
                     const shortId = order.orderId || ('#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase());
 
                     list.innerHTML += `
@@ -1366,7 +1364,6 @@
             calculateMetrics();
         }
 
-        // Detailed popup modal with separate dynamic address fields and updated pricing sequence
         function openOrderDetails(key) {
             const order = globalOrdersCache[key];
             if(!order) return;
@@ -1376,7 +1373,6 @@
             const cPhone = order.customerPhone || order.phone || order.phoneNumber || 'N/A';
             const cEmail = order.emailAddress || order.customerEmail || order.email || 'N/A';
             
-            // Checking individual fields to ensure conditional rendering
             const address1 = order.customerAddress1 || order.address1 || order.customerAddress || order.address || '';
             const address2 = order.customerAddress2 || order.address2 || '';
             const city = order.customerCity || order.city || order.town || '';
@@ -1386,7 +1382,6 @@
 
             const orderDate = order.date || (order.timestamp ? new Date(order.timestamp).toLocaleString() : '');
             
-            // Pricing Calculations
             const prodPriceValue = parseMoney(order.subtotal) || parseMoney(order.productPrice) || (parseMoney(order.totalPrice || order.price) - parseMoney(order.deliveryCharges));
             const deliveryValue = parseMoney(order.deliveryCharges);
             const totalValue = parseMoney(order.totalPrice || order.price);
@@ -1394,10 +1389,9 @@
             const prodPriceDisplay = formatMoney(prodPriceValue);
             const deliveryDisplay = formatMoney(deliveryValue);
             const totalDisplay = formatMoney(totalValue);
-            const calcSubtotalDisplay = formatMoney(prodPriceValue + deliveryValue); // Usually equals totalBill
+            const calcSubtotalDisplay = formatMoney(prodPriceValue + deliveryValue);
 
             const paymentMethod = order.paymentMethod || 'Card / Stripe';
-            // Real Order ID (matches the ID sent to customer via Email & WhatsApp)
             const shortId = order.orderId || ('#' + key.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase());
 
             let itemsHTML = '';
@@ -1410,7 +1404,6 @@
                 itemsHTML = `<div class="text-slate-200 font-medium">${(order.productName || 'Store Item').toString().replace(/</g, '&lt;')}</div>`;
             }
 
-            // Build Address HTML Dynamically (sirf wohi show hoga jo maujood ho)
             let addressHTML = '';
             if(address1 && address1 !== 'N/A') addressHTML += `<p><strong class="text-slate-400">Address Line 1:</strong> <span class="text-white font-semibold">${address1}</span></p>`;
             if(address2 && address2 !== 'N/A') addressHTML += `<p><strong class="text-slate-400">Address Line 2:</strong> <span class="text-white font-semibold">${address2}</span></p>`;
@@ -1428,7 +1421,6 @@
 
             content.innerHTML = `
                 <div class="space-y-4 text-xs">
-                    <!-- Customer Billing Info Section -->
                     <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
                         <h3 class="text-blue-400 font-extrabold uppercase tracking-wider mb-3 text-[11px] border-b border-slate-800 pb-1.5 flex items-center gap-2">
                             <i class="fa-solid fa-user-shield"></i> Customer Billing Info
@@ -1440,28 +1432,24 @@
                         ${orderDate ? `<p><strong class="text-slate-400">Date:</strong> <span class="text-slate-300">${orderDate}</span></p>` : ''}
                     </div>
 
-                    <!-- Items Ordered Section -->
                     <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
                         <h3 class="text-blue-400 font-extrabold uppercase tracking-wider mb-3 text-[11px] border-b border-slate-800 pb-1.5 flex items-center gap-2">
                             <i class="fa-solid fa-box-open"></i> Items Ordered
                         </h3>
                         <div class="space-y-1 mb-3">${itemsHTML}</div>
                         <div class="pt-2 border-t border-slate-800 space-y-1.5 text-slate-300">
-                            <!-- Sequenced Price Calculation -->
                             <div class="flex justify-between"><span>Product Price:</span> <span class="font-bold text-white">${prodPriceDisplay}</span></div>
                             <div class="flex justify-between"><span>Delivery Charges:</span> <span class="font-bold text-white">${deliveryDisplay}</span></div>
                             <div class="flex justify-between"><span>Subtotal:</span> <span class="font-bold text-white">${calcSubtotalDisplay}</span></div>
                         </div>
                     </div>
 
-                    <!-- Total Bill Section -->
                     <div class="bg-emerald-600/10 p-4 rounded-2xl border border-emerald-500/30 text-center space-y-1">
                         <span class="text-slate-400 uppercase tracking-wider font-bold text-[10px]">Total Bill</span>
                         <div class="text-2xl font-black text-emerald-400">${totalDisplay}</div>
                         <p class="text-[11px] text-emerald-500 font-extrabold uppercase tracking-widest mt-1"><i class="fa-solid fa-circle-check mr-1"></i> PAID (${paymentMethod})</p>
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="flex gap-3 pt-2">
                         ${!isConfirmed ? `<button onclick="confirmOrder('${key}'); closeModal();" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-check"></i> Done / Confirm</button>` : ''}
                         <button onclick="deleteOrder('${key}'); closeModal();" class="flex-1 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2"><i class="fa-solid fa-trash-can"></i> Delete Order</button>
@@ -1482,7 +1470,7 @@
             }
         }
 
-        /* --- REVIEWS ENGINE --- */
+        /* --- UPDATED REVIEWS ENGINE WITH REPLY & CONFIRMED MANAGEMENT --- */
         database.ref('product_reviews').on('value', (snapshot) => {
             globalReviewsCache = snapshot.val() || {};
             renderReviewsEngine();
@@ -1558,6 +1546,8 @@
                 if((currentReviewFilterTab === 'pending' && !isApproved) || (currentReviewFilterTab === 'confirmed' && isApproved)) {
                     count++;
                     const prodName = rev.productName || globalProductsCache[rev.productId]?.name || 'Unknown Product';
+                    const prodImg = globalProductsCache[rev.productId]?.images?.[0] || globalProductsCache[rev.productId]?.image || 'https://placehold.co/100x100';
+                    
                     let starIcons = '';
                     for(let i=1; i<=5; i++) {
                         starIcons += `<i class="fa-solid fa-star ${i <= (rev.rating || 5) ? 'text-amber-400' : 'text-slate-700'} text-xs"></i>`;
@@ -1565,7 +1555,8 @@
 
                     const reviewerName = rev.name || rev.userName || 'Anonymous Client';
                     const reviewerComment = rev.feedback || rev.comment || 'No textual feedback.';
-                    const reviewDate = rev.timestamp ? new Date(rev.timestamp).toLocaleDateString() : (rev.date || 'Recent');
+                    const reviewDate = rev.timestamp ? new Date(rev.timestamp).toLocaleString([], {month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit'}) : (rev.date || 'Recent');
+                    const adminReplyText = rev.adminReply || '';
 
                     let imgGalleryHTML = '';
                     if(rev.images && Array.isArray(rev.images) && rev.images.length > 0) {
@@ -1580,33 +1571,95 @@
                         imgGalleryHTML += `</div>`;
                     }
 
-                    list.innerHTML += `
-                        <div class="glass-card p-5 review-card relative flex flex-col justify-between border border-slate-800/80">
-                            <div>
-                                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
-                                    <span class="text-xs font-bold text-blue-400 truncate max-w-[200px]"><i class="fa-solid fa-box mr-1 text-slate-500"></i>${prodName}</span>
-                                    <div class="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
-                                        ${starIcons}
+                    if (currentReviewFilterTab === 'pending') {
+                        // Pending Reviews View (With Reply Input Box)
+                        list.innerHTML += `
+                            <div class="glass-card p-5 review-card relative flex flex-col justify-between border-2 border-amber-500/30">
+                                <div>
+                                    <div class="flex items-center gap-3 border-b border-slate-800 pb-3 mb-3">
+                                        <img src="${prodImg}" class="w-10 h-10 object-cover rounded-lg border border-slate-700">
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-xs font-bold text-white truncate">${prodName}</h4>
+                                            <div class="flex items-center gap-1 mt-0.5">${starIcons} <span class="text-[10px] text-slate-500 ml-2">${reviewDate}</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 mb-3">
+                                        <h5 class="text-xs font-bold text-blue-400 mb-1">${reviewerName}</h5>
+                                        <p class="text-xs text-slate-300 leading-relaxed">${reviewerComment}</p>
+                                        ${imgGalleryHTML}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <textarea id="replyInput-${key}" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white outline-none focus:border-blue-500" placeholder="Type your reply to this review...">${adminReplyText}</textarea>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-bold text-sm text-white">${reviewerName}</h4>
-                                    <span class="text-[10px] text-slate-500">${reviewDate}</span>
+
+                                <div class="flex gap-2 pt-2 border-t border-slate-800/60">
+                                    <button onclick="sendReviewReply('${key}')" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-reply"></i> Send Reply
+                                    </button>
+                                    <button onclick="deleteReview('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-trash-can"></i> Delete Review
+                                    </button>
                                 </div>
-                                <p class="text-xs text-slate-300 leading-relaxed bg-slate-950/40 p-3 rounded-xl border border-slate-800/40">${reviewerComment}</p>
-                                ${imgGalleryHTML}
-                            </div>
-                            <div class="flex gap-2 pt-4 mt-3 border-t border-slate-800/60">
-                                ${!isApproved ? `<button onclick="approveReview('${key}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl text-xs uppercase tracking-wider transition">Approve</button>` : ''}
-                                <button onclick="deleteReview('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-3 rounded-xl text-xs transition"><i class="fa-solid fa-trash-can"></i></button>
-                            </div>
-                        </div>`;
+                            </div>`;
+                    } else {
+                        // Confirmed Reviews View (With Reply Edit Option)
+                        list.innerHTML += `
+                            <div class="glass-card p-5 review-card relative flex flex-col justify-between border-2 border-green-500/30">
+                                <div>
+                                    <div class="flex items-center gap-3 border-b border-slate-800 pb-3 mb-3">
+                                        <img src="${prodImg}" class="w-10 h-10 object-cover rounded-lg border border-slate-700">
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-xs font-bold text-white truncate">${prodName}</h4>
+                                            <div class="flex items-center gap-1 mt-0.5">${starIcons} <span class="text-[10px] text-slate-500 ml-2">${reviewDate}</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 mb-3">
+                                        <h5 class="text-xs font-bold text-blue-400 mb-1">${reviewerName}</h5>
+                                        <p class="text-xs text-slate-300 leading-relaxed">${reviewerComment}</p>
+                                        ${imgGalleryHTML}
+                                    </div>
+
+                                    <div class="mb-3 bg-blue-950/30 p-3 rounded-xl border border-blue-500/30">
+                                        <p class="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-1">Your Store Response:</p>
+                                        <textarea id="replyInput-${key}" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500" placeholder="Type or edit reply...">${adminReplyText}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-2 pt-2 border-t border-slate-800/60">
+                                    <button onclick="sendReviewReply('${key}')" class="flex-1 bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit Reply
+                                    </button>
+                                    <button onclick="deleteReview('${key}')" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-1">
+                                        <i class="fa-solid fa-trash-can"></i> Delete Review
+                                    </button>
+                                </div>
+                            </div>`;
+                    }
                 }
             });
 
             if(notifDot) notifDot.classList.toggle('hidden', !hasPending);
             if(count === 0) {
                 list.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs font-semibold">No ${currentReviewFilterTab} reviews found.</div>`;
+            }
+        }
+
+        async function sendReviewReply(key) {
+            const input = document.getElementById(`replyInput-${key}`);
+            const replyText = input ? input.value.trim() : '';
+
+            try {
+                await database.ref('product_reviews/' + key).update({
+                    adminReply: replyText,
+                    status: 'approved'
+                });
+                alert("Reply saved and review approved successfully!");
+            } catch (e) {
+                alert("Error saving reply: " + e.message);
             }
         }
 
