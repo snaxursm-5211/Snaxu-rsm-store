@@ -277,6 +277,18 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         <img id="lightboxImg" src="" class="max-w-full max-h-full rounded-xl object-contain">
     </div>
 
+    <!-- PURCHASE REQUIRED NOTICE MODAL (professional replacement for browser alert()) -->
+    <div id="purchaseRequiredModal" class="fixed inset-0 z-[7500] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="modal-wrapper modal-exit bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative text-center">
+            <div class="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                <i class="fa-solid fa-lock text-[#1a56db] text-2xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-2">Purchase Required</h3>
+            <p class="text-xs text-slate-500 mb-6 leading-relaxed">You can only review a product after purchasing it. Please buy this product first, then come back to leave your review.</p>
+            <button onclick="closePurchaseRequiredModal()" class="w-full bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">OK</button>
+        </div>
+    </div>
+
     <!-- UPDATED BOTTOM BAR WITH 3 BUTTONS -->
     <div class="fixed bottom-0 left-0 w-full p-3 bg-white/95 backdrop-blur-md border-t border-slate-100 flex gap-2 z-40">
         <button onclick="handleAddToCart()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1">
@@ -315,9 +327,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         let reviewBase64Images = []; 
         let indexToReplaceImage = -1; 
 
-        // ==========================================
-        // NAYA: Verified Purchase tracking ke liye flag
-        // ==========================================
+        // Verified Purchase tracking ke liye flag
         let isPurchaseVerified = false;
 
         let userUUID = localStorage.getItem('user_chat_id');
@@ -392,10 +402,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
 
-        // ==========================================
-        // NAYA: Check karo is device (userUUID) ne ye
-        // product pehle khareeda hai ya nahi
-        // ==========================================
+        // Check karo is device (userUUID) ne ye product pehle khareeda hai ya nahi
         function checkPurchaseVerification(prodId) {
             database.ref(`verified_purchases/${prodId}/${userUUID}`).once('value', (snap) => {
                 isPurchaseVerified = snap.val() === true;
@@ -593,12 +600,21 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             document.getElementById('overlay').classList.remove('active');
         }
 
-        // ==========================================
-        // NAYA: Review shuru karne se pehle purchase check
-        // ==========================================
+        // Professional "Purchase Required" popup (browser ka default alert() ki jagah)
+        function showPurchaseRequiredModal() {
+            document.getElementById('overlay').classList.add('active');
+            showModalWithAnim('purchaseRequiredModal');
+        }
+
+        function closePurchaseRequiredModal() {
+            hideModalWithAnim('purchaseRequiredModal');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // Review shuru karne se pehle purchase check
         function startReviewFlow() {
             if (!isPurchaseVerified) {
-                alert("You can only review a product after purchasing it. Please buy this product first, then come back to leave your review.");
+                showPurchaseRequiredModal();
                 return;
             }
             setModal0Stars(5); 
@@ -629,12 +645,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             showModalWithAnim('reviewModal0');
         }
 
-        // ==========================================
-        // NAYA: Star click se pehle bhi purchase check
-        // ==========================================
+        // Star click se pehle bhi purchase check
         function directStarClick(rating) {
             if (!isPurchaseVerified) {
-                alert("You can only review a product after purchasing it. Please buy this product first, then come back to leave your review.");
+                showPurchaseRequiredModal();
                 return;
             }
             currentSelectedRating = rating;
@@ -905,10 +919,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             }
         }
 
-        // ==========================================
-        // UPDATED: Cart mein productId (id field) bhi save ho raha hai
-        // taake checkout/webhook isko track kar sake
-        // ==========================================
         function handleAddToCart() {
             if(!currentProduct) return;
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -954,9 +964,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             }
         }
 
-        // ==========================================
-        // UPDATED: Buy Now mein bhi productId (id field) save ho raha hai
-        // ==========================================
         function handleBuyNow() {
             if(!currentProduct) return;
             
