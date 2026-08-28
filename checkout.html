@@ -352,15 +352,22 @@
                 return `${nameStr} (x${i.quantity || 1})`; 
             }).join(', ');
 
+            // ==========================================
+            // NAYA: Cart items se productIds nikal ke save kar rahe hain,
+            // taake webhook confirm hone par unhi products pe review unlock ho sakein
+            // ==========================================
+            const productIds = cart.map(i => i.id).filter(Boolean);
+
             const orderPayload = {
                 uniqueOrderId, fName, lName, cEmail, phone, country, addr1, addr2, city, county, postcode,
-                fullAddress, itemsString, itemSummary, sub, del, grand
+                fullAddress, itemsString, itemSummary, sub, del, grand,
+                userUUID, productIds
             };
             
             localStorage.setItem('pending_stripe_order', JSON.stringify(orderPayload));
 
             // ==========================================================
-            // NEW ADDITION: Stripe par bhejne se pehle data Firebase 
+            // Stripe par bhejne se pehle data Firebase 
             // ke pending_orders mein lazmi save karo taake Webhook ko mil sakay!
             // ==========================================================
             try {
@@ -406,7 +413,7 @@
                 // FORAN fireworks chalao - koi network call ka wait nahi
                 triggerSuccessEffects();
 
-                let fullWaMessage = `*🚀 NEW ORDER - ${data.uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${data.fName}\n• Last Name: ${data.lName}\n• Email: ${data.cEmail}\n• Phone: ${data.phone}\n• Country: ${data.country}\n• Address 1: ${data.addr1}${data.addr2 ? '\n• Address 2: ' + data.addr2 : ''}\n• City: ${data.city}${data.county ? '\n• County: ' + data.county : ''}\n• Postcode: ${data.postcode}\n\n*--- ORDER ITEMS ---*\n${data.itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${data.sub}\n🚚 *Delivery Charges:* ${data.del}\n💵 *Grand Total:* ${data.grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
+                let fullWaMessage = `*🚀 NEW ORDER - ${data.uniqueOrderId} 🚀*\n\n*📋 SHIPPING DETAILS*\n• First Name: ${data.fName}\n• Last Name: ${data.lName}\n• Email: ${data.cEmail}\n• Phone: ${data.phone}\n• Country: ${data.country}\n• Address 1: ${data.addr1}${data.addr2 ? '\n• Address 2: ' + data.addr2 : ''}\n• City: ${data.city}${data.county ? '\n• County: ' + data.county : ''}\n• Postcode: ${data.postcode}\n\n*--- ORDER ITEMS ---*\n${data.itemsString}\n\n*--- BILLING ---*\n💰 *Product Price:* ${data.sub}\n🚚 *Standard Delivery:* ${data.del}\n💵 *Grand Total:* ${data.grand}\n\n💳 *Payment Method:* Credit/Debit Card & Wallets (Stripe)\n✅ *Status:* Paid Successfully`;
 
                 sendLiveSignal("Order Placed Successfully");
 
