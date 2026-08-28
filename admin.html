@@ -314,7 +314,23 @@
                     <div><label>Sale Price (£)</label><input type="number" id="pPrice" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="e.g. 35.00"></div>
                 </div>
                 <div class="mb-4">
-                    <div><label>Delivery Charges (£)</label><input type="number" id="pDelivery" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" value="3.99"></div>
+                    <div><label>Standard Delivery (£)</label><input type="number" id="pDelivery" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" value="3.99"></div>
+                </div>
+                <div class="mb-6 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+                    <label class="text-blue-400 mb-3 block">Stock Management</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label>Stock Quantity</label>
+                            <input type="number" id="pStockQty" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="e.g. 10">
+                        </div>
+                        <div>
+                            <label>Stock Status</label>
+                            <select id="pStockToggle" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none text-sm">
+                                <option value="on" selected>In Stock</option>
+                                <option value="off">Out of Stock</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="mb-4"><label>Amazon Link</label><input type="text" id="pAmazon" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="https://www.amazon.co.uk/dp/..."></div>
                 <div class="mb-4"><label>Description</label><textarea id="pDesc" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl h-24 outline-none" placeholder="Product description..."></textarea></div>
@@ -748,6 +764,8 @@
             const price = document.getElementById('pPrice').value.trim();
             const oldPrice = document.getElementById('pOldPrice').value.trim();
             const delivery = document.getElementById('pDelivery').value.trim();
+            const stockQtyVal = document.getElementById('pStockQty').value.trim();
+            const stockToggleVal = document.getElementById('pStockToggle').value;
             const amazonUrl = document.getElementById('pAmazon').value.trim();
             const desc = document.getElementById('pDesc').value.trim();
             const video = document.getElementById('pVideo').value.trim();
@@ -799,6 +817,8 @@
                     price: price,
                     originalPrice: oldPrice || null,
                     delivery: delivery || 0,
+                    stockQty: stockQtyVal !== '' ? stockQtyVal : null,
+                    inStock: stockToggleVal === 'on',
                     amazon_url: amazonUrl || '',
                     desc: desc || '',
                     video: video || '',
@@ -814,6 +834,8 @@
                 document.getElementById('pPrice').value = '';
                 document.getElementById('pOldPrice').value = '';
                 document.getElementById('pDelivery').value = '3.99';
+                document.getElementById('pStockQty').value = '';
+                document.getElementById('pStockToggle').value = 'on';
                 document.getElementById('pAmazon').value = '';
                 document.getElementById('pDesc').value = '';
                 document.getElementById('pVideo').value = '';
@@ -946,7 +968,20 @@
                         <div><label>Original Price (£)</label><input type="number" id="eOldPrice" value="${p.originalPrice !== undefined && p.originalPrice !== null ? p.originalPrice : ''}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none" placeholder="Optional"></div>
                     </div>
                     <div class="mb-2">
-                        <div><label>Delivery Charges (£)</label><input type="number" id="eDel" value="${p.delivery || 3.99}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none"></div>
+                        <div><label>Standard Delivery (£)</label><input type="number" id="eDel" value="${p.delivery || 3.99}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none"></div>
+                    </div>
+                    <div class="mb-2 bg-slate-950/50 p-3 rounded-xl border border-slate-800/80 grid grid-cols-2 gap-3">
+                        <div>
+                            <label>Stock Quantity</label>
+                            <input type="number" id="eStockQty" value="${p.stockQty !== undefined && p.stockQty !== null ? p.stockQty : ''}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none" placeholder="e.g. 10">
+                        </div>
+                        <div>
+                            <label>Stock Status</label>
+                            <select id="eStockToggle" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none text-sm">
+                                <option value="on" ${p.inStock !== false ? 'selected' : ''}>In Stock</option>
+                                <option value="off" ${p.inStock === false ? 'selected' : ''}>Out of Stock</option>
+                            </select>
+                        </div>
                     </div>
                     <div><label>Amazon Link</label><input type="text" id="eAmazon" value="${amazonLink}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none" placeholder="Amazon product link..."></div>
                     <div><label>Description</label><textarea id="eDesc" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 h-24 outline-none">${cleanDesc}</textarea></div>
@@ -969,6 +1004,8 @@
             p.price = document.getElementById('ePrice').value;
             p.originalPrice = document.getElementById('eOldPrice').value;
             p.delivery = document.getElementById('eDel').value;
+            p.stockQty = document.getElementById('eStockQty') ? document.getElementById('eStockQty').value : p.stockQty;
+            p.inStock = document.getElementById('eStockToggle') ? (document.getElementById('eStockToggle').value === 'on') : p.inStock;
             p.amazon_url = document.getElementById('eAmazon').value;
             p.desc = document.getElementById('eDesc').value;
             p.video = document.getElementById('eVideo').value;
@@ -1001,6 +1038,8 @@
                 p.price = document.getElementById('ePrice').value;
                 p.originalPrice = document.getElementById('eOldPrice').value;
                 p.delivery = document.getElementById('eDel').value;
+                p.stockQty = document.getElementById('eStockQty') ? document.getElementById('eStockQty').value : p.stockQty;
+                p.inStock = document.getElementById('eStockToggle') ? (document.getElementById('eStockToggle').value === 'on') : p.inStock;
                 p.amazon_url = document.getElementById('eAmazon').value;
                 p.desc = document.getElementById('eDesc').value;
                 p.video = document.getElementById('eVideo').value;
@@ -1030,6 +1069,8 @@
                         p.price = document.getElementById('ePrice').value;
                         p.originalPrice = document.getElementById('eOldPrice').value;
                         p.delivery = document.getElementById('eDel').value;
+                        p.stockQty = document.getElementById('eStockQty') ? document.getElementById('eStockQty').value : p.stockQty;
+                        p.inStock = document.getElementById('eStockToggle') ? (document.getElementById('eStockToggle').value === 'on') : p.inStock;
                         p.amazon_url = document.getElementById('eAmazon').value;
                         p.desc = document.getElementById('eDesc').value;
                         p.video = document.getElementById('eVideo').value;
@@ -1051,6 +1092,8 @@
             p.price = document.getElementById('ePrice').value;
             p.originalPrice = document.getElementById('eOldPrice').value;
             p.delivery = document.getElementById('eDel').value;
+            p.stockQty = document.getElementById('eStockQty') ? document.getElementById('eStockQty').value : p.stockQty;
+            p.inStock = document.getElementById('eStockToggle') ? (document.getElementById('eStockToggle').value === 'on') : p.inStock;
             p.amazon_url = document.getElementById('eAmazon').value;
             p.desc = document.getElementById('eDesc').value;
             p.video = document.getElementById('eVideo').value;
@@ -1183,6 +1226,8 @@
                 price: document.getElementById('ePrice').value, 
                 originalPrice: document.getElementById('eOldPrice').value, 
                 delivery: document.getElementById('eDel').value, 
+                stockQty: document.getElementById('eStockQty').value.trim() !== '' ? document.getElementById('eStockQty').value.trim() : null,
+                inStock: document.getElementById('eStockToggle').value === 'on',
                 amazon_url: document.getElementById('eAmazon').value,
                 desc: document.getElementById('eDesc').value,
                 video: videoValue
