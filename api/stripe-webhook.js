@@ -35,6 +35,45 @@ async function sendEmailViaAPI(templateId, params) {
     }
 }
 
+// ==========================================
+// NAYA: Payment confirm hone ke baad, is order mein
+// jo bhi products the unke liye Firebase mein
+// verified_purchases/{productId}/{userUUID} = true likh deta hai.
+// product.html isi flag ko check karke "Write a Review" ka
+// access deta hai — sirf usi device/user ko, sirf usi product
+// ke liye jo actually khareeda gaya ho.
+// ==========================================
+async function markVerifiedPurchases(data) {
+    try {
+        const uUID = data.userUUID;
+        const prodIds = Array.isArray(data.productIds) ? data.productIds : [];
+
+        if (!uUID || prodIds.length === 0) {
+            console.warn('No userUUID or productIds found on order data, skipping review-verification mark.');
+            return;
+        }
+
+        const writes = prodIds
+            .filter(pid => !!pid)
+            .map(pid =>
+                fetch(`${FIREBASE_DB_URL}/verified_purchases/${pid}/${uUID}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(true)
+                }).then(res => {
+                    if (!res.ok) {
+                        console.error(`Failed to mark verified purchase for product ${pid}`);
+                    }
+                })
+            );
+
+        await Promise.all(writes);
+        console.log('Verified purchases marked for products:', prodIds);
+    } catch (err) {
+        console.error('Error marking verified purchases:', err);
+    }
+}
+
 async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).send('Method not allowed');
@@ -111,6 +150,10 @@ async function handler(req, res) {
             } else {
                 console.log('Order saved successfully:', data.uniqueOrderId);
             }
+
+            // Order successfully paid & saved -> unlock "Write a Review" for the
+            // products that were actually bought in this order.
+            await markVerifiedPurchases(data);
 
             const statusRes = await fetch(`${FIREBASE_DB_URL}/settings/emailStatus.json`);
             const emailStatus = await statusRes.json();
