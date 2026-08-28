@@ -991,8 +991,8 @@
                     ${imagesHTML}
                     
                     <div class="grid grid-cols-2 gap-2 pt-4">
-                        <button onclick="updateProduct('${key}')" class="bg-blue-600 py-3 rounded-xl font-bold">Save Changes</button>
-                        <button onclick="deleteProduct('${key}')" class="bg-red-600/20 text-red-500 py-3 rounded-xl font-bold">Delete</button>
+                        <button onclick="updateProduct('${key}', this)" class="bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition active:scale-95">Save Changes</button>
+                        <button onclick="deleteProduct('${key}', this)" class="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition active:scale-95">Delete</button>
                     </div>
                 </div>`;
             document.getElementById('orderModal').classList.add('active');
@@ -1210,7 +1210,16 @@
             }
         }
 
-        async function updateProduct(key) {
+        // ==========================================
+        // MODIFIED: updateProduct and deleteProduct
+        // Added Loading Spinner so user doesn't multi-click
+        // ==========================================
+        async function updateProduct(key, btn) {
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<div class="loader" style="width:16px; height:16px; border-width:2px; border-top-color:white;"></div> Saving...';
+            }
+
             const videoValue = document.getElementById('eVideo').value;
             let cleanVariationsPayload = null;
             if (currentEditingVariations && currentEditingVariations.length > 0) {
@@ -1237,17 +1246,38 @@
                 updates.variations = cleanVariationsPayload;
             }
 
-            await database.ref('products/' + key).update(updates);
-            closeModal();
-            alert("Product Updated!");
-        }
-
-        async function deleteProduct(key) {
-            if(confirm("Delete product permanently?")){
-                await database.ref('products/' + key).remove();
+            try {
+                await database.ref('products/' + key).update(updates);
                 closeModal();
+                alert("Product Updated!");
+            } catch (e) {
+                alert("Error updating product: " + e.message);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Save Changes';
+                }
             }
         }
+
+        async function deleteProduct(key, btn) {
+            if(confirm("Delete product permanently?")){
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<div class="loader" style="width:16px; height:16px; border-width:2px; border-top-color:currentColor;"></div> Deleting...';
+                }
+                try {
+                    await database.ref('products/' + key).remove();
+                    closeModal();
+                } catch(e) {
+                    alert("Error deleting product: " + e.message);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Delete';
+                    }
+                }
+            }
+        }
+        // ==========================================
 
         /* --- FIXED ORDERS SYSTEM ENGINE --- */
         database.ref('orders').on('value', (snapshot) => {
