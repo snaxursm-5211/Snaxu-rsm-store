@@ -632,7 +632,10 @@
                     <input type="text" class="var-name w-full bg-slate-900 border border-slate-700 p-2 rounded-lg text-xs text-white outline-none" placeholder="Name (White, XL)">
                 </div>
                 <div class="w-24">
-                    <input type="number" class="var-price w-full bg-slate-900 border border-slate-700 p-2 rounded-lg text-xs text-white outline-none" placeholder="Price (£)">
+                    <input type="number" class="var-originalprice w-full bg-slate-900 border border-slate-700 p-2 rounded-lg text-xs text-white outline-none" placeholder="Original (£)">
+                </div>
+                <div class="w-24">
+                    <input type="number" class="var-price w-full bg-slate-900 border border-slate-700 p-2 rounded-lg text-xs text-white outline-none" placeholder="Sale (£)">
                 </div>
                 <div class="flex-1 min-w-[150px]">
                     <input type="file" class="var-file hidden" id="vfile-${variationCounter}" onchange="updateVariationLabel(${variationCounter})">
@@ -839,6 +842,7 @@
                 const varRows = document.querySelectorAll('#variations-wrapper > div');
                 for (let row of varRows) {
                     const vName = row.querySelector('.var-name')?.value.trim();
+                    const vOriginalPrice = row.querySelector('.var-originalprice')?.value.trim() || oldPrice;
                     const vPrice = row.querySelector('.var-price')?.value.trim() || price;
                     const vFile = row.querySelector('.var-file')?.files[0];
                     let vImgUrl = uploadedImages[0] || 'https://placehold.co/400x400';
@@ -852,7 +856,7 @@
                     }
 
                     if (vName) {
-                        variationsList.push({ name: vName, price: vPrice, image: vImgUrl });
+                        variationsList.push({ name: vName, price: vPrice, originalPrice: vOriginalPrice, image: vImgUrl });
                     }
                 }
 
@@ -1028,7 +1032,11 @@
                                 <input type="text" value="${v.name ? v.name.replace(/"/g, '&quot;') : ''}" oninput="currentEditingVariations[${vIndex}].name = this.value" class="w-full bg-slate-800 border border-slate-700 p-1.5 rounded text-white text-[11px] outline-none">
                             </div>
                             <div class="w-20">
-                                <label class="!text-[9px] !mb-0.5">Price (£)</label>
+                                <label class="!text-[9px] !mb-0.5">Original (£)</label>
+                                <input type="number" value="${v.originalPrice || ''}" oninput="currentEditingVariations[${vIndex}].originalPrice = this.value" class="w-full bg-slate-800 border border-slate-700 p-1.5 rounded text-white text-[11px] outline-none">
+                            </div>
+                            <div class="w-20">
+                                <label class="!text-[9px] !mb-0.5">Sale (£)</label>
                                 <input type="number" value="${v.price || ''}" oninput="currentEditingVariations[${vIndex}].price = this.value" class="w-full bg-slate-800 border border-slate-700 p-1.5 rounded text-white text-[11px] outline-none">
                             </div>
                             <div class="flex flex-col items-center justify-center">
@@ -1107,6 +1115,7 @@
             currentEditingVariations.push({
                 name: '',
                 price: p.price,
+                originalPrice: p.originalPrice || '',
                 image: (p.images && p.images[0]) ? p.images[0] : 'https://placehold.co/400x400'
             });
             p.variations = currentEditingVariations;
@@ -1119,8 +1128,10 @@
                 currentEditingVariations.forEach((v, idx) => {
                     const rowInputs = document.querySelectorAll(`input[oninput*="currentEditingVariations[${idx}].name"]`);
                     const priceInputs = document.querySelectorAll(`input[oninput*="currentEditingVariations[${idx}].price"]`);
+                    const originalPriceInputs = document.querySelectorAll(`input[oninput*="currentEditingVariations[${idx}].originalPrice"]`);
                     if(rowInputs[0]) currentEditingVariations[idx].name = rowInputs[0].value;
                     if(priceInputs[0]) currentEditingVariations[idx].price = priceInputs[0].value;
+                    if(originalPriceInputs[0]) currentEditingVariations[idx].originalPrice = originalPriceInputs[0].value;
                 });
 
                 const temp = currentEditingVariations[index];
@@ -1320,6 +1331,7 @@
                 cleanVariationsPayload = currentEditingVariations.map(v => ({
                     name: v.name || '',
                     price: v.price || document.getElementById('ePrice').value,
+                    originalPrice: v.originalPrice || document.getElementById('eOldPrice').value,
                     image: v.image || 'https://placehold.co/400x400'
                 }));
             }
