@@ -336,6 +336,17 @@
                 <div class="mb-4"><label>Description</label><textarea id="pDesc" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl h-24 outline-none" placeholder="Product description..."></textarea></div>
                 <div class="mb-6"><label>YouTube Video Link</label><input type="text" id="pVideo" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="YouTube URL..."></div>
                 
+                <!-- NEW KEYWORDS SECTION START -->
+                <div class="mb-6 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+                    <label class="text-blue-400 mb-3 block">SEO Keywords (Hidden Tags)</label>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="pKeywordInput" class="flex-1 bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none text-sm" placeholder="e.g. lunch box, premium">
+                        <button type="button" onclick="addKeywordToAddList()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition">Add Keyword</button>
+                    </div>
+                    <div id="add-keywords-container" class="flex flex-wrap gap-2"></div>
+                </div>
+                <!-- NEW KEYWORDS SECTION END -->
+
                 <div class="mb-6 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
                     <div class="flex items-center justify-between mb-3">
                         <label class="!m-0 text-blue-400">Product Variations (Colors / Sizes)</label>
@@ -535,6 +546,10 @@
         let currentEditingVariations = [];
         let currentOrderFilterTab = 'pending';
         let currentReviewFilterTab = 'pending';
+        
+        // NEW GLOBAL VARIABLES FOR KEYWORDS
+        let currentAddKeywords = [];
+        let currentEditKeywords = [];
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
         function closeModal() { document.getElementById('orderModal').classList.remove('active'); }
@@ -554,6 +569,31 @@
             }
 
             if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        // KEYWORDS FUNCTIONS FOR ADD PRODUCT
+        function addKeywordToAddList() {
+            const input = document.getElementById('pKeywordInput');
+            const val = input.value.trim();
+            if(val && !currentAddKeywords.includes(val)) {
+                currentAddKeywords.push(val);
+                renderAddKeywords();
+                input.value = '';
+            }
+        }
+        function removeAddKeyword(index) {
+            currentAddKeywords.splice(index, 1);
+            renderAddKeywords();
+        }
+        function renderAddKeywords() {
+            const container = document.getElementById('add-keywords-container');
+            if(container) {
+                container.innerHTML = currentAddKeywords.map((kw, i) => `
+                    <div class="flex items-center gap-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-lg text-[11px] font-bold">
+                        ${kw} <button type="button" onclick="removeAddKeyword(${i})" class="text-red-400 hover:text-red-300 ml-1"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `).join('');
+            }
         }
 
         function addNewImageField() {
@@ -822,6 +862,7 @@
                     amazon_url: amazonUrl || '',
                     desc: desc || '',
                     video: video || '',
+                    keywords: currentAddKeywords,
                     images: uploadedImages,
                     variations: variationsList,
                     createdAt: Date.now()
@@ -840,6 +881,10 @@
                 document.getElementById('pDesc').value = '';
                 document.getElementById('pVideo').value = '';
                 document.getElementById('variations-wrapper').innerHTML = '';
+                
+                currentAddKeywords = [];
+                renderAddKeywords();
+
                 document.getElementById('image-inputs-container').innerHTML = `
                     <div class="image-input-wrapper">
                         <input type="file" class="pImg hidden" id="img1" onchange="updateDynamicLabel(1)">
@@ -872,6 +917,31 @@
             renderReviewsEngine();
         });
 
+        // KEYWORDS FUNCTIONS FOR EDIT PRODUCT
+        function addKeywordToEditList(key) {
+            const input = document.getElementById('eKeywordInput');
+            const val = input.value.trim();
+            if(val && !currentEditKeywords.includes(val)) {
+                currentEditKeywords.push(val);
+                renderEditKeywords(key);
+                input.value = '';
+            }
+        }
+        function removeEditKeyword(index, key) {
+            currentEditKeywords.splice(index, 1);
+            renderEditKeywords(key);
+        }
+        function renderEditKeywords(key) {
+            const container = document.getElementById('edit-keywords-container');
+            if(container) {
+                container.innerHTML = currentEditKeywords.map((kw, i) => `
+                    <div class="flex items-center gap-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2 py-1 rounded-lg text-[10px] font-bold">
+                        ${kw} <button type="button" onclick="removeEditKeyword(${i}, '${key}')" class="text-red-400 hover:text-red-300 ml-1"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `).join('');
+            }
+        }
+
         function openEditProductByKey(key) {
             const p = globalProductsCache[key];
             if(p) openEditProduct(p, key);
@@ -885,6 +955,8 @@
                 currentEditingVariations = p.variations ? JSON.parse(JSON.stringify(p.variations)) : [];
                 currentEditingVariations._productKey = key;
             }
+            
+            currentEditKeywords = p.keywords ? JSON.parse(JSON.stringify(p.keywords)) : [];
 
             let imagesHTML = '<label>Images (Click to Change | Arrows to Arrange)</label><div class="grid grid-cols-4 gap-2 mb-4">';
             if (p.images && p.images.length > 0) {
@@ -911,6 +983,17 @@
                     <label>Add New Image to this Product</label>
                     <input type="file" id="editModalNewImg" class="w-full bg-slate-800 border border-slate-700 p-2 rounded-xl text-xs text-slate-400" onchange="uploadNewImageToProduct('${key}')">
                     <p id="editImgStatus" class="text-[10px] text-slate-500 mt-1 pl-1"></p>
+                </div>
+            `;
+            
+            let keywordsHTML = `
+                <div class="mb-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800/80">
+                    <label class="text-blue-400 font-bold text-xs block mb-2">SEO Keywords (Hidden Tags)</label>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="eKeywordInput" class="flex-1 bg-slate-800 border border-slate-700 p-2 rounded-xl outline-none text-xs" placeholder="Add keyword...">
+                        <button type="button" onclick="addKeywordToEditList('${key}')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition">Add</button>
+                    </div>
+                    <div id="edit-keywords-container" class="flex flex-wrap gap-2"></div>
                 </div>
             `;
 
@@ -987,6 +1070,7 @@
                     <div><label>Description</label><textarea id="eDesc" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 h-24 outline-none">${cleanDesc}</textarea></div>
                     <div><label>YouTube Link</label><input type="text" id="eVideo" value="${youtubeVideoLink}" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 outline-none" placeholder="YouTube URL..."></div>
                     
+                    ${keywordsHTML}
                     ${variationsHTML}
                     ${imagesHTML}
                     
@@ -996,6 +1080,8 @@
                     </div>
                 </div>`;
             document.getElementById('orderModal').classList.add('active');
+            
+            setTimeout(() => renderEditKeywords(key), 50);
         }
 
         function addNewVariationToDraft(productKey) {
@@ -1009,6 +1095,7 @@
             p.amazon_url = document.getElementById('eAmazon').value;
             p.desc = document.getElementById('eDesc').value;
             p.video = document.getElementById('eVideo').value;
+            p.keywords = currentEditKeywords;
 
             currentEditingVariations.push({
                 name: '',
@@ -1043,6 +1130,7 @@
                 p.amazon_url = document.getElementById('eAmazon').value;
                 p.desc = document.getElementById('eDesc').value;
                 p.video = document.getElementById('eVideo').value;
+                p.keywords = currentEditKeywords;
                 p.variations = currentEditingVariations;
                 openEditProduct(p, productKey);
             }
@@ -1074,6 +1162,7 @@
                         p.amazon_url = document.getElementById('eAmazon').value;
                         p.desc = document.getElementById('eDesc').value;
                         p.video = document.getElementById('eVideo').value;
+                        p.keywords = currentEditKeywords;
                         p.variations = currentEditingVariations;
                         openEditProduct(p, productKey);
                     }
@@ -1097,6 +1186,7 @@
             p.amazon_url = document.getElementById('eAmazon').value;
             p.desc = document.getElementById('eDesc').value;
             p.video = document.getElementById('eVideo').value;
+            p.keywords = currentEditKeywords;
             p.variations = currentEditingVariations;
             openEditProduct(p, productKey);
         }
@@ -1236,7 +1326,8 @@
                 inStock: document.getElementById('eStockToggle').value === 'on',
                 amazon_url: document.getElementById('eAmazon').value,
                 desc: document.getElementById('eDesc').value,
-                video: videoValue
+                video: videoValue,
+                keywords: currentEditKeywords
             };
 
             if (cleanVariationsPayload !== null) {
