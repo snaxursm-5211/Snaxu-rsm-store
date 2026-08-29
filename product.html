@@ -543,9 +543,16 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                             
                             if(index === 0) {
                                 selectedVariationName = v.name;
-                                if (v.price && v.price.trim() !== '') {
+                                if (v.price && v.price.toString().trim() !== '') {
                                     selectedVariationPrice = v.price;
                                     document.getElementById('pPrice').innerText = '£' + v.price;
+                                }
+                                if (v.originalPrice && v.originalPrice.toString().trim() !== '') {
+                                    document.getElementById('pOldPrice').innerText = '£' + v.originalPrice;
+                                } else if (p.originalPrice) {
+                                    document.getElementById('pOldPrice').innerText = '£' + p.originalPrice;
+                                } else {
+                                    document.getElementById('pOldPrice').innerText = '';
                                 }
                             }
 
@@ -559,12 +566,20 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                                 
                                 selectedVariationName = v.name;
 
-                                if (v.price && v.price.trim() !== '') {
+                                if (v.price && v.price.toString().trim() !== '') {
                                     selectedVariationPrice = v.price;
                                     document.getElementById('pPrice').innerText = '£' + v.price;
                                 } else {
                                     selectedVariationPrice = "";
                                     document.getElementById('pPrice').innerText = '£' + p.price;
+                                }
+
+                                if (v.originalPrice && v.originalPrice.toString().trim() !== '') {
+                                    document.getElementById('pOldPrice').innerText = '£' + v.originalPrice;
+                                } else if (p.originalPrice) {
+                                    document.getElementById('pOldPrice').innerText = '£' + p.originalPrice;
+                                } else {
+                                    document.getElementById('pOldPrice').innerText = '';
                                 }
 
                                 if (v.image && v.image.trim() !== '') {
