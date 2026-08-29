@@ -8,6 +8,9 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Product Details | SNAXU RSM</title>
     
+    <!-- INVISIBLE SEO KEYWORDS META TAG ADDED -->
+    <meta name="keywords" id="pageKeywordsMeta" content="">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -436,6 +439,14 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                     document.getElementById('pPrice').innerText = '£' + p.price;
                     if(p.originalPrice) document.getElementById('pOldPrice').innerText = '£' + p.originalPrice;
                     document.getElementById('pDesc').innerText = p.desc;
+
+                    // INVISIBLE KEYWORDS SEO INTEGRATION
+                    if (p.keywords && Array.isArray(p.keywords) && p.keywords.length > 0) {
+                        const metaTag = document.getElementById('pageKeywordsMeta');
+                        if (metaTag) {
+                            metaTag.setAttribute('content', p.keywords.join(', '));
+                        }
+                    }
 
                     // Stock Management Logic
                     const stockEnabled = (p.inStock !== undefined) ? p.inStock : true;
