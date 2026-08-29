@@ -336,12 +336,16 @@
                 <div class="mb-4"><label>Description</label><textarea id="pDesc" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl h-24 outline-none" placeholder="Product description..."></textarea></div>
                 <div class="mb-6"><label>YouTube Video Link</label><input type="text" id="pVideo" class="w-full bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none" placeholder="YouTube URL..."></div>
                 
-                <!-- NEW KEYWORDS SECTION START -->
+                <!-- ==========================================
+                     FIXED: SEO Keywords row - button ab compact hai
+                     (flex-shrink-0 + whitespace-nowrap + chota text/padding)
+                     taake side pe overflow na ho aur input ke sath sahi fit ho
+                     ========================================== -->
                 <div class="mb-6 bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
                     <label class="text-blue-400 mb-3 block">SEO Keywords (Hidden Tags)</label>
-                    <div class="flex gap-2 mb-3">
-                        <input type="text" id="pKeywordInput" class="flex-1 bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none text-sm" placeholder="e.g. lunch box, premium">
-                        <button type="button" onclick="addKeywordToAddList()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition">Add Keyword</button>
+                    <div class="flex items-center gap-2 mb-3">
+                        <input type="text" id="pKeywordInput" class="flex-1 min-w-0 bg-slate-900/50 border border-slate-700 p-3 rounded-xl outline-none text-sm" placeholder="e.g. lunch box, premium">
+                        <button type="button" onclick="addKeywordToAddList()" class="flex-shrink-0 whitespace-nowrap bg-blue-600 hover:bg-blue-500 text-white px-3 py-2.5 rounded-xl text-[11px] font-bold transition">Add</button>
                     </div>
                     <div id="add-keywords-container" class="flex flex-wrap gap-2"></div>
                 </div>
@@ -986,12 +990,15 @@
                 </div>
             `;
             
+            // ==========================================
+            // FIXED: Edit Product keyword row bhi compact
+            // ==========================================
             let keywordsHTML = `
                 <div class="mb-4 bg-slate-950/50 p-3 rounded-xl border border-slate-800/80">
                     <label class="text-blue-400 font-bold text-xs block mb-2">SEO Keywords (Hidden Tags)</label>
-                    <div class="flex gap-2 mb-2">
-                        <input type="text" id="eKeywordInput" class="flex-1 bg-slate-800 border border-slate-700 p-2 rounded-xl outline-none text-xs" placeholder="Add keyword...">
-                        <button type="button" onclick="addKeywordToEditList('${key}')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition">Add</button>
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="text" id="eKeywordInput" class="flex-1 min-w-0 bg-slate-800 border border-slate-700 p-2 rounded-xl outline-none text-xs" placeholder="Add keyword...">
+                        <button type="button" onclick="addKeywordToEditList('${key}')" class="flex-shrink-0 whitespace-nowrap bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-xl text-[11px] font-bold transition">Add</button>
                     </div>
                     <div id="edit-keywords-container" class="flex flex-wrap gap-2"></div>
                 </div>
@@ -1906,17 +1913,20 @@
             }
         }
 
+        // ==========================================
+        // FIXED: Ab ye function sirf STATS/TRAFFIC/LIVE DATA
+        // aur USER MESSAGES delete karega.
+        // Products, Orders, aur Reviews ko bilkul touch nahi karega - safe hain.
+        // ==========================================
         async function triggerMasterStoreWipeout() {
-            const code = prompt("DANGER! This action will delete ALL store products, orders, traffic, and chat data.\n\nType 'DELETE ALL' to confirm:");
+            const code = prompt("This will delete LIVE TRAFFIC, STATS/ANALYTICS, and USER MESSAGES only.\n\nProducts, Orders & Reviews will NOT be deleted - they stay safe.\n\nType 'DELETE ALL' to confirm:");
             if(code === "DELETE ALL") {
-                await database.ref('products').remove();
-                await database.ref('orders').remove();
-                await database.ref('product_reviews').remove();
                 await database.ref('user_chats').remove();
                 await database.ref('chat_history').remove();
                 await database.ref('live_status').remove();
                 await database.ref('site_traffic').remove();
-                alert("Master Store Wipeout Complete.");
+                await database.ref('traffic_history').remove();
+                alert("Live data, stats/analytics and user messages have been cleared.\nProducts, Orders and Reviews are safe and untouched.");
             }
         }
     </script>
