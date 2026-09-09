@@ -674,20 +674,27 @@
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount(); renderCart();
         }
+        // ====== PRICE FIX: parseInt + \D strip tha wajah ke "8.99" -> "899" ban raha tha
+        // (decimal point bhi \D count hoke hat raha tha). Ab parseFloat + [^\d.] use
+        // ho raha hai taake decimal point bacha rahe, aur display bhi clean format mein hota hai.
+        function formatPrice(rawPrice) {
+            const num = parseFloat(rawPrice.toString().replace(/[^\d.]/g, '')) || 0;
+            return (num % 1 === 0) ? num.toString() : num.toFixed(2);
+        }
         function renderCart() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             const container = document.getElementById('cart-items'), totalEl = document.getElementById('cart-total');
             container.innerHTML = cart.length === 0 ? '<p class="text-center text-slate-400 mt-10">Cart is empty</p>' : '';
             let total = 0;
             cart.forEach((item, index) => {
-                const cleanPrice = parseInt(item.price.toString().replace(/\D/g, '')) || 0;
+                const cleanPrice = parseFloat(item.price.toString().replace(/[^\d.]/g, '')) || 0;
                 total += cleanPrice * (item.quantity || 1);
                 container.innerHTML += `
                     <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-xl">
                         <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg bg-white border">
                         <div class="flex-grow min-w-0">
                             <h4 class="font-bold text-[11px] truncate w-32 text-slate-800">${item.name}</h4>
-                            <p class="font-bold text-xs text-[#1a56db]">£${cleanPrice}</p>
+                            <p class="font-bold text-xs text-[#1a56db]">£${formatPrice(item.price)}</p>
                             ${item.variation ? `<p class="text-slate-400 font-bold text-[9px]">Option: ${item.variation}</p>` : ''}
                             <div class="flex items-center mt-1 gap-2">
                                 <button onclick="updateQuantity(${index},-1)" class="qty-btn">-</button>
@@ -698,7 +705,7 @@
                         <button onclick="removeFromCart(${index})"><i class="fa-solid fa-trash-can text-red-400 text-sm"></i></button>
                     </div>`;
             });
-            totalEl.innerText = `£${total}`;
+            totalEl.innerText = `£${total % 1 === 0 ? total : total.toFixed(2)}`;
             updateCartCount();
         }
         function updateCartCount() {
