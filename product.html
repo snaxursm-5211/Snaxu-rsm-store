@@ -952,7 +952,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             list.innerHTML = cart.length ? "" : `<div class="text-center py-20 text-slate-300 text-xs font-bold">Cart is empty</div>`;
             
             cart.forEach((item, index) => {
-                const priceNum = parseInt(item.price.toString().replace(/\D/g,''));
+                // FIX: pehle sirf \D (non-digit) hata rahe thay jo decimal point (.) bhi
+                // hata deta tha, isliye 8.99 -> 899 ban jata tha.
+                // Ab currency symbol/commas hata kar decimal point ko surakhit rakha ja raha hai.
+                const priceNum = parseFloat(item.price.toString().replace(/[^0-9.]/g, '')) || 0;
                 total += (priceNum * (item.quantity || 1));
                 list.innerHTML += `
                     <div class="flex gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -966,7 +969,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                         <button onclick="removeFromCart(${index})" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can text-sm"></i></button>
                     </div>`;
             });
-            document.getElementById('cartTotal').innerText = '£' + total;
+            // FIX: total ko 2 decimal places ke sath show karo (£8.99 na ke £8.99000001 ya £899)
+            document.getElementById('cartTotal').innerText = '£' + total.toFixed(2);
             updateCartCount();
         }
 
