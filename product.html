@@ -52,7 +52,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
         .sidebar { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 80%; max-width: 300px; background: white; height: 100vh; position: fixed; left: -110%; top: 0; z-index: 6000; }
         .sidebar.active { left: 0; }
-        .sidebar-header { background: var(--primary-color); color: #ffffff; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 700 !important; font-size: 18px; }
+        .sidebar-header { background: var(--primary-color); color: #ffffff; padding: 18px 20px; display: flex; justify-between; align-items: center; font-weight: 700 !important; font-size: 18px; }
         
         .cart-drawer { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 85%; max-width: 350px; background: white; height: 100dvh; position: fixed; right: -110%; top: 0; z-index: 6000; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.1); }
         .cart-drawer.active { right: 0; }
@@ -969,9 +969,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             list.innerHTML = cart.length ? "" : `<div class="text-center py-20 text-slate-300 text-xs font-bold">Cart is empty</div>`;
             
             cart.forEach((item, index) => {
-                // FIX: pehle sirf \D (non-digit) hata rahe thay jo decimal point (.) bhi
-                // hata deta tha, isliye 8.99 -> 899 ban jata tha.
-                // Ab currency symbol/commas hata kar decimal point ko surakhit rakha ja raha hai.
                 const priceNum = parseFloat(item.price.toString().replace(/[^0-9.]/g, '')) || 0;
                 total += (priceNum * (item.quantity || 1));
                 list.innerHTML += `
@@ -986,7 +983,6 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                         <button onclick="removeFromCart(${index})" class="text-slate-300 hover:text-red-500"><i class="fa-solid fa-trash-can text-sm"></i></button>
                     </div>`;
             });
-            // FIX: total ko 2 decimal places ke sath show karo (£8.99 na ke £8.99000001 ya £899)
             document.getElementById('cartTotal').innerText = '£' + total.toFixed(2);
             updateCartCount();
         }
@@ -1011,6 +1007,18 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             if(window.isProductOutOfStock) { showOutOfStockModal(); return; }
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? '£' + selectedVariationPrice : '£' + currentProduct.price;
+
+            // --- META PIXEL ADD TO CART EVENT ---
+            if (typeof fbq === 'function') {
+                const numericPrice = parseFloat(finalPrice.toString().replace(/[^0-9.]/g, '')) || 0;
+                fbq('track', 'AddToCart', {
+                    content_name: currentProduct.name,
+                    content_ids: [productId],
+                    content_type: 'product',
+                    value: numericPrice,
+                    currency: 'GBP'
+                });
+            }
 
             let existingItem = cart.find(item => item.name === currentProduct.name && item.variation === selectedVariationName);
 
@@ -1058,6 +1066,18 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             
             let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? '£' + selectedVariationPrice : '£' + currentProduct.price;
             
+            // --- META PIXEL ADD TO CART EVENT FOR BUY NOW ---
+            if (typeof fbq === 'function') {
+                const numericPrice = parseFloat(finalPrice.toString().replace(/[^0-9.]/g, '')) || 0;
+                fbq('track', 'AddToCart', {
+                    content_name: currentProduct.name,
+                    content_ids: [productId],
+                    content_type: 'product',
+                    value: numericPrice,
+                    currency: 'GBP'
+                });
+            }
+
             let buyNowCart = [{ 
                 id: productId,
                 name: currentProduct.name, 
