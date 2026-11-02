@@ -227,15 +227,6 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
         let userUUID = localStorage.getItem('user_chat_id');
         if (!userUUID) { userUUID = 'USER-' + Math.random().toString(36).substr(2, 9); localStorage.setItem('user_chat_id', userUUID); }
 
-        // ==========================================
-        // NAYA: Payment success/cancel check ab yahan turant (script load
-        // hote hi) hota hai — window 'load' event ka wait nahi karta.
-        // 'load' event tab fire hota hai jab saari images/scripts/CDN files
-        // (Tailwind, FontAwesome, Firebase, Stripe) poori tarah load ho chuki
-        // hon — isi wajah se checkout form pehle 2-3 sec ke liye dikh raha tha
-        // phir fireworks aata tha. Ab overlay turant show hota hai, isliye
-        // customer ko checkout form ki jhalak bhi nahi milegi.
-        // ==========================================
         const urlParams = new URLSearchParams(window.location.search);
         const isPaymentSuccess = urlParams.get('payment') === 'success';
         const isPaymentCancel = urlParams.get('payment') === 'cancel';
@@ -245,6 +236,20 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
             document.getElementById('successOverlay').classList.remove('hidden');
 
             const pendingOrderStr = localStorage.getItem('pending_stripe_order');
+
+            // --- META PIXEL PURCHASE EVENT TRACKING ---
+            if (typeof fbq === 'function' && pendingOrderStr) {
+                try {
+                    const pendingOrderObj = JSON.parse(pendingOrderStr);
+                    const grandTotalNum = parseFloat((pendingOrderObj.grand || '0').toString().replace(/[^0-9.]/g, '')) || 0;
+                    fbq('track', 'Purchase', {
+                        value: grandTotalNum,
+                        currency: 'GBP'
+                    });
+                } catch(e) {
+                    console.error("Meta Pixel Purchase tracking error:", e);
+                }
+            }
 
             // URL CLEANER: Taake koi refresh kare toh dobara order process na ho
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -340,12 +345,6 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
             (function frame() { confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#1d4ed8', '#0f172a'] }); confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#22c55e', '#ffffff'] }); if (Date.now() < end) { requestAnimationFrame(frame); } }());
         }
 
-        // ==========================================
-        // DOUBLE ORDER & 404 FIX LOGIC
-        // (payment=success / cancel ka actual check ab upar turant hota hai —
-        // dekho "NAYA" comment userUUID ke fauran baad)
-        // ==========================================
-
         async function placeOrder() {
             const fName = document.getElementById('firstName').value.trim();
             const lName = document.getElementById('lastName').value.trim();
@@ -363,12 +362,22 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
                 return alert("Please fill in all required shipping fields!");
             }
 
+            const grand = document.getElementById('grand-total').innerText;
+
+            // --- META PIXEL INITIATE CHECKOUT EVENT ---
+            if (typeof fbq === 'function') {
+                const grandNum = parseFloat(grand.toString().replace(/[^0-9.]/g, '')) || 0;
+                fbq('track', 'InitiateCheckout', {
+                    value: grandNum,
+                    currency: 'GBP'
+                });
+            }
+
             btn.disabled = true; btn.innerHTML = '<div class="loader"></div> Redirecting to Secure Payment...';
 
             const uniqueOrderId = '#' + Math.random().toString(36).substring(2, 7).toUpperCase();
             const sub = document.getElementById('subtotal').innerText;
             const del = document.getElementById('delivery-total').innerText;
-            const grand = document.getElementById('grand-total').innerText;
             const fullAddress = `${addr1}${addr2 ? ', ' + addr2 : ''}, ${city}${county ? ', ' + county : ''}, ${postcode}, ${country}`;
 
             const itemsString = cart.map(i => { 
@@ -383,10 +392,6 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
                 return `${nameStr} (x${i.quantity || 1})`; 
             }).join(', ');
 
-            // ==========================================
-            // NAYA: Cart items se productIds nikal ke save kar rahe hain,
-            // taake webhook confirm hone par unhi products pe review unlock ho sakein
-            // ==========================================
             const productIds = cart.map(i => i.id).filter(Boolean);
 
             const orderPayload = {
@@ -397,10 +402,6 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
             
             localStorage.setItem('pending_stripe_order', JSON.stringify(orderPayload));
 
-            // ==========================================================
-            // Stripe par bhejne se pehle data Firebase 
-            // ke pending_orders mein lazmi save karo taake Webhook ko mil sakay!
-            // ==========================================================
             try {
                 const cleanOrderId = uniqueOrderId.replace('#', '');
                 await fetch(`https://snaxu-rsm-21cc9-default-rtdb.firebaseio.com/pending_orders/${cleanOrderId}.json`, {
