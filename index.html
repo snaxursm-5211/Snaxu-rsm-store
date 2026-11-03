@@ -224,7 +224,7 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
                     <i class="fa-solid fa-xmark"></i>
                 </button>
                 <div class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center border border-white/10 overflow-hidden">
-                    <img src="https://i.ibb.co/G3B4wZk5/1000007418-removebg-preview.png" alt="App Icon" class="w-full h-full object-cover">
+                    <img src="https://res.cloudinary.com/dq6dgcpwy/image/upload/1000007418-removebg-preview_1_js7u8c.png" alt="App Icon" class="w-full h-full object-cover">
                 </div>
                 <div>
                     <h4 class="text-xs font-bold tracking-wide text-white uppercase">SNAXU RSM</h4>
@@ -300,7 +300,7 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
             </div>
             <div class="flex justify-center">
                 <a href="#" class="brand-logo">
-                    <img src="https://i.ibb.co/G3B4wZk5/1000007418-removebg-preview.png" alt="Logo" class="brand-icon">
+                    <img src="https://res.cloudinary.com/dq6dgcpwy/image/upload/1000007418-removebg-preview_1_js7u8c.png" alt="Logo" class="brand-icon">
                     <div class="brand-name">
                         <span class="text-slate-900 uppercase">SNAXU</span>
                         <span class="text-custom-blue ml-1 uppercase">RSM</span>
@@ -594,7 +594,7 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
                     method: "POST",
                     headers: { "Content-Type": "application/json", Accept: "application/json" },
                     body: JSON.stringify({
-                        access_key: "514b6612-e962-4506-a668-e611b0cb75fb", // <--- ADDED YOUR ACCESS KEY HERE
+                        access_key: "514b6612-e962-4506-a668-e611b0cb75fb",
                         subject: "New Store Support Message from " + name,
                         from_name: name,
                         email: email,
@@ -691,9 +691,6 @@ src="https://www.facebook.com/tr?id=1850443116083184&ev=PageView&noscript=1"
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount(); renderCart();
         }
-        // ====== PRICE FIX: parseInt + \D strip tha wajah ke "8.99" -> "899" ban raha tha
-        // (decimal point bhi \D count hoke hat raha tha). Ab parseFloat + [^\d.] use
-        // ho raha hai taake decimal point bacha rahe, aur display bhi clean format mein hota hai.
         function formatPrice(rawPrice) {
             const num = parseFloat(rawPrice.toString().replace(/[^\d.]/g, '')) || 0;
             return (num % 1 === 0) ? num.toString() : num.toFixed(2);
