@@ -350,6 +350,10 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        
+        // --- NEW CLOUDINARY CREDENTIALS ---
+        const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dq6dgcpwy/image/upload";
+        const cloudinaryPreset = "Store_images";
 
         let currentProduct = null; 
         let selectedVariationName = ""; 
@@ -357,7 +361,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
 
         let currentSelectedRating = 5;
         let reviewFeedbackText = "";
-        let reviewBase64Images = []; 
+        let reviewImagesUrls = []; 
         let indexToReplaceImage = -1; 
 
         // Verified Purchase tracking ke liye flag
@@ -757,15 +761,24 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             showModalWithAnim('reviewModal1');
         }
 
-        function addNewReviewImage(event) {
+        // --- UPDATED CLOUDINARY UPLOAD LOGIC ---
+        async function addNewReviewImage(event) {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    reviewBase64Images.push(e.target.result);
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", cloudinaryPreset);
+
+            try {
+                const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
+                const d = await res.json();
+                if(d.secure_url) {
+                    reviewImagesUrls.push(d.secure_url);
                     renderReviewImagePreviews();
-                };
-                reader.readAsDataURL(file);
+                }
+            } catch(e) {
+                alert("Image upload failed");
             }
             event.target.value = ""; 
         }
@@ -775,16 +788,25 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
             document.getElementById('replaceImageFileInput').click();
         }
 
-        function handleReplaceImageSelect(event) {
+        // --- UPDATED CLOUDINARY UPLOAD LOGIC ---
+        async function handleReplaceImageSelect(event) {
             const file = event.target.files[0];
-            if (file && indexToReplaceImage !== -1) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    reviewBase64Images[indexToReplaceImage] = e.target.result;
+            if (!file || indexToReplaceImage === -1) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", cloudinaryPreset);
+
+            try {
+                const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
+                const d = await res.json();
+                if(d.secure_url) {
+                    reviewImagesUrls[indexToReplaceImage] = d.secure_url;
                     renderReviewImagePreviews();
                     indexToReplaceImage = -1;
-                };
-                reader.readAsDataURL(file);
+                }
+            } catch(e) {
+                alert("Image upload failed");
             }
             event.target.value = ""; 
         }
@@ -799,7 +821,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 </label>
             `;
 
-            reviewBase64Images.forEach((imgData, index) => {
+            reviewImagesUrls.forEach((imgData, index) => {
                 const div = document.createElement('div');
                 div.className = 'relative w-20 h-20 rounded-xl border border-slate-200 overflow-hidden bg-slate-100 cursor-pointer group';
                 div.innerHTML = `
@@ -814,7 +836,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         }
 
         function removeReviewImage(index) {
-            reviewBase64Images.splice(index, 1);
+            reviewImagesUrls.splice(index, 1);
             renderReviewImagePreviews();
         }
 
@@ -853,8 +875,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 productName: currentProduct ? currentProduct.name : "",
                 rating: currentSelectedRating,
                 feedback: reviewFeedbackText,
-                images: reviewBase64Images, 
-                image: reviewBase64Images.length > 0 ? reviewBase64Images[0] : "", 
+                images: reviewImagesUrls, 
+                image: reviewImagesUrls.length > 0 ? reviewImagesUrls[0] : "", 
                 name: authorName,
                 email: authorEmail,
                 timestamp: Date.now(),
@@ -871,7 +893,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                     document.getElementById('reviewFeedbackInput').value = "";
                     document.getElementById('reviewAuthorName').value = "";
                     document.getElementById('reviewAuthorEmail').value = "";
-                    reviewBase64Images = [];
+                    reviewImagesUrls = [];
                     renderReviewImagePreviews();
                     closeAllModals();
                 }
