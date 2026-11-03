@@ -242,7 +242,7 @@
                     <div class="glass-card p-5 border-l-4 border-purple-500 bg-gradient-to-br from-purple-500/5 to-transparent cursor-default">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Page Traffic</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider border border-b border-slate-800 pb-2">Total Page Traffic</p>
                                 <h2 id="statTotalTraffic" class="text-3xl font-black text-purple-400 mt-2">0</h2>
                             </div>
                             <div class="p-2 bg-purple-500/10 text-purple-400 rounded-xl text-sm"><i class="fa-solid fa-chart-bar"></i></div>
@@ -540,7 +540,9 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        const imgbbKey = "4405527d68f68414d2fe95dc732c97d0";
+        // --- NEW CLOUDINARY CREDENTIALS REPLACED IMGBB ---
+        const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dq6dgcpwy/image/upload";
+        const cloudinaryPreset = "Store_images";
 
         let activeChatUserID = null;
         let isBellOn = false;
@@ -793,10 +795,14 @@
             status.innerHTML = '<div class="loader"></div> Uploading...';
             try {
                 const formData = new FormData();
-                formData.append("image", file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData });
+                formData.append("file", file);
+                formData.append("upload_preset", cloudinaryPreset);
+                const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
                 const d = await res.json();
-                await database.ref('slider').push({ url: d.data.url });
+                
+                if(d.secure_url) {
+                    await database.ref('slider').push({ url: d.secure_url });
+                }
                 status.innerText = "Click to upload banner (Professional Look)";
             } catch (e) { alert("Upload failed!"); }
         }
@@ -838,10 +844,11 @@
                 for (let input of imgInputs) {
                     if (input.files && input.files[0]) {
                         const formData = new FormData();
-                        formData.append("image", input.files[0]);
-                        const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData });
+                        formData.append("file", input.files[0]);
+                        formData.append("upload_preset", cloudinaryPreset);
+                        const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
                         const d = await res.json();
-                        if (d.success) uploadedImages.push(d.data.url);
+                        if (d.secure_url) uploadedImages.push(d.secure_url);
                     }
                 }
 
@@ -856,10 +863,11 @@
 
                     if (vFile) {
                         const formData = new FormData();
-                        formData.append("image", vFile);
-                        const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData });
+                        formData.append("file", vFile);
+                        formData.append("upload_preset", cloudinaryPreset);
+                        const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
                         const d = await res.json();
-                        if (d.success) vImgUrl = d.data.url;
+                        if (d.secure_url) vImgUrl = d.secure_url;
                     }
 
                     if (vName) {
@@ -1169,13 +1177,14 @@
             
             try {
                 const formData = new FormData();
-                formData.append("image", file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData });
+                formData.append("file", file);
+                formData.append("upload_preset", cloudinaryPreset);
+                const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
                 const d = await res.json();
                 
-                if(d.success) {
+                if(d.secure_url) {
                     if(currentEditingVariations[index]) {
-                        currentEditingVariations[index].image = d.data.url;
+                        currentEditingVariations[index].image = d.secure_url;
                         if(statusEl) statusEl.innerText = "Draft image parsed successfully!";
                         const p = globalProductsCache[productKey];
                         p.name = document.getElementById('eName').value;
@@ -1253,15 +1262,16 @@
 
             try {
                 const formData = new FormData();
-                formData.append("image", file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData });
+                formData.append("file", file);
+                formData.append("upload_preset", cloudinaryPreset);
+                const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
                 const d = await res.json();
                 
-                if(d.success) {
+                if(d.secure_url) {
                     const snap = await database.ref('products/' + temporaryTargetKey).once('value');
                     if(snap.exists()) {
                         let p = snap.val();
-                        p.images[temporaryTargetIndex] = d.data.url; 
+                        p.images[temporaryTargetIndex] = d.secure_url; 
                         await database.ref('products/' + temporaryTargetKey).update({ images: p.images });
                         globalProductsCache[temporaryTargetKey] = p; 
                         if(statusEl) statusEl.innerText = "Replaced successfully!";
@@ -1301,12 +1311,13 @@
             statusEl.innerHTML = '<div class="loader"></div> Uploading to server...';
             try {
                 const formData = new FormData();
-                formData.append("image", file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, { method: "POST", body: formData });
+                formData.append("file", file);
+                formData.append("upload_preset", cloudinaryPreset);
+                const res = await fetch(cloudinaryUrl, { method: "POST", body: formData });
                 const d = await res.json();
                 
-                if(d.success) {
-                    const newImgUrl = d.data.url;
+                if(d.secure_url) {
+                    const newImgUrl = d.secure_url;
                     const snap = await database.ref('products/' + key).once('value');
                     if(snap.exists()){
                         let p = snap.val();
@@ -1932,11 +1943,6 @@
             }
         }
 
-        // ==========================================
-        // FIXED: Ab ye function sirf STATS/TRAFFIC/LIVE DATA
-        // aur USER MESSAGES delete karega.
-        // Products, Orders, aur Reviews ko bilkul touch nahi karega - safe hain.
-        // ==========================================
         async function triggerMasterStoreWipeout() {
             const code = prompt("This will delete LIVE TRAFFIC, STATS/ANALYTICS, and USER MESSAGES only.\n\nProducts, Orders & Reviews will NOT be deleted - they stay safe.\n\nType 'DELETE ALL' to confirm:");
             if(code === "DELETE ALL") {
