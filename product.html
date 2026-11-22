@@ -358,6 +358,20 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         let currentProduct = null; 
         let selectedVariationName = ""; 
         let selectedVariationPrice = ""; 
+        let selectedVariationImage = "";
+        let totalImagesToLoadGlobal = [];
+
+        // Selected variation ki pic nikalta hai, na mile to default pic
+        function getCartImage() {
+            if (selectedVariationImage && selectedVariationImage.trim() !== '') return selectedVariationImage;
+            return (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || '');
+        }
+
+        function getVariationImage(v) {
+            if (v.image && v.image.trim() !== '') return v.image;
+            if (v.imageIndex !== undefined && totalImagesToLoadGlobal[v.imageIndex]) return totalImagesToLoadGlobal[v.imageIndex];
+            return "";
+        }
 
         let currentSelectedRating = 5;
         let reviewFeedbackText = "";
@@ -512,6 +526,8 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                         });
                     }
 
+                    totalImagesToLoadGlobal = totalImagesToLoad;
+
                     totalImagesToLoad.forEach((img) => {
                         const slide = document.createElement('div');
                         slide.className = 'slide';
@@ -564,6 +580,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                             
                             if(index === 0) {
                                 selectedVariationName = v.name;
+                                selectedVariationImage = getVariationImage(v);
                                 if (v.price && v.price.toString().trim() !== '') {
                                     selectedVariationPrice = v.price;
                                     document.getElementById('pPrice').innerText = '£' + v.price;
@@ -586,6 +603,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                                 btn.classList.add('border-[#1a56db]', 'bg-blue-50', 'text-slate-900');
                                 
                                 selectedVariationName = v.name;
+                                selectedVariationImage = getVariationImage(v);
 
                                 if (v.price && v.price.toString().trim() !== '') {
                                     selectedVariationPrice = v.price;
@@ -1051,7 +1069,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                     id: productId,
                     name: currentProduct.name, 
                     price: finalPrice, 
-                    img: (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || ''),
+                    img: getCartImage(),
                     deliveryCharges: currentProduct.delivery || 0,
                     codFee: currentProduct.cod_fee || 0,
                     variation: selectedVariationName,
@@ -1104,7 +1122,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                 id: productId,
                 name: currentProduct.name, 
                 price: finalPrice, 
-                img: (currentProduct.images && currentProduct.images.length > 0) ? currentProduct.images[0] : (currentProduct.image || ''),
+                img: getCartImage(),
                 deliveryCharges: currentProduct.delivery || 0,
                 codFee: currentProduct.cod_fee || 0,
                 variation: selectedVariationName,
