@@ -322,6 +322,18 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         </div>
     </div>
 
+    <!-- SELECT OPTION REQUIRED MODAL -->
+    <div id="selectVariationModal" class="fixed inset-0 z-[7500] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="modal-wrapper modal-exit bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative text-center">
+            <div class="w-16 h-16 mx-auto rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                <i class="fa-solid fa-list-check text-[#1a56db] text-2xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mb-2">Option Required</h3>
+            <p class="text-xs text-slate-500 mb-6 leading-relaxed">Please select a product option first, then continue with your order.</p>
+            <button onclick="closeSelectVariationModal()" class="w-full bg-[#1a56db] text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-blue-100">Select Option</button>
+        </div>
+    </div>
+
     <!-- UPDATED BOTTOM BAR WITH 3 BUTTONS -->
     <div class="fixed bottom-0 left-0 w-full p-3 bg-white/95 backdrop-blur-md border-t border-slate-100 flex gap-2 z-40">
         <button onclick="handleAddToCart()" class="flex-1 bg-slate-100 text-slate-900 py-3.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1">
@@ -576,23 +588,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
                         p.variations.forEach((v, index) => {
                             const btn = document.createElement('button');
                             btn.innerText = v.name;
-                            btn.className = `var-btn px-4 py-2 text-xs font-bold rounded-lg border transition-all ${index === 0 ? 'border-[#1a56db] bg-blue-50 text-slate-900' : 'border-slate-200 text-slate-700 bg-white'}`;
-                            
-                            if(index === 0) {
-                                selectedVariationName = v.name;
-                                selectedVariationImage = getVariationImage(v);
-                                if (v.price && v.price.toString().trim() !== '') {
-                                    selectedVariationPrice = v.price;
-                                    document.getElementById('pPrice').innerText = '£' + v.price;
-                                }
-                                if (v.originalPrice && v.originalPrice.toString().trim() !== '') {
-                                    document.getElementById('pOldPrice').innerText = '£' + v.originalPrice;
-                                } else if (p.originalPrice) {
-                                    document.getElementById('pOldPrice').innerText = '£' + p.originalPrice;
-                                } else {
-                                    document.getElementById('pOldPrice').innerText = '';
-                                }
-                            }
+                            btn.className = `var-btn px-4 py-2 text-xs font-bold rounded-lg border transition-all border-slate-200 text-slate-700 bg-white`;
 
                             btn.onclick = () => {
                                 document.querySelectorAll('.var-btn').forEach(b => {
@@ -714,6 +710,24 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         function closeOutOfStockModal() {
             hideModalWithAnim('outOfStockModal');
             document.getElementById('overlay').classList.remove('active');
+        }
+
+        // "Select option first" popup
+        function showSelectVariationModal() {
+            document.getElementById('overlay').classList.add('active');
+            showModalWithAnim('selectVariationModal');
+        }
+
+        function closeSelectVariationModal() {
+            hideModalWithAnim('selectVariationModal');
+            document.getElementById('overlay').classList.remove('active');
+            const sec = document.getElementById('variationsSection');
+            if (sec) { sec.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        }
+
+        // True agar product ki variations hain lekin user ne select nahi ki
+        function isVariationMissing() {
+            return !!(currentProduct && currentProduct.variations && currentProduct.variations.length > 0 && !selectedVariationName);
         }
 
         // Review shuru karne se pehle purchase check
@@ -1045,6 +1059,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         function handleAddToCart() {
             if(!currentProduct) return;
             if(window.isProductOutOfStock) { showOutOfStockModal(); return; }
+            if(isVariationMissing()) { showSelectVariationModal(); return; }
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? '£' + selectedVariationPrice : '£' + currentProduct.price;
 
@@ -1103,6 +1118,7 @@ src="https://www.facebook.com/tr?id=979599958414541&ev=PageView&noscript=1"
         function handleBuyNow() {
             if(!currentProduct) return;
             if(window.isProductOutOfStock) { showOutOfStockModal(); return; }
+            if(isVariationMissing()) { showSelectVariationModal(); return; }
             
             let finalPrice = (selectedVariationPrice && selectedVariationPrice.trim() !== '') ? '£' + selectedVariationPrice : '£' + currentProduct.price;
             
